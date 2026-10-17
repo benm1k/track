@@ -25,6 +25,7 @@
     --dim: rgba(255, 255, 255, .66);   /* 9:1 on black */
     --faint: rgba(255, 255, 255, .47); /* 4.8:1 on black, still readable in a gym */
     --ghost: rgba(255, 255, 255, .26); /* last session's numbers: there if you look */
+    --line: rgba(255, 255, 255, .14);  /* hairlines: the card's outline, ring and bar tracks */
     --font: "Geist", "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif;
     --ease: cubic-bezier(.2, .8, .2, 1);
     color-scheme: dark;
@@ -104,7 +105,25 @@
   .sub { margin-top: 12px; font-size: 15px; color: var(--dim); }
 
   /* day */
-  .list { margin-top: 56px; }
+  /* The day's card: workout, date, progress ring and three stats. */
+  .card { margin-top: 40px; padding: 22px 20px 20px; border: 1px solid var(--line); border-radius: 22px; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .card .title { margin-top: 0; font-size: clamp(40px, 12vw, 52px); overflow-wrap: anywhere; }
+  .ring { position: relative; flex: none; width: 76px; height: 76px; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 2.5; }
+  .ring .track { stroke: var(--line); }
+  .ring .fill { stroke: var(--fg); stroke-linecap: round; transition: stroke-dashoffset .4s var(--ease); }
+  .ring-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-size: 17px; line-height: 1.15; }
+  .ring-text small { font-size: 11px; color: var(--dim); }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 26px; }
+  .stat-v { font-size: 17px; font-weight: 500; white-space: nowrap; }
+  .stat-v small { font-size: 12px; font-weight: 400; color: var(--dim); }
+  .stat-l { margin-top: 2px; font-size: 12px; color: var(--dim); }
+  .bar { height: 2px; margin-top: 10px; border-radius: 1px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--fg); transition: width .4s var(--ease); }
+  .next { margin-top: 18px; font-size: 14px; color: var(--dim); }
+  .list { margin-top: 40px; }
   .ex { margin-bottom: 44px; }
   .head { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; }
   .head > .remove, .head > .target { grid-column: 2; grid-row: 1; justify-self: end; }
@@ -362,6 +381,10 @@
         'Changes apply to days you haven’t started yet.',
       ],
       tabs: { main: 'Main', history: 'History', today: 'Today', plan: 'Plan' },
+      sets: 'Sets',
+      volume: 'Volume',
+      ringOf: 'sets',
+      next: (name, day) => `Next: ${name}, ${day}`,
     },
     lt: {
       rest: 'Poilsis',
@@ -404,6 +427,10 @@
         'Pakeitimai galioja dar nepradėtoms dienoms.',
       ],
       tabs: { main: 'Pagrindinis meniu', history: 'Istorija', today: 'Šiandien', plan: 'Planas' },
+      sets: 'Serijos',
+      volume: 'Tonažas',
+      ringOf: 'serijos',
+      next: (name, day) => `Kita: ${name}, ${day}`,
     },
   };
 
@@ -817,9 +844,110 @@ Penktadienis C
     return best && bestScore * 2 >= names.length ? best.name : T().workout;
   }
 
+  // Today's numbers: sets done of planned, exercises finished, kg lifted.
+  function dayStats(key) {
+    const stats = { sets: 0, planned: 0, volume: 0, done: 0, total: 0 };
+    for (const e of db.days[key] || []) {
+      stats.total++;
+      stats.sets += e.sets.length;
+      stats.planned += e.target ? Math.max(e.target.sets, e.sets.length) : e.sets.length;
+      stats.volume += e.sets.reduce((v, s) => v + s.kg * s.reps, 0);
+      if (e.sets.length && e.sets.length >= (e.target ? e.target.sets : 1)) stats.done++;
+    }
+    return stats;
+  }
+
+  // kg lifted the last time this same workout was done (for the volume bar), else null.
+  function lastVolume(key) {
+    const name = dayTitle(key);
+    const keys = workoutKeys(db.days);
+    for (let i = keys.length - 1; i >= 0; i--) {
+      if (keys[i] < key && dayTitle(keys[i]) === name) return dayStats(keys[i]).volume || null;
+    }
+    return null;
+  }
+
+  // The next planned workout after today, e.g. "Next: Push, Monday".
+  function nextWorkout(key) {
+    const routines = parsePlan(db.plan);
+    const d = dateOf(key);
+    for (let i = 1; i <= 7; i++) {
+      const next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i);
+      const r = routines.find(x => x.day === next.getDay());
+      if (r) return T().next(r.name, fmt(keyOf(next), { weekday: 'long' }));
+    }
+    return null;
+  }
+
+  let refreshCard = () => {};
+
+  function dayCard(key, isToday) {
+    const R = 34;
+    const C = 2 * Math.PI * R;
+    const ns = 'http://www.w3.org/2000/svg';
+    const circle = cls => {
+      const c = document.createElementNS(ns, 'circle');
+      c.setAttribute('cx', '38');
+      c.setAttribute('cy', '38');
+      c.setAttribute('r', String(R));
+      c.setAttribute('class', cls);
+      return c;
+    };
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 76 76');
+    svg.setAttribute('aria-hidden', 'true');
+    const fill = circle('fill');
+    fill.setAttribute('stroke-dasharray', String(C));
+    svg.append(circle('track'), fill);
+    const ringNum = el('span');
+    const ring = el('div', { class: 'ring' }, svg, el('div', { class: 'ring-text' }, ringNum, el('small', null, T().ringOf)));
+
+    const title = el('h1', { class: 'title' });
+    const stat = label => {
+      const v = el('div', { class: 'stat-v' });
+      const bar = el('i');
+      return { v, bar, node: el('div', null, v, el('div', { class: 'stat-l' }, label), el('div', { class: 'bar' }, bar)) };
+    };
+    const sets = stat(T().sets);
+    const exs = stat(T().exercises);
+    const vol = stat(T().volume);
+    const statsRow = el('div', { class: 'stats' }, sets.node, exs.node, vol.node);
+    const next = el('p', { class: 'next' });
+    const card = el('section', { class: 'card' },
+      el('div', { class: 'card-top' }, el('div', null, title, el('p', { class: 'sub' }, fullDate(key))), ring),
+      statsRow, next);
+
+    const pct = (a, b) => `${b ? Math.min(100, Math.round((a / b) * 100)) : 0}%`;
+    const kg = n => Math.round(n).toLocaleString(lang() === 'lt' ? 'lt-LT' : 'en-GB');
+    const update = () => {
+      const st = dayStats(key);
+      title.textContent = dayTitle(key);
+      const active = st.total > 0;
+      ring.hidden = !active || !st.planned;
+      statsRow.hidden = !active;
+      if (active) {
+        ringNum.textContent = `${st.sets}/${st.planned}`;
+        fill.setAttribute('stroke-dashoffset', String(C * (1 - (st.planned ? Math.min(1, st.sets / st.planned) : 0))));
+        sets.v.textContent = `${st.sets}/${st.planned}`;
+        sets.bar.style.width = pct(st.sets, st.planned);
+        exs.v.textContent = `${st.done}/${st.total}`;
+        exs.bar.style.width = pct(st.done, st.total);
+        vol.v.textContent = '';
+        vol.v.append(kg(st.volume), ' ', el('small', null, 'kg'));
+        const before = lastVolume(key);
+        vol.bar.style.width = before ? pct(st.volume, before) : pct(st.sets, st.planned);
+      }
+      const upcoming = !active && isToday ? nextWorkout(key) : null;
+      next.hidden = !upcoming;
+      if (upcoming) next.textContent = upcoming;
+    };
+    update();
+    refreshCard = k => { if (k === key && current.view === 'day' && current.key === key) update(); };
+    return card;
+  }
+
   function retitle(key) {
-    const t = app.querySelector('.title');
-    if (t && current.view === 'day' && current.key === key) t.textContent = dayTitle(key);
+    refreshCard(key);
   }
 
   function loadRoutine(key, routine) {
@@ -967,8 +1095,7 @@ Penktadienis C
     for (const ex of exs) list.append(exerciseBlock(key, ex));
     mount(el('div', { class: 'view' },
       header(),
-      el('h1', { class: 'title' }, dayTitle(key)),
-      el('p', { class: 'sub' }, fullDate(key)),
+      dayCard(key, isToday),
       list,
       addExerciseForm(key, list)));
   }
@@ -1023,6 +1150,7 @@ Penktadienis C
       kg.placeholder = sug && sug.kg ? fmtKg(sug.kg) : '0';
       reps.placeholder = sug ? String(sug.reps) : '0';
       fillPrev(nextPrev, ref[ex.sets.length]);
+      refreshCard(key);
     }
 
     function fillPrev(span, s) {
