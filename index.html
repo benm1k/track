@@ -211,17 +211,29 @@
     right: 0;
     bottom: 0;
     z-index: 10;
-    padding: 10px max(24px, env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    padding: 4px max(12px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
     background: var(--bg);
   }
-  .tabbar-inner { max-width: 34rem; margin: 0 auto; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
-  .tab { justify-self: center; display: grid; place-items: center; width: 52px; height: 52px; color: var(--dim); transition: color .2s; }
-  .tab[aria-current="page"] { color: var(--fg); }
+  /* Each tab fills its whole third of the bar, so a thumb anywhere near an icon lands.
+     No long-press link preview or text selection on them (iOS would show one instead of tapping). */
+  .tabbar-inner { max-width: 34rem; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .tab {
+    display: grid;
+    place-items: center;
+    height: 64px;
+    color: var(--dim);
+    transition: color .2s;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .tab[aria-current="page"], .tab:active { color: var(--fg); }
   .tab svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
   .tab .dot { stroke-width: 2.4; }
   .tab-home svg { width: 28px; height: 28px; fill: currentColor; stroke: none; } /* just the mark, a touch larger */
-  /* Out of the way while typing (it would otherwise ride on top of the keyboard). */
-  body:has(input:focus, textarea:focus) .tabbar { visibility: hidden; }
+  /* Out of the way only while the on-screen keyboard is up (see syncKeyboard). */
+  body.kb .tabbar { visibility: hidden; }
 
   @media (hover: hover) {
     .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
@@ -230,11 +242,12 @@
 
   /* motion */
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .view > * { animation: rise .6s var(--ease) both; }
-  .view > :nth-child(2) { animation-delay: .04s; }
-  .view > :nth-child(3) { animation-delay: .08s; }
-  .view > :nth-child(4) { animation-delay: .12s; }
-  .view > :nth-child(n+5) { animation-delay: .16s; }
+  /* Quick, so a tap on a tab shows the new screen right away. */
+  .view > * { animation: rise .35s var(--ease) both; }
+  .view > :nth-child(2) { animation-delay: .02s; }
+  .view > :nth-child(3) { animation-delay: .04s; }
+  .view > :nth-child(4) { animation-delay: .06s; }
+  .view > :nth-child(n+5) { animation-delay: .08s; }
   .fresh { animation: rise .4s var(--ease) both; }
   @keyframes nope { 50% { opacity: .25; } }
   .nope { animation: nope .5s ease 2; }
@@ -818,6 +831,33 @@ Penktadienis C
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
+
+  // Hide the tab bar only while the on-screen keyboard is actually up. Focus alone isn't enough:
+  // Android's back gesture (and its Done key) closes the keyboard but leaves the field focused,
+  // which used to leave the bar invisible, so the first tap on it did nothing.
+  const vv = window.visualViewport;
+  // fullHeight is the keyboard-free height; it's re-measured after a rotation or resize (the
+  // layout height doesn't shrink for the keyboard on iOS or current Android Chrome).
+  let fullHeight = window.innerHeight;
+  let lastWidth = window.innerWidth;
+  function syncKeyboard() {
+    const el = document.activeElement;
+    const typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
+    const visible = vv ? vv.height * vv.scale : window.innerHeight;
+    if (!typing || window.innerWidth !== lastWidth) {
+      lastWidth = window.innerWidth;
+      fullHeight = Math.max(window.innerHeight, visible);
+    } else {
+      fullHeight = Math.max(fullHeight, visible);
+    }
+    document.body.classList.toggle('kb', typing && visible < fullHeight - 120);
+  }
+  if (vv) vv.addEventListener('resize', syncKeyboard);
+  window.addEventListener('resize', syncKeyboard);
+  document.addEventListener('focusin', syncKeyboard);
+  document.addEventListener('focusout', () => setTimeout(syncKeyboard, 0));
+  // iOS only shows :active (the tap feedback on the tabs) when a touch listener exists.
+  document.addEventListener('touchstart', () => {}, { passive: true });
 
   function mount(view) {
     revealed = null;
