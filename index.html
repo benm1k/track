@@ -115,7 +115,7 @@
   .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; color: var(--fg); margin-left: -12px; }
   .avatar .mark { width: 20px; height: 20px; }
   .who { flex: 1; min-width: 0; }
-  .who-name { display: block; width: 100%; padding: 2px 0; font-family: var(--display); font-size: 17px; font-weight: 600; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .who-name { display: block; width: 100%; padding: 12px 0; margin: -10px 0; font-family: var(--display); font-size: 17px; font-weight: 600; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .who-name.empty { color: var(--faint); }
   .who-level { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .bell { position: relative; display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-right: -10px; color: var(--dim); }
@@ -156,20 +156,16 @@
   .bar { display: none; }
   .bar i { display: block; height: 100%; background: var(--fg); transition: width .4s var(--ease); }
   /* Start / Finish under the numbers. */
-  .go { align-self: flex-start; margin: 14px 0 -10px; padding: 10px 0; font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--fg); transition: opacity .2s; }
+  .go { align-self: flex-start; margin: 8px 0 -16px; padding: 16px 48px 16px 0; font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--fg); transition: opacity .2s; }
   .go:active { opacity: .5; }
   .go.stop { color: var(--dim); }
   .stat-v.live { font-variant-numeric: tabular-nums; }
   .next { margin-top: auto; padding-top: 22px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
 
-  /* workout program: heading, filter chips, one image card per exercise (tap to log) */
+  /* workout program: heading, one image card per exercise (tap to log) */
   .section-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 32px; }
   .section-h h2 { font-family: var(--display); font-size: 17px; font-weight: 600; }
   .section-h span { flex: none; white-space: nowrap; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
-  .chips { display: flex; gap: 20px; margin: 10px -24px 0; padding: 0 24px 2px; overflow-x: auto; scrollbar-width: none; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chip { flex: none; padding: 8px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--ghost); transition: color .2s; }
-  .chip[aria-pressed="true"] { color: var(--fg); }
   .list { margin-top: 16px; }
   .ex { margin-bottom: 12px; }
   .ex-card {
@@ -201,21 +197,21 @@
   .ex-card { transition: transform .18s var(--ease); }
   .ex-card:active { transform: scale(.985); }
   .mini .fill, .ring .fill { transition: stroke-dashoffset .5s var(--ease); }
-  .remove-ex { padding: 10px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+  .remove-ex { min-height: 48px; padding: 14px 32px 14px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
   .sets { margin-top: 6px; }
   .row {
     display: grid;
-    grid-template-columns: 1.6em 3.6em 1.7em 1.1em 2.6em 1fr 2.2em;
+    grid-template-columns: 1.6em 3.6em 1.7em 1.1em 3.2em 1fr 2.2em;
     align-items: baseline;
     font-size: 15px;
   }
-  .row > * { padding: 8px 0; }
+  .row > * { padding: 12px 0; }
   .n { font-family: var(--mono); color: var(--faint); font-size: 12px; }
   .w, .kg { text-align: right; padding-right: .3em; }
   .u { color: var(--dim); }
   .set { cursor: pointer; }
-  .act { justify-self: end; align-self: center; color: var(--dim); padding: 8px 0 8px 20px; }
-  .plus { color: var(--fg); font-size: 22px; font-weight: 300; line-height: 1; padding-top: 4px; padding-bottom: 4px; }
+  .act { justify-self: end; align-self: center; min-height: 48px; color: var(--dim); padding: 12px 0 12px 28px; }
+  .plus { color: var(--fg); font-size: 24px; font-weight: 300; line-height: 1; min-width: 56px; margin-right: -8px; padding: 12px 8px 12px 24px; text-align: right; }
   /* Always in the accessibility tree; shown on tap (.on) or keyboard focus. */
   .remove { font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .15s; }
   .remove.on, .remove:focus-visible { opacity: 1; pointer-events: auto; }
@@ -226,7 +222,7 @@
   .remove.on + .prev, .remove:focus-visible + .prev { opacity: 0; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .add-ex input { padding: 8px 0; font-family: var(--display); font-size: 17px; font-weight: 500; }
+  .add-ex input { padding: 16px 0; font-family: var(--display); font-size: 17px; font-weight: 500; }
 
 
   /* plan */
@@ -243,18 +239,18 @@
   }
   .hint { margin-top: 40px; font-size: 13px; line-height: 1.6; color: var(--dim); }
   /* Comfortable tap targets; the negative margins keep the letters aligned with the summary. */
-  .lang { display: flex; align-items: center; gap: 2px; align-self: flex-start; margin: -10px -8px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ghost); }
-  .lang button { padding: 10px 8px; color: var(--dim); transition: color .2s; }
+  .lang { display: flex; align-items: center; gap: 0; align-self: flex-start; margin: -14px -14px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ghost); }
+  .lang button { min-width: 46px; padding: 14px 14px; text-align: center; color: var(--dim); transition: color .2s; }
   .lang button[aria-pressed="true"] { color: var(--fg); }
   .presets { display: flex; flex-wrap: wrap; gap: 2px 24px; margin-top: 36px; }
-  .presets button { padding: 6px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); transition: color .2s; }
+  .presets button { padding: 14px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); transition: color .2s; }
   .presets button[aria-pressed="true"] { color: var(--fg); }
 
   /* history: a month calendar */
   .subrow { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 4px; }
   .subrow .sub { margin-top: 0; }
-  .months { display: flex; gap: 12px; margin-right: -10px; }
-  .months a, .months span { padding: 6px 10px; font-size: 20px; font-weight: 300; line-height: 1; color: var(--dim); transition: color .2s; }
+  .months { display: flex; gap: 0; margin-right: -16px; }
+  .months a, .months span { padding: 14px 16px; font-size: 20px; font-weight: 300; line-height: 1; color: var(--dim); transition: color .2s; }
   .months .off { color: var(--ghost); }
   .cal { margin-top: 44px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 4px; text-align: center; touch-action: pan-y; }
   .wd { padding-bottom: 12px; font-family: var(--mono); font-size: 11px; color: var(--faint); }
@@ -288,7 +284,7 @@
   footer { margin-top: 72px; font-size: 14px; }
   .backup { font-size: 13px; color: var(--faint); }
   .backup-actions { display: flex; gap: 24px; }
-  footer button { color: var(--dim); padding: 10px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; transition: color .2s; }
+  footer button { color: var(--dim); padding: 16px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; transition: color .2s; }
   footer button.due { color: var(--fg); }
 
   /* bottom tab bar: History · Today · Plan */
@@ -343,7 +339,7 @@
   .rest-line i { display: block; height: 100%; background: var(--fg); transform-origin: left; transition: transform .25s linear; }
   .rest-l { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .rest-t { flex: 1; font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
-  .rest button { padding: 12px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
+  .rest button { padding: 18px 8px; margin: 0 -8px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .rest button:active { color: var(--fg); }
   .rest.done .rest-t { animation: nope .6s ease 2; }
   body.resting main { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
@@ -365,10 +361,10 @@
   .ob-label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .ob-line { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255, 255, 255, .25); transition: border-color .2s; }
   .ob-line:focus-within { border-bottom-color: var(--fg); }
-  .ob-input { flex: 1; padding: 8px 0 10px; font-size: 16px; }
+  .ob-input { flex: 1; padding: 13px 0; font-size: 16px; }
   .ob-tick { flex: none; font-size: 13px; color: var(--dim); }
   .ob-nav { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 28px; }
-  .ob-next { padding: 12px 0 12px 20px; font-family: var(--mono); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--fg); }
+  .ob-next { padding: 18px 0 18px 36px; font-family: var(--mono); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--fg); }
   .ob-next:active { color: var(--dim); }
 
   /* cardio rows: minutes and km instead of kg x reps */
@@ -1469,7 +1465,6 @@ Penktadienis C
       if (first) blocks.get(first).toggle(true, true);
     }
     const head = el('div', { class: 'section-h' }, el('h2', null, T().program), el('span', null, T().exerciseCount(exs.length)));
-    const chips = programChips(exs, list);
     head.hidden = !exs.length;
     refreshCount = () => {
       const n = (db.days[key] || []).length;
@@ -1480,25 +1475,10 @@ Penktadienis C
       header(),
       dayCard(key, isToday),
       head,
-      chips,
       list,
       addExerciseForm(key, list)));
   }
 
-  // All · Chest · Back… — only the groups in this day's workout. Filters the cards below.
-  function programChips(exs, list) {
-    const groups = [...new Set(exs.map(e => muscleOf(e.name)))];
-    const wrap = el('div', { class: 'chips', role: 'group' });
-    wrap.hidden = groups.length < 2;
-    const pick = g => {
-      for (const b of wrap.children) b.setAttribute('aria-pressed', String(b.dataset.g === g));
-      for (const a of list.children) a.hidden = g !== 'all' && a.dataset.muscle !== g;
-    };
-    for (const g of ['all', ...groups]) {
-      wrap.append(el('button', { type: 'button', class: 'chip', 'data-g': g, 'aria-pressed': String(g === 'all'), onclick: () => pick(g) }, T().muscles[g]));
-    }
-    return wrap;
-  }
 
   function exerciseBlock(key, ex) {
     const label = ex.name;
