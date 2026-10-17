@@ -158,6 +158,10 @@
     caret-color: var(--fg);
   }
   .hint { margin-top: 40px; font-size: 13px; line-height: 1.6; color: var(--dim); }
+  /* Comfortable tap targets; the negative margins keep the letters aligned with the summary. */
+  .lang { display: flex; align-items: center; gap: 2px; align-self: flex-start; margin: -10px -8px 0 0; font-size: 15px; color: var(--ghost); }
+  .lang button { padding: 10px 8px; color: var(--dim); transition: color .2s; }
+  .lang button[aria-pressed="true"] { color: var(--fg); }
   .presets { display: flex; flex-wrap: wrap; gap: 2px 24px; margin-top: 36px; }
   .presets button { padding: 6px 0; font-size: 15px; color: var(--dim); transition: color .2s; }
   .presets button[aria-pressed="true"] { color: var(--fg); }
@@ -220,7 +224,7 @@
   body:has(input:focus, textarea:focus) .tabbar { visibility: hidden; }
 
   @media (hover: hover) {
-    .tab:hover, footer button:hover, .act:hover, .presets button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
+    .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
   }
   footer button:active, .act:active, .presets button:active, .months a:active, a.cal-day:active { color: var(--fg); }
 
@@ -289,10 +293,122 @@
   const dateOf = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayKey = () => keyOf(new Date());
   const isDayKey = k => /^\d{4}-\d{2}-\d{2}$/.test(k) && keyOf(dateOf(k)) === k;
-  const fmt = (k, opts) => dateOf(k).toLocaleDateString('en-GB', opts);
-  const fullDate = k => fmt(k, dateOf(k).getFullYear() === new Date().getFullYear()
-    ? { weekday: 'long', day: 'numeric', month: 'long' }
-    : { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  /* ---------- language: Lithuanian or English (switch on the Plan screen) ---------- */
+
+  // Lithuanian plural: 1 treniruotė, 2 treniruotės, 10 treniruočių, 21 treniruotė…
+  const ltPlural = (n, one, few, many) => {
+    const a = n % 10;
+    const b = n % 100;
+    if (a === 1 && b !== 11) return one;
+    if (a >= 2 && a <= 9 && !(b >= 12 && b <= 19)) return few;
+    return many;
+  };
+
+  const TEXT = {
+    en: {
+      rest: 'Rest',
+      workout: 'Workout',
+      addExercise: 'Add exercise',
+      remove: 'remove',
+      exercises: 'Exercises',
+      weight: name => `${name} weight, kg`,
+      reps: name => `${name} reps`,
+      addSet: name => `Add set to ${name}`,
+      removeExercise: name => `Remove ${name}`,
+      removeSet: i => `Remove set ${i}`,
+      lastTime: 'last time ',
+      cantSave: 'Can’t save on this device. Private browsing?',
+      days: 'Days',
+      month: 'Month',
+      prevMonth: 'Previous month',
+      nextMonth: 'Next month',
+      weekInitials: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+      workouts: n => `${n} workout${n === 1 ? '' : 's'}`,
+      nothingLogged: 'nothing logged',
+      exportLabel: 'Export',
+      importLabel: 'Import',
+      lastBackup: d => `Last backup ${d} days ago.`,
+      noBackup: 'Not backed up yet.',
+      notABackup: 'That file isn’t a Track. backup.',
+      replaceAll: n => `Replace everything here with the ${n} workout${n === 1 ? '' : 's'} in this file?`,
+      replacePlan: name => `Replace your plan with “${name}”?`,
+      plan: 'Plan',
+      presets: 'Presets',
+      language: 'Language',
+      nothingPlanned: 'Nothing planned.',
+      planPlaceholder: 'Monday Push\n- Bench press 4x8',
+      dayShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      hint: [
+        'Tap a preset above to start from it, or write your own. ',
+        'Start each workout with the day you train it, e.g. “Monday Push”; it loads on that day, and other days are rest days. ',
+        'List exercises as “- Squat 5x8” or with ranges, “- Bench 3-4x6-8”. ',
+        'Use / for alternates; they take turns each session. ',
+        'Changes apply to days you haven’t started yet.',
+      ],
+      tabs: { main: 'Main', history: 'History', today: 'Today', plan: 'Plan' },
+    },
+    lt: {
+      rest: 'Poilsis',
+      workout: 'Treniruotė',
+      addExercise: 'Pridėti pratimą',
+      remove: 'šalinti',
+      exercises: 'Pratimai',
+      weight: name => `${name}: svoris, kg`,
+      reps: name => `${name}: pakartojimai`,
+      addSet: name => `Pridėti seriją: ${name}`,
+      removeExercise: name => `Šalinti: ${name}`,
+      removeSet: i => `Šalinti ${i} seriją`,
+      lastTime: 'praeitą kartą ',
+      cantSave: 'Šiame įrenginyje nepavyksta išsaugoti. Gal įjungtas privatus naršymas?',
+      days: 'Dienos',
+      month: 'Mėnuo',
+      prevMonth: 'Ankstesnis mėnuo',
+      nextMonth: 'Kitas mėnuo',
+      weekInitials: ['P', 'A', 'T', 'K', 'P', 'Š', 'S'],
+      workouts: n => `${n} ${ltPlural(n, 'treniruotė', 'treniruotės', 'treniruočių')}`,
+      nothingLogged: 'nieko neužrašyta',
+      exportLabel: 'Eksportuoti',
+      importLabel: 'Importuoti',
+      lastBackup: d => `Paskutinė kopija prieš ${d} d.`,
+      noBackup: 'Atsarginės kopijos dar nėra.',
+      notABackup: 'Šis failas nėra Track. atsarginė kopija.',
+      replaceAll: n => `Pakeisti visus duomenis šiame telefone? Faile: ${n} ${ltPlural(n, 'treniruotė', 'treniruotės', 'treniruočių')}.`,
+      replacePlan: name => `Pakeisti planą į „${name}“?`,
+      plan: 'Planas',
+      presets: 'Paruošti planai',
+      language: 'Kalba',
+      nothingPlanned: 'Nieko nesuplanuota.',
+      planPlaceholder: 'Pirmadienis A\n- Pritūpimai 5x8',
+      dayShort: ['Sk', 'Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št'],
+      hint: [
+        'Pasirink paruoštą planą viršuje arba parašyk savo. ',
+        'Kiekvieną treniruotę pradėk savaitės diena, pvz. „Pirmadienis A“: ji įsikels tą dieną, o kitos dienos bus poilsio. ',
+        'Pratimus rašyk taip: „- Pritūpimai 5x8“ arba su intervalais „- Spaudimas 3-4x6-8“. ',
+        'Alternatyvas atskirk „/“ – jos keičiasi kas treniruotę. ',
+        'Pakeitimai galioja dar nepradėtoms dienoms.',
+      ],
+      tabs: { main: 'Pagrindinis meniu', history: 'Istorija', today: 'Šiandien', plan: 'Planas' },
+    },
+  };
+
+  // The chosen language, else the phone's (Lithuanian phones start in Lithuanian).
+  const lang = () => (db.lang === 'lt' || db.lang === 'en')
+    ? db.lang
+    : (/^lt\b/i.test(navigator.language || '') ? 'lt' : 'en');
+  const T = () => TEXT[lang()];
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  const fmt = (k, opts) => dateOf(k).toLocaleDateString(lang() === 'lt' ? 'lt-LT' : 'en-GB', opts);
+  // "Monday 19 October" / "Pirmadienis, spalio 19 d." (with the year when it isn't this year)
+  function fullDate(k) {
+    const otherYear = dateOf(k).getFullYear() !== new Date().getFullYear();
+    if (lang() !== 'lt') {
+      return fmt(k, Object.assign({ weekday: 'long', day: 'numeric', month: 'long' }, otherYear && { year: 'numeric' }));
+    }
+    const year = otherYear ? `${dateOf(k).getFullYear()} m. ` : '';
+    return `${cap(fmt(k, { weekday: 'long' }))}, ${year}${fmt(k, { month: 'long', day: 'numeric' })}`;
+  }
 
   /* ---------- values ---------- */
 
@@ -372,7 +488,7 @@ Penktadienis C
   ];
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, lastBackup: null, days: {} });
+  const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, lastBackup: null, lang: null, days: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -422,6 +538,7 @@ Penktadienis C
         : null,
       // The day of the last export or import (for the backup reminder in History).
       lastBackup: typeof input.lastBackup === 'string' && isDayKey(input.lastBackup) ? input.lastBackup : null,
+      lang: input.lang === 'lt' || input.lang === 'en' ? input.lang : null,
       days,
     };
   }
@@ -587,7 +704,7 @@ Penktadienis C
   // "Workout" for anything else, "Rest" when nothing is there.
   function dayTitle(key) {
     const names = (db.days[key] || []).map(e => norm(e.name));
-    if (!names.length) return 'Rest';
+    if (!names.length) return T().rest;
     const dow = dateOf(key).getDay();
     let best = null;
     let bestScore = 0;
@@ -599,7 +716,7 @@ Penktadienis C
         bestScore = score;
       }
     }
-    return best && bestScore * 2 >= names.length ? best.name : 'Workout';
+    return best && bestScore * 2 >= names.length ? best.name : T().workout;
   }
 
   function retitle(key) {
@@ -674,7 +791,7 @@ Penktadienis C
   function header() {
     return el('div', null,
       el('header', null, el('a', { href: '#/', class: 'brand' }, mark(), 'Track.')),
-      el('p', { class: 'warn', hidden: storageOk }, 'Can’t save on this device. Private browsing?'));
+      el('p', { class: 'warn', hidden: storageOk }, T().cantSave));
   }
 
   const tabs = {
@@ -705,6 +822,7 @@ Penktadienis C
   function mount(view) {
     revealed = null;
     refitPlan = null;
+    applyLang();
     app.textContent = '';
     app.append(view);
     updateTabs();
@@ -720,7 +838,7 @@ Penktadienis C
       if (planned) loadRoutine(key, planned);
     }
     const exs = db.days[key] || [];
-    const list = el('section', { class: 'list', 'aria-label': 'Exercises' });
+    const list = el('section', { class: 'list', 'aria-label': T().exercises });
     for (const ex of exs) list.append(exerciseBlock(key, ex));
     mount(el('div', { class: 'view' },
       header(),
@@ -736,19 +854,19 @@ Penktadienis C
     const num = el('span', { class: 'n', 'aria-hidden': 'true' });
     const kg = el('input', {
       class: 'kg', inputmode: 'decimal', enterkeyhint: 'next',
-      autocomplete: 'off', 'aria-label': `${ex.name} weight, kg`,
+      autocomplete: 'off', 'aria-label': T().weight(ex.name),
       onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); reps.focus(); } },
     });
     const reps = el('input', {
       class: 'reps', inputmode: 'numeric', pattern: '[0-9]*', enterkeyhint: 'done',
-      autocomplete: 'off', 'aria-label': `${ex.name} reps`,
+      autocomplete: 'off', 'aria-label': T().reps(ex.name),
       onkeydown: e => { if (e.key === 'Enter') tapped = false; },
     });
 
     // Tapping "+" logs and closes the keyboard; Enter keeps focus for fast typing.
     let tapped = false;
     const plus = el('button', {
-      class: 'act plus', 'aria-label': `Add set to ${ex.name}`,
+      class: 'act plus', 'aria-label': T().addSet(ex.name),
       onpointerdown: () => { tapped = true; },
       onpointercancel: () => { tapped = false; },
     }, '+');
@@ -757,8 +875,8 @@ Penktadienis C
       num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
 
     const remove = el('button', {
-      type: 'button', class: 'act remove', 'aria-label': `Remove ${ex.name}`, onclick: removeExercise,
-    }, 'remove');
+      type: 'button', class: 'act remove', 'aria-label': T().removeExercise(ex.name), onclick: removeExercise,
+    }, T().remove);
     const name = el('button', {
       type: 'button', class: 'ex-name', 'data-reveal': '', onclick: () => reveal(remove),
     }, ex.name);
@@ -783,21 +901,21 @@ Penktadienis C
 
     function fillPrev(span, s) {
       span.textContent = '';
-      if (s) span.append(el('span', { class: 'sr' }, 'last time '), setText(s));
+      if (s) span.append(el('span', { class: 'sr' }, T().lastTime), setText(s));
       return span;
     }
 
     // Tap the row to show "remove". The button is always reachable by keyboard and screen readers.
     function setRow(s, i, fresh, then) {
       const rm = el('button', {
-        type: 'button', class: 'act remove', 'aria-label': `Remove set ${i + 1}`,
+        type: 'button', class: 'act remove', 'aria-label': T().removeSet(i + 1),
         onclick: () => {
           const j = ex.sets.indexOf(s);
           if (j > -1) ex.sets.splice(j, 1);
           save();
           paint(false);
         },
-      }, 'remove');
+      }, T().remove);
       return el('div', {
         class: 'row set' + (fresh ? ' fresh' : ''), 'data-reveal': '',
         onclick: e => { if (!e.target.closest('.remove')) reveal(rm); },
@@ -854,8 +972,8 @@ Penktadienis C
 
   function addExerciseForm(key, list) {
     const input = el('input', {
-      placeholder: 'Add exercise', list: 'names', enterkeyhint: 'done', maxlength: '60',
-      autocomplete: 'off', autocapitalize: 'sentences', 'aria-label': 'Add exercise',
+      placeholder: T().addExercise, list: 'names', enterkeyhint: 'done', maxlength: '60',
+      autocomplete: 'off', autocapitalize: 'sentences', 'aria-label': T().addExercise,
     });
     return el('form', {
       class: 'add-ex',
@@ -898,8 +1016,8 @@ Penktadienis C
     const next = m === 11 ? monthKey(y + 1, 0) : monthKey(y, m + 1);
     const canNext = next <= monthKey(now.getFullYear(), now.getMonth());
 
-    const cal = el('div', { class: 'cal', role: 'group', 'aria-label': 'Days' });
-    for (const d of ['M', 'T', 'W', 'T', 'F', 'S', 'S']) cal.append(el('span', { class: 'wd', 'aria-hidden': 'true' }, d));
+    const cal = el('div', { class: 'cal', role: 'group', 'aria-label': T().days });
+    for (const d of T().weekInitials) cal.append(el('span', { class: 'wd', 'aria-hidden': 'true' }, d));
     const lead = (new Date(y, m, 1).getDay() + 6) % 7; // weeks start on Monday
     for (let i = 0; i < lead; i++) cal.append(el('span', { 'aria-hidden': 'true' }));
     let count = 0;
@@ -913,7 +1031,7 @@ Penktadienis C
       const future = k > today;
       const rest = !done && !future && !(k === today && plannedToday);
       const cls = `cal-day${done ? ' has' : ''}${k === today ? ' today' : ''}${future ? ' future' : ''}`;
-      const name = done ? dayTitle(k) : rest && 'Rest';
+      const name = done ? dayTitle(k) : rest && T().rest;
       const kids = [el('span', { class: 'num' }, d), name && el('span', { class: `cal-name${rest ? ' rest' : ''}` }, name)];
       cal.append(future
         ? el('span', { class: cls, 'aria-hidden': 'true' }, ...kids)
@@ -938,20 +1056,20 @@ Penktadienis C
     const due = backupDue();
     mount(el('div', { class: 'view' },
       header(),
-      el('h1', { class: 'title' }, new Date(y, m, 1).toLocaleDateString('en-GB', { month: 'long' })),
+      el('h1', { class: 'title' }, cap(new Date(y, m, 1).toLocaleDateString(lang() === 'lt' ? 'lt-LT' : 'en-GB', { month: 'long' }))),
       el('div', { class: 'subrow' },
-        el('p', { class: 'sub' }, `${y} · ${count ? `${count} workout${count === 1 ? '' : 's'}` : 'nothing logged'}`),
-        el('nav', { class: 'months', 'aria-label': 'Month' },
-          el('a', { href: `#/history/${prev}`, 'aria-label': 'Previous month' }, '‹'),
+        el('p', { class: 'sub' }, `${y} · ${count ? T().workouts(count) : T().nothingLogged}`),
+        el('nav', { class: 'months', 'aria-label': T().month },
+          el('a', { href: `#/history/${prev}`, 'aria-label': T().prevMonth }, '‹'),
           canNext
-            ? el('a', { href: `#/history/${next}`, 'aria-label': 'Next month' }, '›')
+            ? el('a', { href: `#/history/${next}`, 'aria-label': T().nextMonth }, '›')
             : el('span', { class: 'off', 'aria-hidden': 'true' }, '›'))),
       cal,
       el('footer', null,
         due && el('p', { class: 'backup' }, due),
         el('div', { class: 'backup-actions' },
-          el('button', { type: 'button', class: due ? 'due' : null, onclick: exportData }, 'Export'),
-          el('button', { type: 'button', onclick: () => file.click() }, 'Import'),
+          el('button', { type: 'button', class: due ? 'due' : null, onclick: exportData }, T().exportLabel),
+          el('button', { type: 'button', onclick: () => file.click() }, T().importLabel),
           file))));
   }
 
@@ -964,7 +1082,7 @@ Penktadienis C
     const since = db.lastBackup || keys[0];
     const days = Math.round((dateOf(todayKey()) - dateOf(since)) / 86400000);
     if (days < 14) return null;
-    return db.lastBackup ? `Last backup ${days} days ago.` : 'Not backed up yet.';
+    return db.lastBackup ? T().lastBackup(days) : T().noBackup;
   }
 
   let planTimer = 0;
@@ -980,12 +1098,30 @@ Penktadienis C
   let refitPlan = null;
   window.addEventListener('resize', () => { if (refitPlan) refitPlan(); });
 
+  function setLang(l) {
+    if (lang() === l && db.lang === l) return;
+    flushPlan();
+    db.lang = l;
+    save();
+    renderPlan();
+  }
+
+  // Page language and the tab bar's labels (the bar lives outside the views).
+  function applyLang() {
+    const t = T();
+    document.documentElement.lang = lang();
+    document.querySelector('.tabbar').setAttribute('aria-label', t.tabs.main);
+    tabs.history.setAttribute('aria-label', t.tabs.history);
+    tabs.today.setAttribute('aria-label', t.tabs.today);
+    tabs.plan.setAttribute('aria-label', t.tabs.plan);
+  }
+
   function usePreset(preset) {
     const now = db.plan.trim();
     if (now === preset.plan.trim()) return;
     // Only ask when it would throw away a plan you wrote or changed yourself.
     const own = now && !PRESETS.some(p => p.plan.trim() === now);
-    if (own && !confirm(`Replace your plan with “${preset.name}”?`)) return;
+    if (own && !confirm(T().replacePlan(preset.name))) return;
     clearTimeout(planTimer);
     planTimer = 0;
     db.plan = preset.plan;
@@ -997,10 +1133,10 @@ Penktadienis C
     current = { view: 'plan' };
     const summary = el('p', { class: 'sub' });
     const area = el('textarea', {
-      class: 'plan', rows: '12', spellcheck: 'false', autocapitalize: 'sentences', 'aria-label': 'Plan',
+      class: 'plan', rows: '12', spellcheck: 'false', autocapitalize: 'sentences', 'aria-label': T().plan,
     });
     area.value = db.plan;
-    area.placeholder = 'Monday Push\n- Bench press 4x8';
+    area.placeholder = T().planPlaceholder;
     // Grow to fit the text. Collapsing it to measure would shorten the page for a moment and
     // make the browser jump the scroll, so the scroll position is put back.
     const fit = () => {
@@ -1015,8 +1151,8 @@ Penktadienis C
     const describe = () => {
       const rs = parsePlan(area.value);
       summary.textContent = rs.length
-        ? rs.map(r => (r.day == null ? r.name : `${WEEKDAYS[r.day].slice(0, 3)} ${r.name}`)).join(' · ')
-        : 'Nothing planned.';
+        ? rs.map(r => (r.day == null ? r.name : `${T().dayShort[r.day]} ${r.name}`)).join(' · ')
+        : T().nothingPlanned;
       PRESETS.forEach((p, i) => presetButtons[i].setAttribute('aria-pressed', String(p.plan.trim() === area.value.trim())));
     };
     // Memory is updated on every keystroke (so leaving the screen uses the new plan right
@@ -1032,16 +1168,17 @@ Penktadienis C
     area.addEventListener('blur', flushPlan);
     mount(el('div', { class: 'view' },
       header(),
-      el('h1', { class: 'title' }, 'Plan'),
-      summary,
-      el('div', { class: 'presets', role: 'group', 'aria-label': 'Presets' }, ...presetButtons),
+      el('h1', { class: 'title' }, T().plan),
+      el('div', { class: 'subrow' },
+        summary,
+        el('nav', { class: 'lang', 'aria-label': T().language },
+          ...['lt', 'en'].flatMap((l, i) => [
+            i ? el('span', { 'aria-hidden': 'true' }, '·') : null,
+            el('button', { type: 'button', lang: l, 'aria-pressed': String(lang() === l), onclick: () => setLang(l) }, l.toUpperCase()),
+          ]))),
+      el('div', { class: 'presets', role: 'group', 'aria-label': T().presets }, ...presetButtons),
       area,
-      el('p', { class: 'hint' },
-        'Tap a preset above to start from it, or write your own. ',
-        'Start each workout with the day you train it, e.g. “Monday Push”; it loads on that day, and other days are rest days. ',
-        'List exercises as “- Squat 5x8” or with ranges, “- Bench 3-4x6-8”. ',
-        'Use / for alternates; they take turns each session. ',
-        'Changes apply to days you haven’t started yet.')));
+      el('p', { class: 'hint' }, ...T().hint)));
     describe();
     refitPlan = fit;
     requestAnimationFrame(fit);
@@ -1090,10 +1227,11 @@ Penktadienis C
     let data = null;
     let parsed = null;
     try { parsed = JSON.parse(await f.text()); data = sanitize(parsed); } catch (_) { /* handled below */ }
-    if (!data) { alert('That file isn’t a Track. backup.'); return; }
+    if (!data) { alert(T().notABackup); return; }
     if (typeof parsed.plan !== 'string') data.plan = db.plan; // older backups have no plan: keep yours
     const n = workoutKeys(data.days).length;
-    if (!confirm(`Replace everything here with the ${n} workout${n === 1 ? '' : 's'} in this file?`)) return;
+    if (!confirm(T().replaceAll(n))) return;
+    data.lang = db.lang; // the language is this phone's choice, not the file's
     db = data;
     db.lastBackup = todayKey(); // this phone now matches a backup file you have
     save();
