@@ -317,6 +317,38 @@
   /* Out of the way only while the on-screen keyboard is up (see syncKeyboard). */
   body.kb .tabbar { visibility: hidden; }
 
+  /* onboarding: artwork on top fading into black, text and controls at the bottom */
+  body.onboarding .tabbar { display: none; }
+  body.onboarding main { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .ob { display: flex; flex-direction: column; min-height: calc(100dvh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom))); }
+  .ob-top { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+  .ob-step { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--dim); }
+  .ob-art { position: relative; height: 42vh; min-height: 220px; margin: 12px -24px 0; background: var(--crimson) center / cover no-repeat; }
+  .ob-art.small { height: 20vh; min-height: 120px; } /* question steps: room for the answers */
+  .ob-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, var(--bg) 100%); }
+  .ob-body { flex: 1; padding-top: 12px; }
+  .ob .title { margin-top: 0; font-size: clamp(48px, 15vw, 64px); }
+  .ob-text { max-width: 30ch; margin-top: 14px; font-size: 15px; line-height: 1.5; color: var(--dim); }
+  .ob-name { width: 100%; margin-top: 40px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .3); font-family: var(--display); font-size: 40px; }
+  .ob-name:focus { border-bottom-color: var(--crimson-hi); }
+  /* goal picker: the chosen goal large between two lines, the others dim */
+  .goals { display: grid; justify-items: center; margin-top: 36px; }
+  .goal { width: 100%; padding: 12px 0; text-align: center; font-family: var(--display); font-size: 22px; color: var(--faint); transition: color .2s, font-size .2s; }
+  .goal[aria-checked="true"] { padding: 16px 0; border-block: 1px solid var(--fg); font-size: 32px; color: var(--fg); }
+  .ob-plans { display: grid; gap: 12px; margin-top: 28px; }
+  .ob-plan { position: relative; display: flex; align-items: flex-end; min-height: 96px; padding: 14px 16px; border-radius: 14px; overflow: hidden; isolation: isolate; background: var(--crimson) center / cover no-repeat; font-family: var(--display); font-size: 26px; text-align: left; }
+  .ob-plan::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(0, 0, 0, .85), rgba(0, 0, 0, .25)); }
+  .ob-plan[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--fg); }
+  .ob-plan.plain { min-height: 64px; background: none; border: 1px solid rgba(255, 255, 255, .3); font-size: 20px; }
+  .ob-plan.plain::before { display: none; }
+  .ob-nav { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding-top: 24px; }
+  .ob-back { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .1); font-size: 20px; }
+  .ob-dots { display: flex; justify-content: center; gap: 6px; }
+  .ob-dots i { width: 6px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .25); transition: width .25s, background .25s; }
+  .ob-dots i.on { width: 22px; background: var(--crimson-hi); }
+  .ob-next { padding: 13px 22px; border-radius: 999px; background: var(--crimson); font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg); }
+  .ob-next:active { background: var(--crimson-hi); }
+
   @media (hover: hover) {
     .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
   }
@@ -453,6 +485,24 @@
       yourName: 'Your name',
       levels: ['Gym beginner', 'Regular', 'Dedicated', 'Veteran'],
       backupDue: 'Backup due',
+      ob: {
+        slides: [
+          ['Log every set.', 'Weight and reps in two taps. Last time’s numbers sit right next to them.'],
+          ['Follow your plan.', 'Your workout loads itself on the right day, with every target ready.'],
+          ['Beat last time.', 'Watch sets, volume and streaks climb, week after week.'],
+        ],
+        nameTitle: 'What’s your name?',
+        nameText: 'It goes at the top of your screen.',
+        goalTitle: 'What’s your goal?',
+        goalText: 'We’ll keep it in front of you.',
+        planTitle: 'Pick your plan.',
+        planText: 'You can change it any time on the Plan tab.',
+        ownPlan: 'I’ll write my own',
+        next: 'Next',
+        start: 'Start',
+        back: 'Back',
+      },
+      goals: { muscle: 'Build muscle', strength: 'Get stronger', fat: 'Lose fat', fit: 'Stay fit' },
     },
     lt: {
       rest: 'Poilsis',
@@ -506,6 +556,24 @@
       yourName: 'Tavo vardas',
       levels: ['Pradedantysis', 'Reguliarus', 'Atsidavęs', 'Veteranas'],
       backupDue: 'Laikas atsarginei kopijai',
+      ob: {
+        slides: [
+          ['Užrašyk kiekvieną seriją.', 'Svoris ir pakartojimai dviem paspaudimais. Praeito karto skaičiai – šalia.'],
+          ['Sek savo planą.', 'Treniruotė įsikelia pati tinkamą dieną, su visais tikslais.'],
+          ['Pagerink praeitą kartą.', 'Matyk, kaip auga serijos, tonažas ir tavo pažanga.'],
+        ],
+        nameTitle: 'Koks tavo vardas?',
+        nameText: 'Jis bus ekrano viršuje.',
+        goalTitle: 'Koks tavo tikslas?',
+        goalText: 'Jį visada matysi.',
+        planTitle: 'Pasirink planą.',
+        planText: 'Jį bet kada pakeisi skiltyje „Planas“.',
+        ownPlan: 'Parašysiu savo',
+        next: 'Toliau',
+        start: 'Pradėti',
+        back: 'Atgal',
+      },
+      goals: { muscle: 'Auginti raumenis', strength: 'Tapti stipresniu', fat: 'Numesti svorio', fit: 'Palaikyti formą' },
     },
   };
 
@@ -661,7 +729,7 @@ Penktadienis C
   const defaultPlan = () => presetPlan(PRESETS[0]);
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', days: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', goal: null, onboarded: false, days: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -713,6 +781,8 @@ Penktadienis C
       lastBackup: typeof input.lastBackup === 'string' && isDayKey(input.lastBackup) ? input.lastBackup : null,
       lang: input.lang === 'lt' || input.lang === 'en' ? input.lang : null,
       name: typeof input.name === 'string' ? clean(input.name).slice(0, 40) : '',
+      goal: ['muscle', 'strength', 'fat', 'fit'].includes(input.goal) ? input.goal : null,
+      onboarded: input.onboarded === true,
       days,
     };
   }
@@ -1174,7 +1244,8 @@ Penktadienis C
     return el('div', null,
       el('header', { class: 'profile' },
         el('a', { href: '#/', class: 'avatar', 'aria-label': 'Track.' }, mark()),
-        el('div', { class: 'who' }, nameField(), el('div', { class: 'who-level' }, level())),
+        el('div', { class: 'who' }, nameField(),
+          el('div', { class: 'who-level' }, db.goal ? `${level()} · ${T().goals[db.goal]}` : level())),
         bell),
       el('p', { class: 'warn', hidden: storageOk }, T().cantSave));
   }
@@ -1238,6 +1309,7 @@ Penktadienis C
     app.textContent = '';
     app.append(view);
     updateTabs();
+    document.body.classList.toggle('onboarding', current.view === 'onboarding');
     window.scrollTo(0, 0);
   }
 
@@ -1697,6 +1769,7 @@ Penktadienis C
     if (!confirm(T().replaceAll(n))) return;
     data.lang = db.lang; // the language is this phone's choice, not the file's
     if (!data.name) data.name = db.name;
+    data.onboarded = true; // you're past the intro on this phone, whatever the file says
     db = data;
     db.lastBackup = todayKey(); // this phone now matches a backup file you have
     save();
@@ -1706,7 +1779,98 @@ Penktadienis C
 
   /* ---------- routing ---------- */
 
+  // First launch: three slides, your name, your goal, your plan. Shown once.
+  function renderOnboarding(step = 0, picks = {}) {
+    current = { view: 'onboarding' };
+    const t = T();
+    const ob = t.ob;
+    const total = ob.slides.length + 3;
+    const go = n => renderOnboarding(n, picks);
+    const finish = () => {
+      if (picks.name !== undefined) db.name = clean(picks.name).slice(0, 40);
+      if (picks.goal) db.goal = picks.goal;
+      if (picks.plan === 'own') db.plan = '';
+      else if (picks.plan != null) db.plan = presetPlan(PRESETS[picks.plan]);
+      db.onboarded = true;
+      save();
+      location.hash = '#/';
+      route();
+    };
+    let art = `art/day-${[1, 2, 3][step % 3]}.png`;
+    let body;
+    let read = () => {};
+    if (step < ob.slides.length) {
+      if (step === 0) art = 'art/signin.png';
+      body = [el('h1', { class: 'title' }, ob.slides[step][0]), el('p', { class: 'ob-text' }, ob.slides[step][1])];
+    } else if (step === ob.slides.length) {
+      const input = el('input', {
+        class: 'ob-name', value: picks.name ?? db.name, placeholder: t.yourName, maxlength: '40',
+        autocomplete: 'given-name', enterkeyhint: 'next', 'aria-label': t.yourName,
+        onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); read(); go(step + 1); } },
+      });
+      read = () => { picks.name = input.value; };
+      body = [el('h1', { class: 'title' }, ob.nameTitle), el('p', { class: 'ob-text' }, ob.nameText), input];
+    } else if (step === ob.slides.length + 1) {
+      picks.goal = picks.goal || db.goal || 'muscle';
+      const list = el('div', { class: 'goals', role: 'radiogroup', 'aria-label': ob.goalTitle });
+      const draw = () => {
+        list.textContent = '';
+        for (const [k, label] of Object.entries(t.goals)) {
+          list.append(el('button', {
+            type: 'button', class: 'goal', role: 'radio', 'aria-checked': String(picks.goal === k),
+            onclick: () => { picks.goal = k; draw(); },
+          }, label));
+        }
+      };
+      draw();
+      body = [el('h1', { class: 'title' }, ob.goalTitle), el('p', { class: 'ob-text' }, ob.goalText), list];
+    } else {
+      if (picks.plan === undefined) picks.plan = 0;
+      const list = el('div', { class: 'ob-plans', role: 'radiogroup', 'aria-label': ob.planTitle });
+      const draw = () => {
+        list.textContent = '';
+        PRESETS.forEach((preset, i) => {
+          const b = el('button', {
+            type: 'button', class: 'ob-plan', role: 'radio', 'aria-checked': String(picks.plan === i),
+            onclick: () => { picks.plan = i; draw(); },
+          }, presetName(preset));
+          b.style.backgroundImage = `url(art/day-${i + 1}.png)`;
+          list.append(b);
+        });
+        list.append(el('button', {
+          type: 'button', class: 'ob-plan plain', role: 'radio', 'aria-checked': String(picks.plan === 'own'),
+          onclick: () => { picks.plan = 'own'; draw(); },
+        }, ob.ownPlan));
+      };
+      draw();
+      art = null;
+      body = [el('h1', { class: 'title' }, ob.planTitle), el('p', { class: 'ob-text' }, ob.planText), list];
+    }
+
+    const last = step === total - 1;
+    const artEl = art && el('div', { class: step < ob.slides.length ? 'ob-art' : 'ob-art small', 'aria-hidden': 'true' });
+    if (artEl) artEl.style.backgroundImage = `url(${art})`;
+    mount(el('div', { class: 'ob' },
+      el('div', { class: 'ob-top' },
+        el('span', { class: 'ob-step' }, `${pad(step + 1)} / ${pad(total)}`),
+        el('nav', { class: 'lang', 'aria-label': t.language },
+          ...['lt', 'en'].flatMap((l, i) => [
+            i ? el('span', { 'aria-hidden': 'true' }, '·') : null,
+            el('button', {
+              type: 'button', lang: l, 'aria-pressed': String(lang() === l),
+              onclick: () => { read(); db.lang = l; save(); go(step); },
+            }, l.toUpperCase()),
+          ]))),
+      artEl,
+      el('div', { class: 'ob-body' }, ...body),
+      el('div', { class: 'ob-nav' },
+        step ? el('button', { type: 'button', class: 'ob-back', 'aria-label': ob.back, onclick: () => { read(); go(step - 1); } }, '←') : el('span'),
+        el('div', { class: 'ob-dots', 'aria-hidden': 'true' }, ...Array.from({ length: total }, (_, i) => el('i', { class: i === step ? 'on' : null }))),
+        el('button', { type: 'button', class: 'ob-next', onclick: () => { read(); if (last) finish(); else go(step + 1); } }, last ? ob.start : ob.next))));
+  }
+
   function route() {
+    if (!db.onboarded) return renderOnboarding();
     if (current.view === 'plan') flushPlan();
     let h = location.hash.replace(/^#\/?/, '');
     try { h = decodeURIComponent(h); } catch (_) { h = ''; }
@@ -1736,6 +1900,11 @@ Penktadienis C
   });
 
   // An unedited preset saved in its other language moves to its fixed one (today follows it).
+  if (!db.onboarded && workoutKeys(db.days).length) {
+    db.onboarded = true;
+    save();
+  }
+
   const savedPreset = PRESETS.find(p => isPreset(p, db.plan));
   if (savedPreset && db.plan.trim() !== presetPlan(savedPreset).trim()) {
     db.plan = presetPlan(savedPreset);
