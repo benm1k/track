@@ -194,8 +194,11 @@
     white-space: nowrap;
   }
   .cal-name.rest { color: var(--ghost); }
-  footer { margin-top: 72px; display: flex; gap: 24px; font-size: 14px; }
+  footer { margin-top: 72px; font-size: 14px; }
+  .backup { font-size: 13px; color: var(--faint); }
+  .backup-actions { display: flex; gap: 24px; }
   footer button { color: var(--dim); padding: 10px 0; transition: color .2s; }
+  footer button.due { color: var(--fg); }
 
   /* bottom tab bar: History · Today · Plan */
   .tabbar {
@@ -369,7 +372,7 @@ Penktadienis C
   ];
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, days: {} });
+  const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, lastBackup: null, days: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -417,6 +420,8 @@ Penktadienis C
         isDayKey(input.filledFrom.key) && typeof input.filledFrom.plan === 'string'
         ? { key: input.filledFrom.key, plan: input.filledFrom.plan.slice(0, PLAN_MAX) }
         : null,
+      // The day of the last export or import (for the backup reminder in History).
+      lastBackup: typeof input.lastBackup === 'string' && isDayKey(input.lastBackup) ? input.lastBackup : null,
       days,
     };
   }
@@ -518,6 +523,26 @@ Penktadienis C
     return w.includes('dien') ? WEEKDAYS_LT.findIndex(d => d.startsWith(w)) : -1;
   }
 
+  // The target at the end of an exercise line: "4x12", "3-4x6-8", "(5x8)". Returns the target
+  // and where the name ends, or null (then the whole text stays the name, so nothing vanishes).
+  // A sets range is written tight and rising ("3-4x8"); otherwise its first number belongs to the
+  // name: "Superset 1 - 3x10" → "Superset 1", "Incline 15-3x10" → "Incline 15", both 3 × 10.
+  // A reps range that doesn't rise is ignored: "3x12-10" → 3 × 12.
+  function readTarget(body) {
+    const m = body.match(/(?:^|[\s(])(\d{1,2})(?:[-–—](\d{1,2}))?\s*[x×X*]\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?\s*\)?\.?\s*$/);
+    if (!m) return null;
+    const lead = m[0].length - m[0].replace(/^[\s(]/, '').length; // the space or "(" before the numbers
+    let cut = m.index;
+    const t = { sets: Number(m[1]), reps: Number(m[3]) };
+    if (m[2] && Number(m[2]) > t.sets) t.setsTo = Number(m[2]);
+    else if (m[2]) {
+      t.sets = Number(m[2]);
+      cut = m.index + lead + m[1].length + 1; // keep "Incline 15-" as the name; the dash is trimmed later
+    }
+    if (m[4] && Number(m[4]) > t.reps) t.repsTo = Number(m[4]);
+    return validTarget(t) ? { target: t, cut } : null;
+  }
+
   // "Monday Push" starts a routine (the weekday is optional), "- A / B 4x12" adds an exercise.
   function parsePlan(text) {
     const routines = [];
@@ -529,18 +554,9 @@ Penktadienis C
       if (item) {
         if (!cur) continue;
         let body = item[1];
-        let target = null;
-        // A sets range must be written tight ("3-4x8"), so "Superset 1 - 3x10" stays "Superset 1".
-        const t = body.match(/(?:^|[\s(])(\d{1,2})(?:[-–—](\d{1,2}))?\s*[x×X*]\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?\s*\)?\.?\s*$/);
-        if (t) {
-          const v = { sets: Number(t[1]), reps: Number(t[3]) };
-          if (t[2] && Number(t[2]) > v.sets) v.setsTo = Number(t[2]);
-          if (t[4] && Number(t[4]) > v.reps) v.repsTo = Number(t[4]);
-          if (validTarget(v)) {
-            target = v;
-            body = body.slice(0, t.index); // otherwise the text stays in the name, so nothing vanishes
-          }
-        }
+        const read = readTarget(body);
+        const target = read && read.target;
+        if (read) body = body.slice(0, read.cut);
         // "Squat: 5x8", "Squat - 5x8" and "Squat (5x8)" all mean "Squat".
         const names = body.split('/').map(s => clean(s.replace(/[\s:,·•–—(-]+$/, ''))).filter(Boolean);
         if (names.length) cur.items.push({ names, target });
@@ -919,6 +935,7 @@ Penktadienis C
     });
 
     const file = el('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: () => importFile(file) });
+    const due = backupDue();
     mount(el('div', { class: 'view' },
       header(),
       el('h1', { class: 'title' }, new Date(y, m, 1).toLocaleDateString('en-GB', { month: 'long' })),
@@ -931,9 +948,23 @@ Penktadienis C
             : el('span', { class: 'off', 'aria-hidden': 'true' }, '›'))),
       cal,
       el('footer', null,
-        el('button', { type: 'button', onclick: exportData }, 'Export'),
-        el('button', { type: 'button', onclick: () => file.click() }, 'Import'),
-        file)));
+        due && el('p', { class: 'backup' }, due),
+        el('div', { class: 'backup-actions' },
+          el('button', { type: 'button', class: due ? 'due' : null, onclick: exportData }, 'Export'),
+          el('button', { type: 'button', onclick: () => file.click() }, 'Import'),
+          file))));
+  }
+
+  // A quiet nudge two weeks after the last backup (or after the first workout, if never backed up),
+  // but only when something has been logged since that backup.
+  function backupDue() {
+    const keys = workoutKeys(db.days);
+    if (!keys.length) return null;
+    if (db.lastBackup && db.lastBackup >= keys[keys.length - 1]) return null;
+    const since = db.lastBackup || keys[0];
+    const days = Math.round((dateOf(todayKey()) - dateOf(since)) / 86400000);
+    if (days < 14) return null;
+    return db.lastBackup ? `Last backup ${days} days ago.` : 'Not backed up yet.';
   }
 
   let planTimer = 0;
@@ -1026,9 +1057,11 @@ Penktadienis C
     if (touch && typeof File === 'function' && navigator.canShare) {
       const file = new File([blob], name, { type: 'application/json' });
       if (navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file] }); return; } catch (err) {
+        let shared = false;
+        try { await navigator.share({ files: [file] }); shared = true; } catch (err) {
           if (err && err.name === 'AbortError') return;
         }
+        if (shared) return backedUp();
       }
     }
     const url = URL.createObjectURL(blob);
@@ -1037,6 +1070,17 @@ Penktadienis C
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
+    backedUp();
+  }
+
+  // Clear the reminder in place (a redraw would jump the page back to the top).
+  function backedUp() {
+    db.lastBackup = todayKey();
+    save();
+    const note = app.querySelector('footer .backup');
+    if (note) note.remove();
+    const due = app.querySelector('footer .due');
+    if (due) due.classList.remove('due');
   }
 
   async function importFile(input) {
@@ -1051,6 +1095,7 @@ Penktadienis C
     const n = workoutKeys(data.days).length;
     if (!confirm(`Replace everything here with the ${n} workout${n === 1 ? '' : 's'} in this file?`)) return;
     db = data;
+    db.lastBackup = todayKey(); // this phone now matches a backup file you have
     save();
     refreshNames();
     route();
