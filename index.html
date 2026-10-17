@@ -111,61 +111,90 @@
   .label { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
   .label b { color: var(--crimson-hi); font-weight: 500; }
 
-  /* day */
-  /* The day's card: workout, date, progress ring and three stats. */
-  .card { margin-top: 28px; }
-  .art { position: relative; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: var(--crimson) center / cover no-repeat; }
-  .card .label { margin-top: 20px; }
-  .card .title { margin-top: 8px; font-size: clamp(54px, 17vw, 72px); overflow-wrap: anywhere; }
-  .card .sub { margin-top: 10px; }
-  .ring { position: absolute; right: 14px; bottom: 14px; width: 78px; height: 78px; }
-  .ring::before { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: rgba(0, 0, 0, .6); }
-  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .ring circle { fill: none; stroke-width: 2.5; }
-  .ring .track { stroke: rgba(255, 255, 255, .25); }
-  .ring .fill { stroke: var(--fg); stroke-linecap: round; transition: stroke-dashoffset .4s var(--ease); }
+  /* profile header: avatar, name (tap to edit), level, bell */
+  .profile { display: flex; align-items: center; gap: 12px; min-height: 52px; }
+  .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--crimson) center / cover; color: var(--fg); }
+  .avatar .mark { width: 18px; height: 18px; }
+  .who { flex: 1; min-width: 0; }
+  .who-name { display: block; width: 100%; padding: 2px 0; font-family: var(--display); font-size: 22px; font-weight: 400; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .who-name.empty { color: var(--faint); }
+  .who-level { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .bell { position: relative; display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-right: -10px; color: var(--dim); }
+  .bell svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .bell.due { color: var(--fg); }
+  .bell.due::after { content: ''; position: absolute; top: 11px; right: 11px; width: 7px; height: 7px; border-radius: 50%; background: var(--crimson-hi); }
+
+  /* the day's card: artwork behind the workout, date, ring and three stats */
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 16px;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--crimson) center / cover no-repeat;
+  }
+  .card::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
+    linear-gradient(180deg, rgba(0, 0, 0, .35) 0%, rgba(0, 0, 0, .55) 50%, rgba(0, 0, 0, .85) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, 0) 70%); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card .title { margin-top: 6px; font-size: clamp(38px, 12vw, 48px); overflow-wrap: anywhere; }
+  .card .sub { margin-top: 6px; color: rgba(255, 255, 255, .8); }
+  .card .label { color: rgba(255, 255, 255, .8); }
+  .ring { position: relative; flex: none; width: 74px; height: 74px; }
+  .ring svg, .mini svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring circle, .mini circle { fill: none; stroke-width: 2.5; }
+  .ring .track, .mini .track { stroke: rgba(255, 255, 255, .28); }
+  .ring .fill, .mini .fill { stroke: var(--fg); stroke-linecap: round; transition: stroke-dashoffset .4s var(--ease); }
   .ring-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-family: var(--display); font-size: 21px; line-height: 1.05; }
-  .ring-text small { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
-  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
-  .stat-v { font-family: var(--display); font-size: 28px; font-weight: 400; line-height: 1; white-space: nowrap; }
-  .stat-v small { font-family: var(--mono); font-size: 10px; color: var(--dim); }
-  .stat-l { margin-top: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
-  .bar { height: 2px; margin-top: 10px; border-radius: 1px; background: var(--line); overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--crimson-hi); transition: width .4s var(--ease); }
-  .next { margin-top: 16px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
-  .list { margin-top: 44px; }
-  .ex { margin-bottom: 40px; }
-  /* Each exercise opens with a crimson artwork banner (by muscle group), name over it. */
-  .head {
+  .ring-text small { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: auto; padding-top: 22px; }
+  .stat-v { font-family: var(--display); font-size: 24px; font-weight: 400; line-height: 1; white-space: nowrap; }
+  .stat-v small { font-family: var(--mono); font-size: 10px; color: rgba(255, 255, 255, .75); }
+  .stat-l { margin-top: 5px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
+  .bar { height: 3px; margin-top: 9px; border-radius: 2px; background: rgba(255, 255, 255, .25); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--fg); transition: width .4s var(--ease); }
+  .next { margin-top: auto; padding-top: 22px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
+
+  /* workout program: heading, filter chips, one image card per exercise (tap to log) */
+  .section-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 32px; }
+  .section-h h2 { font-family: var(--display); font-size: 24px; font-weight: 400; }
+  .section-h span { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .chips { display: flex; gap: 8px; margin: 14px -24px 0; padding: 0 24px 2px; overflow-x: auto; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; padding: 8px 14px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); transition: color .2s, background .2s; }
+  .chip[aria-pressed="true"] { border-color: var(--fg); background: var(--fg); color: var(--bg); }
+  .list { margin-top: 16px; }
+  .ex { margin-bottom: 12px; }
+  .ex-card {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    column-gap: 16px;
-    min-height: 84px;
-    padding: 12px 16px;
-    border-radius: 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 108px;
+    padding: 14px 16px;
+    border-radius: 14px;
     overflow: hidden;
-    background: var(--crimson) right center / cover no-repeat;
     isolation: isolate;
+    background: var(--crimson) right center / cover no-repeat;
   }
-  .head::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
-    linear-gradient(0deg, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, 0) 75%),
-    linear-gradient(90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .55) 55%, rgba(0, 0, 0, .1) 100%); }
-  .head > .remove, .head > .target { grid-column: 2; grid-row: 1; justify-self: end; }
-  /* Plain text in the same cell as "remove": it must never catch the tap meant for it. */
-  .target { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--fg); transition: opacity .15s; pointer-events: none; }
-  .remove.on + .target, .remove:focus-visible + .target { opacity: 0; }
-  .ex-name {
-    padding: 2px 0;
-    font-family: var(--display);
-    font-size: 26px;
-    font-weight: 400;
-    line-height: 1.05;
-    overflow-wrap: anywhere;
-  }
-  .head .remove { color: var(--fg); }
-
+  .ex-card::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
+    linear-gradient(90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .6) 55%, rgba(0, 0, 0, .25) 100%); }
+  .ex-info { display: grid; gap: 4px; min-width: 0; }
+  .ex-name { font-family: var(--display); font-size: 24px; font-weight: 400; line-height: 1.05; overflow-wrap: anywhere; }
+  .ex-sub { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: rgba(255, 255, 255, .8); }
+  .ex-meta { margin-top: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 255, 255, .7); }
+  .mini { position: relative; width: 52px; height: 52px; }
+  .mini::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: rgba(0, 0, 0, .55); }
+  .mini .ring-text { font-size: 14px; }
+  .ex.open .ex-card { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .55); }
+  .ex-body { padding: 6px 2px 10px; }
+  .remove-ex { padding: 10px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
   .sets { margin-top: 6px; }
   .row {
     display: grid;
@@ -417,6 +446,13 @@
       volume: 'Volume',
       ringOf: 'sets',
       next: (name, day) => `Next: ${name}, ${day}`,
+      program: 'Workout program',
+      exerciseCount: n => `${n} exercise${n === 1 ? '' : 's'}`,
+      muscles: { all: 'All', chest: 'Chest', back: 'Back', legs: 'Legs', shoulders: 'Shoulders', arms: 'Arms', core: 'Core', other: 'Other' },
+      removeExerciseText: 'Remove exercise',
+      yourName: 'Your name',
+      levels: ['Gym beginner', 'Regular', 'Dedicated', 'Veteran'],
+      backupDue: 'Backup due',
     },
     lt: {
       rest: 'Poilsis',
@@ -463,6 +499,13 @@
       volume: 'Tonažas',
       ringOf: 'serijos',
       next: (name, day) => `Kita: ${name}, ${day}`,
+      program: 'Treniruočių programa',
+      exerciseCount: n => `${n} ${ltPlural(n, 'pratimas', 'pratimai', 'pratimų')}`,
+      muscles: { all: 'Visi', chest: 'Krūtinė', back: 'Nugara', legs: 'Kojos', shoulders: 'Pečiai', arms: 'Rankos', core: 'Pilvas', other: 'Kita' },
+      removeExerciseText: 'Šalinti pratimą',
+      yourName: 'Tavo vardas',
+      levels: ['Pradedantysis', 'Reguliarus', 'Atsidavęs', 'Veteranas'],
+      backupDue: 'Laikas atsarginei kopijai',
     },
   };
 
@@ -618,7 +661,7 @@ Penktadienis C
   const defaultPlan = () => presetPlan(PRESETS[0]);
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, days: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', days: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -669,6 +712,7 @@ Penktadienis C
       // The day of the last export or import (for the backup reminder in History).
       lastBackup: typeof input.lastBackup === 'string' && isDayKey(input.lastBackup) ? input.lastBackup : null,
       lang: input.lang === 'lt' || input.lang === 'en' ? input.lang : null,
+      name: typeof input.name === 'string' ? clean(input.name).slice(0, 40) : '',
       days,
     };
   }
@@ -927,36 +971,48 @@ Penktadienis C
     ['chest', /bench|press|spaudimas|chest|krūtin|\bfly|\bdips?\b/],
     ['arms', /curl|lenkimas|bicep|tricep|pushdown|extension|tiesimas/],
   ];
-  const muscleArt = name => {
+  const muscleOf = name => {
     const n = name.toLowerCase();
     const hit = MUSCLES.find(([, re]) => re.test(n));
-    return `art/${hit ? hit[0] : 'other'}.png`;
+    return hit ? hit[0] : 'other';
   };
+  const muscleArt = name => `art/${muscleOf(name)}.png`;
 
-  let refreshCard = () => {};
-
-  function dayCard(key, isToday) {
-    const R = 34;
-    const C = 2 * Math.PI * R;
+  // A progress ring: returns the element and a setter for 0..1 and its label.
+  function ringEl(size, cls) {
     const ns = 'http://www.w3.org/2000/svg';
-    const circle = cls => {
-      const c = document.createElementNS(ns, 'circle');
-      c.setAttribute('cx', '38');
-      c.setAttribute('cy', '38');
-      c.setAttribute('r', String(R));
-      c.setAttribute('class', cls);
-      return c;
+    const r = size / 2 - 4;
+    const C = 2 * Math.PI * r;
+    const circle = c => {
+      const n = document.createElementNS(ns, 'circle');
+      n.setAttribute('cx', String(size / 2));
+      n.setAttribute('cy', String(size / 2));
+      n.setAttribute('r', String(r));
+      n.setAttribute('class', c);
+      return n;
     };
     const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('viewBox', '0 0 76 76');
+    svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
     svg.setAttribute('aria-hidden', 'true');
     const fill = circle('fill');
     fill.setAttribute('stroke-dasharray', String(C));
     svg.append(circle('track'), fill);
-    const ringNum = el('span');
-    const ring = el('div', { class: 'ring' }, svg, el('div', { class: 'ring-text' }, ringNum, el('small', null, T().ringOf)));
-    const art = el('div', { class: 'art', role: 'img', 'aria-hidden': 'true' }, ring);
+    const num = el('span');
+    const small = el('small');
+    const node = el('div', { class: cls }, svg, el('div', { class: 'ring-text' }, num, small));
+    const set = (part, text, unit) => {
+      fill.setAttribute('stroke-dashoffset', String(C * (1 - Math.max(0, Math.min(1, part)))));
+      num.textContent = text;
+      small.textContent = unit || '';
+      small.hidden = !unit;
+    };
+    return { node, set };
+  }
 
+  let refreshCard = () => {};
+
+  function dayCard(key, isToday) {
+    const ring = ringEl(76, 'ring');
     const title = el('h1', { class: 'title' });
     const stat = label => {
       const v = el('div', { class: 'stat-v' });
@@ -969,10 +1025,12 @@ Penktadienis C
     const statsRow = el('div', { class: 'stats' }, sets.node, exs.node, vol.node);
     const next = el('p', { class: 'next' });
     const card = el('section', { class: 'card' },
-      art,
-      el('p', { class: 'label' }, el('b', null, '#'), isToday ? T().tabs.today : T().tabs.history),
-      title,
-      el('p', { class: 'sub' }, fullDate(key)),
+      el('div', { class: 'card-top' },
+        el('div', null,
+          el('p', { class: 'label' }, el('b', null, '#'), isToday ? T().tabs.today : T().tabs.history),
+          title,
+          el('p', { class: 'sub' }, fullDate(key))),
+        ring.node),
       statsRow, next);
 
     const pct = (a, b) => `${b ? Math.min(100, Math.round((a / b) * 100)) : 0}%`;
@@ -980,13 +1038,12 @@ Penktadienis C
     const update = () => {
       const st = dayStats(key);
       title.textContent = dayTitle(key);
-      art.style.backgroundImage = `url(${dayArt(key)})`;
+      card.style.backgroundImage = `url(${dayArt(key)})`;
       const active = st.total > 0;
-      ring.hidden = !active || !st.planned;
+      ring.node.hidden = !active || !st.planned;
       statsRow.hidden = !active;
       if (active) {
-        ringNum.textContent = `${st.sets}/${st.planned}`;
-        fill.setAttribute('stroke-dashoffset', String(C * (1 - (st.planned ? Math.min(1, st.sets / st.planned) : 0))));
+        ring.set(st.planned ? st.sets / st.planned : 0, `${st.sets}/${st.planned}`, T().ringOf);
         sets.v.textContent = `${st.sets}/${st.planned}`;
         sets.bar.style.width = pct(st.sets, st.planned);
         exs.v.textContent = `${st.done}/${st.total}`;
@@ -1005,8 +1062,12 @@ Penktadienis C
     return card;
   }
 
+  let refreshCount = () => {};
+
+  // After an exercise is added or removed: the card's numbers and the program heading.
   function retitle(key) {
     refreshCard(key);
+    if (current.view === 'day' && current.key === key) refreshCount();
   }
 
   function loadRoutine(key, routine) {
@@ -1059,6 +1120,7 @@ Penktadienis C
 
   let current = {};
   const blocks = new WeakMap();
+  const openEx = new WeakSet(); // exercises whose card is open
 
   // The Track. mark (the #mark symbol in the page, same geometry as logo.svg).
   function mark() {
@@ -1073,9 +1135,47 @@ Penktadienis C
     return svg;
   }
 
+  // Level by number of workouts logged.
+  function level() {
+    const n = workoutKeys(db.days).length;
+    return T().levels[n < 5 ? 0 : n < 25 ? 1 : n < 100 ? 2 : 3];
+  }
+
+  // Your name: tap to edit, Enter or leaving the field saves it.
+  function nameField() {
+    const show = () => el('button', {
+      type: 'button', class: `who-name${db.name ? '' : ' empty'}`, onclick: e => e.currentTarget.replaceWith(edit()),
+    }, db.name || T().yourName);
+    const edit = () => {
+      const input = el('input', {
+        class: 'who-name', value: db.name, placeholder: T().yourName, maxlength: '40',
+        enterkeyhint: 'done', autocomplete: 'given-name', 'aria-label': T().yourName,
+      });
+      let done = false;
+      const commit = () => {
+        if (done) return;
+        done = true;
+        db.name = clean(input.value).slice(0, 40);
+        save();
+        input.replaceWith(show());
+      };
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+      input.addEventListener('blur', commit);
+      requestAnimationFrame(() => input.focus());
+      return input;
+    };
+    return show();
+  }
+
   function header() {
+    const due = !!backupDue();
+    const bell = el('a', { href: '#/history', class: `bell${due ? ' due' : ''}`, 'aria-label': due ? T().backupDue : T().tabs.history });
+    bell.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>';
     return el('div', null,
-      el('header', null, el('a', { href: '#/', class: 'brand' }, mark(), 'Track.')),
+      el('header', { class: 'profile' },
+        el('a', { href: '#/', class: 'avatar', 'aria-label': 'Track.' }, mark()),
+        el('div', { class: 'who' }, nameField(), el('div', { class: 'who-level' }, level())),
+        bell),
       el('p', { class: 'warn', hidden: storageOk }, T().cantSave));
   }
 
@@ -1152,11 +1252,41 @@ Penktadienis C
     const exs = db.days[key] || [];
     const list = el('section', { class: 'list', 'aria-label': T().exercises });
     for (const ex of exs) list.append(exerciseBlock(key, ex));
+    // Today: the first exercise that isn't finished is open, ready to log.
+    if (isToday && !exs.some(e => openEx.has(e))) {
+      const first = exs.find(e => e.sets.length < (e.target ? e.target.sets : 1));
+      if (first) blocks.get(first).toggle(true);
+    }
+    const head = el('div', { class: 'section-h' }, el('h2', null, T().program), el('span', null, T().exerciseCount(exs.length)));
+    const chips = programChips(exs, list);
+    head.hidden = !exs.length;
+    refreshCount = () => {
+      const n = (db.days[key] || []).length;
+      head.lastChild.textContent = T().exerciseCount(n);
+      head.hidden = !n;
+    };
     mount(el('div', { class: 'view' },
       header(),
       dayCard(key, isToday),
+      head,
+      chips,
       list,
       addExerciseForm(key, list)));
+  }
+
+  // All · Chest · Back… — only the groups in this day's workout. Filters the cards below.
+  function programChips(exs, list) {
+    const groups = [...new Set(exs.map(e => muscleOf(e.name)))];
+    const wrap = el('div', { class: 'chips', role: 'group' });
+    wrap.hidden = groups.length < 2;
+    const pick = g => {
+      for (const b of wrap.children) b.setAttribute('aria-pressed', String(b.dataset.g === g));
+      for (const a of list.children) a.hidden = g !== 'all' && a.dataset.muscle !== g;
+    };
+    for (const g of ['all', ...groups]) {
+      wrap.append(el('button', { type: 'button', class: 'chip', 'data-g': g, 'aria-pressed': String(g === 'all'), onclick: () => pick(g) }, T().muscles[g]));
+    }
+    return wrap;
   }
 
   function exerciseBlock(key, ex) {
@@ -1186,20 +1316,32 @@ Penktadienis C
     const entry = el('form', { class: 'row entry', novalidate: true, onsubmit: addSet },
       num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
 
-    const remove = el('button', {
-      type: 'button', class: 'act remove', 'aria-label': T().removeExercise(label), onclick: removeExercise,
-    }, T().remove);
-    const name = el('button', {
-      type: 'button', class: 'ex-name', 'data-reveal': '', onclick: () => reveal(remove),
-    }, label);
-
-    const target = ex.target && el('span', { class: 'target' }, fmtTarget(ex.target));
-    const head = el('div', { class: 'head' }, name, remove, target);
-    head.style.backgroundImage = `url(${muscleArt(ex.name)})`;
-    const block = el('article', { class: 'ex' }, head, sets, entry);
-    blocks.set(ex, block);
+    const meta = el('span', { class: 'ex-meta' });
+    const mini = ringEl(52, 'mini');
+    const card = el('button', { type: 'button', class: 'ex-card', 'aria-expanded': 'false', onclick: () => toggle() },
+      el('span', { class: 'ex-info' },
+        el('span', { class: 'ex-name' }, label),
+        ex.target && el('span', { class: 'ex-sub' }, fmtTarget(ex.target)),
+        meta),
+      mini.node);
+    card.style.backgroundImage = `url(${muscleArt(ex.name)})`;
+    const removeEx = el('button', {
+      type: 'button', class: 'remove-ex', 'aria-label': T().removeExercise(label), onclick: removeExercise,
+    }, T().removeExerciseText);
+    const body = el('div', { class: 'ex-body', hidden: true }, sets, entry, removeEx);
+    const block = el('article', { class: 'ex', 'data-muscle': muscleOf(ex.name) }, card, body);
+    blocks.set(ex, { block, toggle, focus: () => { toggle(true); kg.focus(); } });
+    if (openEx.has(ex)) toggle(true);
     paint(false);
     return block;
+
+    function toggle(open = body.hidden) {
+      body.hidden = !open;
+      card.setAttribute('aria-expanded', String(open));
+      block.classList.toggle('open', open);
+      if (open) openEx.add(ex);
+      else openEx.delete(ex);
+    }
 
     function paint(added) {
       const before = previous(key, ex.name);
@@ -1211,6 +1353,11 @@ Penktadienis C
       kg.placeholder = sug && sug.kg ? fmtKg(sug.kg) : '0';
       reps.placeholder = sug ? String(sug.reps) : '0';
       fillPrev(nextPrev, ref[ex.sets.length]);
+      const want = ex.target ? ex.target.sets : 0;
+      const lastSet = ex.sets[ex.sets.length - 1];
+      meta.textContent = `${ex.sets.length}${want ? `/${want}` : ''} ${T().sets}` + (lastSet ? ` · ${setText(lastSet)}` : '');
+      mini.set(want ? ex.sets.length / want : ex.sets.length ? 1 : 0,
+        `${Math.min(100, Math.round(want ? (ex.sets.length / want) * 100 : ex.sets.length ? 100 : 0))}%`);
       refreshCard(key);
     }
 
@@ -1301,7 +1448,7 @@ Penktadienis C
         const existing = day.find(x => same(x.name) === same(name));
         if (existing) {
           const b = blocks.get(existing);
-          if (b) b.querySelector('.kg').focus();
+          if (b) b.focus();
           return;
         }
         const ex = { name: canonical(name), sets: [] };
@@ -1313,7 +1460,7 @@ Penktadienis C
         list.append(block);
         refreshNames();
         retitle(key);
-        block.querySelector('.kg').focus();
+        blocks.get(ex).focus();
       },
     }, input);
   }
@@ -1549,6 +1696,7 @@ Penktadienis C
     const n = workoutKeys(data.days).length;
     if (!confirm(T().replaceAll(n))) return;
     data.lang = db.lang; // the language is this phone's choice, not the file's
+    if (!data.name) data.name = db.name;
     db = data;
     db.lastBackup = todayKey(); // this phone now matches a backup file you have
     save();
