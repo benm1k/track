@@ -135,7 +135,7 @@
     background: right center / auto 100% no-repeat;
   }
   .card::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, .85) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, .8) 62%, rgba(0, 0, 0, .95) 100%),
     linear-gradient(90deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .4) 45%, rgba(0, 0, 0, 0) 70%); }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
   .card .title { margin-top: 6px; font-size: clamp(26px, 8vw, 32px); overflow-wrap: anywhere; }
@@ -155,6 +155,11 @@
   .stat-l { margin-top: 5px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
   .bar { display: none; }
   .bar i { display: block; height: 100%; background: var(--fg); transition: width .4s var(--ease); }
+  /* Start / Finish under the numbers. */
+  .go { align-self: flex-start; margin: 14px 0 -10px; padding: 10px 0; font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--fg); transition: opacity .2s; }
+  .go:active { opacity: .5; }
+  .go.stop { color: var(--dim); }
+  .stat-v.live { font-variant-numeric: tabular-nums; }
   .next { margin-top: auto; padding-top: 22px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
 
   /* workout program: heading, filter chips, one image card per exercise (tap to log) */
@@ -188,7 +193,14 @@
   .mini { position: relative; width: 52px; height: 52px; }
   .mini::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--bg); }
   .mini .ring-text { font-size: 11px; }
-  .ex-body { padding: 6px 2px 10px; }
+  /* The set list folds open and shut: rows animate 0fr -> 1fr, so the height follows the content. */
+  .ex-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .34s var(--ease), opacity .22s ease; }
+  .ex.open .ex-body { grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s var(--ease), opacity .3s ease .06s; }
+  .ex-fold { min-height: 0; overflow: hidden; }
+  .ex-pad { padding: 6px 2px 10px; }
+  .ex-card { transition: transform .18s var(--ease); }
+  .ex-card:active { transform: scale(.985); }
+  .mini .fill, .ring .fill { transition: stroke-dashoffset .5s var(--ease); }
   .remove-ex { padding: 10px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
   .sets { margin-top: 6px; }
   .row {
@@ -311,6 +323,31 @@
   .tab-home svg { width: 28px; height: 28px; fill: currentColor; stroke: none; } /* just the mark, a touch larger */
   /* Out of the way only while the on-screen keyboard is up (see syncKeyboard). */
   body.kb .tabbar { visibility: hidden; }
+
+  /* Rest countdown: a quiet strip above the tab bar, with a hairline that runs out. */
+  .rest {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    z-index: 9;
+    padding: 0 max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left));
+    background: var(--bg);
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform .3s var(--ease), opacity .3s ease;
+  }
+  .rest.off { transform: translateY(12px); opacity: 0; pointer-events: none; }
+  .rest-in { position: relative; max-width: 34rem; margin: 0 auto; display: flex; align-items: center; gap: 18px; height: 58px; }
+  .rest-line { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: rgba(255, 255, 255, .14); }
+  .rest-line i { display: block; height: 100%; background: var(--fg); transform-origin: left; transition: transform .25s linear; }
+  .rest-l { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
+  .rest-t { flex: 1; font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .rest button { padding: 12px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
+  .rest button:active { color: var(--fg); }
+  .rest.done .rest-t { animation: nope .6s ease 2; }
+  body.resting main { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
+  body.kb .rest, body.onboarding .rest { display: none; }
 
   /* profile (first launch and from the avatar): artwork, "Welcome, <name>", four fields */
   body.onboarding .tabbar { display: none; }
@@ -466,6 +503,12 @@
       tabs: { main: 'Main', history: 'History', today: 'Today', plan: 'Plan' },
       sets: 'Sets',
       volume: 'Volume',
+      time: 'Time',
+      startWorkout: 'Start',
+      finishWorkout: 'Finish',
+      restLabel: 'Rest',
+      skipRest: 'Skip',
+      goNow: 'Go',
       ringOf: 'sets',
       next: (name, day) => `Next: ${name}, ${day}`,
       program: 'Workout program',
@@ -530,6 +573,12 @@
       tabs: { main: 'Pagrindinis meniu', history: 'Istorija', today: 'Šiandien', plan: 'Planas' },
       sets: 'Serijos',
       volume: 'Tonažas',
+      time: 'Laikas',
+      startWorkout: 'Pradėti',
+      finishWorkout: 'Baigti',
+      restLabel: 'Poilsis',
+      skipRest: 'Praleisti',
+      goNow: 'Pirmyn',
       ringOf: 'serijos',
       next: (name, day) => `Kita: ${name}, ${day}`,
       program: 'Treniruočių programa',
@@ -704,7 +753,7 @@ Penktadienis C
   const defaultPlan = () => presetPlan(PRESETS[0]);
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', age: null, height: null, weight: null, goal: null, onboarded: false, days: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', age: null, height: null, weight: null, goal: null, onboarded: false, days: {}, timers: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -783,7 +832,21 @@ Penktadienis C
       weight: inRange(input.weight, 25, 300) ? round2(input.weight) : null,
       onboarded: input.onboarded === true,
       days,
+      timers: cleanTimers(input.timers),
     };
+  }
+
+  // Workout clocks: { 'YYYY-MM-DD': { start, end } } in ms; end is null while it runs.
+  function cleanTimers(t) {
+    const out = {};
+    if (!t || typeof t !== 'object') return out;
+    for (const k of Object.keys(t)) {
+      const v = t[k];
+      if (!isDayKey(k) || !v || typeof v !== 'object' || !Number.isFinite(v.start) || v.start <= 0) continue;
+      const end = Number.isFinite(v.end) && v.end >= v.start ? v.end : null;
+      out[k] = { start: Math.round(v.start), end: end == null ? null : Math.round(end) };
+    }
+    return out;
   }
 
   function load() {
@@ -1015,14 +1078,48 @@ Penktadienis C
     return stats;
   }
 
-  // kg lifted the last time this same workout was done (for the volume bar), else null.
-  function lastVolume(key) {
-    const name = dayTitle(key);
-    const keys = workoutKeys(db.days);
-    for (let i = keys.length - 1; i >= 0; i--) {
-      if (keys[i] < key && dayTitle(keys[i]) === name) return dayStats(keys[i]).volume || null;
+  // 1:05, 12:40, 1:02:09
+  function fmtClock(ms) {
+    const t = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(t / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const sec = pad(t % 60);
+    return h ? `${h}:${pad(m)}:${sec}` : `${m}:${sec}`;
+  }
+  const elapsed = key => {
+    const t = db.timers[key];
+    return t ? (t.end || Date.now()) - t.start : 0;
+  };
+  const running = key => !!db.timers[key] && !db.timers[key].end;
+
+  // Forgot to tap Finish? A clock from an earlier day stops by itself: at most 3 h, never past midnight.
+  function settleTimers() {
+    const today = todayKey();
+    let changed = false;
+    for (const [k, t] of Object.entries(db.timers)) {
+      if (t.end || k >= today) continue;
+      const d = dateOf(k);
+      const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime();
+      t.end = Math.max(t.start, Math.min(t.start + 3 * 3600e3, midnight));
+      changed = true;
     }
-    return null;
+    if (changed) save();
+  }
+
+  function startWorkout(key) {
+    if (db.timers[key]) return;
+    db.timers[key] = { start: Date.now(), end: null };
+    save();
+    refreshCard(key);
+  }
+
+  function finishWorkout(key) {
+    const t = db.timers[key];
+    if (!t || t.end) return;
+    t.end = Date.now();
+    save();
+    rest.stop();
+    refreshCard(key);
   }
 
   // The next planned workout after today, e.g. "Next: Push, Monday".
@@ -1093,6 +1190,7 @@ Penktadienis C
   }
 
   let refreshCard = () => {};
+  let clock = null;
 
   function dayCard(key, isToday) {
     const ring = ringEl(76, 'ring');
@@ -1104,8 +1202,13 @@ Penktadienis C
     };
     const sets = stat(T().sets);
     const exs = stat(T().exercises);
-    const vol = stat(T().volume);
-    const statsRow = el('div', { class: 'stats' }, sets.node, exs.node, vol.node);
+    const time = stat(T().time);
+    time.v.classList.add('live');
+    const statsRow = el('div', { class: 'stats' }, sets.node, exs.node, time.node);
+    const go = el('button', {
+      type: 'button', class: 'go',
+      onclick: () => (running(key) ? finishWorkout(key) : startWorkout(key)),
+    });
     const next = el('p', { class: 'next' });
     const card = el('section', { class: 'card' },
       el('div', { class: 'card-top' },
@@ -1114,10 +1217,14 @@ Penktadienis C
           title,
           el('p', { class: 'sub' }, fullDate(key))),
         ring.node),
-      statsRow, next);
+      statsRow, go, next);
 
     const pct = (a, b) => `${b ? Math.min(100, Math.round((a / b) * 100)) : 0}%`;
-    const kg = n => Math.round(n).toLocaleString(lang() === 'lt' ? 'lt-LT' : 'en-GB');
+    // The clock ticks once a second while the workout runs, and stops with the view.
+    const tickClock = () => {
+      if (!card.isConnected) { clearInterval(clock); clock = null; return; }
+      time.v.textContent = fmtClock(elapsed(key));
+    };
     const update = () => {
       const st = dayStats(key);
       title.textContent = dayTitle(key);
@@ -1131,11 +1238,16 @@ Penktadienis C
         sets.bar.style.width = pct(st.sets, st.planned);
         exs.v.textContent = `${st.done}/${st.total}`;
         exs.bar.style.width = pct(st.done, st.total);
-        vol.v.textContent = '';
-        vol.v.append(kg(st.volume), ' ', el('small', null, 'kg'));
-        const before = lastVolume(key);
-        vol.bar.style.width = before ? pct(st.volume, before) : pct(st.sets, st.planned);
+        time.v.textContent = fmtClock(elapsed(key));
+        time.v.style.color = db.timers[key] ? '' : 'var(--faint)';
       }
+      // Start and Finish belong to today; a finished workout just shows its time.
+      const t = db.timers[key];
+      go.hidden = !active || !isToday || !!(t && t.end);
+      go.textContent = t ? `${T().finishWorkout} ■` : `${T().startWorkout} ▸`;
+      go.classList.toggle('stop', !!t);
+      clearInterval(clock);
+      clock = running(key) ? setInterval(tickClock, 1000) : null;
       const upcoming = !active && isToday ? nextWorkout(key) : null;
       next.hidden = !upcoming;
       if (upcoming) next.textContent = upcoming;
@@ -1206,6 +1318,18 @@ Penktadienis C
   let current = {};
   const blocks = new WeakMap();
   const openEx = new WeakSet(); // exercises whose card is open
+  const folds = new WeakMap();  // card element -> open/close it
+
+  // After the fold settles, make sure the opened card and its first rows are on screen.
+  function bringIntoView(block) {
+    setTimeout(() => {
+      if (!block.isConnected) return;
+      const r = block.getBoundingClientRect();
+      const bottom = window.innerHeight - 150;   // above the tab bar and the rest strip
+      if (r.top < 12) window.scrollBy({ top: r.top - 12, behavior: 'smooth' });
+      else if (r.top > bottom - 160) window.scrollBy({ top: Math.min(r.top - 80, r.bottom - bottom), behavior: 'smooth' });
+    }, 360);
+  }
 
   // The Track. mark (the #mark symbol in the page, same geometry as logo.svg).
   function mark() {
@@ -1342,7 +1466,7 @@ Penktadienis C
     // Today: the first exercise that isn't finished is open, ready to log.
     if (isToday && !exs.some(e => openEx.has(e))) {
       const first = exs.find(e => e.sets.length < (e.target ? e.target.sets : 1));
-      if (first) blocks.get(first).toggle(true);
+      if (first) blocks.get(first).toggle(true, true);
     }
     const head = el('div', { class: 'section-h' }, el('h2', null, T().program), el('span', null, T().exerciseCount(exs.length)));
     const chips = programChips(exs, list);
@@ -1428,19 +1552,29 @@ Penktadienis C
     const removeEx = el('button', {
       type: 'button', class: 'remove-ex', 'aria-label': T().removeExercise(label), onclick: removeExercise,
     }, T().removeExerciseText);
-    const body = el('div', { class: 'ex-body', hidden: true }, sets, entry, removeEx);
+    const body = el('div', { class: 'ex-body' }, el('div', { class: 'ex-fold' }, el('div', { class: 'ex-pad' }, sets, entry, removeEx)));
+    body.inert = true;
     const block = el('article', { class: 'ex', 'data-muscle': muscleOf(ex.name) }, card, body);
-    blocks.set(ex, { block, toggle, focus: () => { toggle(true); kg.focus(); } });
-    if (openEx.has(ex)) toggle(true);
+    blocks.set(ex, { block, toggle, focus: () => { toggle(true, true); kg.focus({ preventScroll: true }); bringIntoView(block); } });
+    folds.set(block, open => toggle(open));
+    if (openEx.has(ex)) toggle(true, true);
     paint(false);
     return block;
 
-    function toggle(open = body.hidden) {
-      body.hidden = !open;
+    // One card open at a time: opening this one folds the others shut.
+    function toggle(open = !block.classList.contains('open'), quiet = false) {
+      if (open === block.classList.contains('open')) return;
+      if (open && block.parentElement) {
+        for (const other of block.parentElement.querySelectorAll('.ex.open')) {
+          if (other !== block && folds.has(other)) folds.get(other)(false);
+        }
+      }
+      body.inert = !open;
       card.setAttribute('aria-expanded', String(open));
       block.classList.toggle('open', open);
       if (open) openEx.add(ex);
       else openEx.delete(ex);
+      if (open && !quiet) bringIntoView(block);
     }
 
     function paint(added) {
@@ -1546,6 +1680,7 @@ Penktadienis C
       reps.value = '';
       closeReveal();
       paint(true);
+      afterSet(key, ex);
       if (viaTap && document.activeElement && entry.contains(document.activeElement)) document.activeElement.blur();
     }
 
@@ -1561,6 +1696,24 @@ Penktadienis C
       refreshNames();
       retitle(key);
     }
+  }
+
+  // Rest between sets, longer between exercises, then the next exercise opens by itself.
+  const REST_SET = 90;
+  const REST_EXERCISE = 180;
+  const unfinished = e => e.sets.length < (e.target ? e.target.sets : 1);
+  function afterSet(key, ex) {
+    if (key !== todayKey()) return;
+    startWorkout(key);
+    if (cardioEx(ex)) return;
+    const done = ex.target ? ex.sets.length >= ex.target.sets : false;
+    if (!done) return rest.start(REST_SET);
+    const next = (db.days[key] || []).find(e => e !== ex && unfinished(e));
+    if (!next) return rest.stop();   // last set of the day: no rest, the card offers Finish
+    rest.start(REST_EXERCISE);
+    const b = blocks.get(next);
+    const typing = !!document.activeElement && !!document.activeElement.closest && !!document.activeElement.closest('.ex-body');
+    if (b) setTimeout(() => (typing ? b.focus() : b.toggle(true)), 420);
   }
 
   function addExerciseForm(key, list) {
@@ -1698,6 +1851,86 @@ Penktadienis C
     save();
     renderPlan();
   }
+
+  // The rest countdown lives outside the views, so it keeps running across tabs and reloads.
+  const rest = (() => {
+    const RKEY = 'track.rest';
+    const line = el('i');
+    const label = el('span', { class: 'rest-l' });
+    const clockEl = el('span', { class: 'rest-t', 'aria-live': 'off' });
+    const more = el('button', { type: 'button', onclick: () => add(15) }, '+15');
+    const skip = el('button', { type: 'button', onclick: () => stop() });
+    const node = el('div', { class: 'rest off', role: 'timer', 'aria-hidden': 'true' },
+      el('div', { class: 'rest-in' }, el('div', { class: 'rest-line' }, line), label, clockEl, more, skip));
+    node.inert = true;
+    document.body.append(node);
+    let state = null;   // { until, total } in ms
+    let timer = null;
+    let doneAt = 0;
+    try { state = JSON.parse(localStorage.getItem(RKEY)); } catch (_) { state = null; }
+    if (!state || !Number.isFinite(state.until) || !Number.isFinite(state.total) || state.until < Date.now() - 5000) state = null;
+
+    function persist() {
+      try { if (state) localStorage.setItem(RKEY, JSON.stringify(state)); else localStorage.removeItem(RKEY); } catch (_) { /* ignore */ }
+    }
+    function paint() {
+      const t = T();
+      skip.textContent = t.skipRest;
+      if (!state) return;
+      const left = state.until - Date.now();
+      if (left <= 0) {
+        if (!doneAt) {
+          doneAt = Date.now();
+          node.classList.add('done');
+          if (document.visibilityState === 'visible' && navigator.vibrate) navigator.vibrate([180, 90, 180]);
+        }
+        label.textContent = t.goNow;
+        clockEl.textContent = '0:00';
+        line.style.transform = 'scaleX(0)';
+        if (Date.now() - doneAt > 2600) stop();
+        return;
+      }
+      label.textContent = t.restLabel;
+      clockEl.textContent = fmtClock(left + 999);
+      line.style.transform = `scaleX(${Math.min(1, left / state.total)})`;
+    }
+    function show(on) {
+      node.classList.toggle('off', !on);
+      node.setAttribute('aria-hidden', String(!on));
+      node.inert = !on;
+      document.body.classList.toggle('resting', on);
+    }
+    function run() {
+      clearInterval(timer);
+      doneAt = 0;
+      node.classList.remove('done');
+      paint();
+      show(true);
+      timer = setInterval(paint, 250);
+    }
+    function start(seconds) {
+      state = { until: Date.now() + seconds * 1000, total: seconds * 1000 };
+      persist();
+      run();
+    }
+    function add(seconds) {
+      if (!state) return;
+      const base = Math.max(Date.now(), state.until);
+      state = { until: base + seconds * 1000, total: Math.max(state.total, base + seconds * 1000 - Date.now()) };
+      persist();
+      run();
+    }
+    function stop() {
+      clearInterval(timer);
+      timer = null;
+      state = null;
+      persist();
+      show(false);
+    }
+    if (state) run();
+    document.addEventListener('visibilitychange', () => { if (state && document.visibilityState === 'visible') paint(); });
+    return { start, stop };
+  })();
 
   // Page language and the tab bar's labels (the bar lives outside the views).
   function applyLang() {
@@ -1915,6 +2148,7 @@ Penktadienis C
   }
 
   function route() {
+    settleTimers();
     if (!db.onboarded) return renderProfile(true);
     if (current.view === 'plan') flushPlan();
     let h = location.hash.replace(/^#\/?/, '');
