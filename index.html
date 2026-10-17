@@ -111,7 +111,7 @@
   .label { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .label b { color: var(--fg); font-weight: 700; }
 
-  /* profile header: avatar, name (tap to edit), level, bell */
+  /* profile header: avatar, name (tap to edit), level */
   .profile { display: flex; align-items: center; gap: 12px; min-height: 52px; }
   .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; color: var(--fg); margin-left: -12px; }
   .avatar .mark { width: 20px; height: 20px; }
@@ -119,10 +119,6 @@
   .who-name { display: block; width: 100%; padding: 12px 0; margin: -10px 0; font-family: var(--display); font-size: 17px; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .who-name.empty { color: var(--faint); }
   .who-level { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
-  .bell { position: relative; display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-right: -10px; color: var(--dim); }
-  .bell svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-  .bell.due { color: var(--fg); }
-  .bell.due::after { content: ''; position: absolute; top: 11px; right: 11px; width: 7px; height: 7px; border-radius: 50%; background: var(--fg); }
 
   /* the day's card: the workout, date, ring and three stats */
   .card {
@@ -497,7 +493,6 @@
       removeExerciseText: 'Remove exercise',
       yourName: 'Your name',
       levels: ['Gym beginner', 'Regular', 'Dedicated', 'Veteran'],
-      backupDue: 'Backup due',
       ob: {
         welcome: 'Welcome,',
         name: 'Name',
@@ -565,7 +560,6 @@
       removeExerciseText: 'Šalinti pratimą',
       yourName: 'Tavo vardas',
       levels: ['Pradedantysis', 'Reguliarus', 'Atsidavęs', 'Veteranas'],
-      backupDue: 'Laikas atsarginei kopijai',
       ob: {
         welcome: 'Sveiki,',
         name: 'Vardas',
@@ -1323,15 +1317,11 @@ Penktadienis C
   }
 
   function header() {
-    const due = !!backupDue();
-    const bell = el('a', { href: '#/history', class: `bell${due ? ' due' : ''}`, 'aria-label': due ? T().backupDue : T().tabs.history });
-    bell.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>';
     return el('div', null,
       el('header', { class: 'profile' },
         el('a', { href: '#/profile', class: 'avatar', 'aria-label': T().ob.name }, mark()),
         el('div', { class: 'who' }, nameField(),
-          el('div', { class: 'who-level' }, db.goal ? `${level()} · ${T().goals[db.goal]}` : level())),
-        bell),
+          el('div', { class: 'who-level' }, db.goal ? `${level()} · ${T().goals[db.goal]}` : level()))),
       el('p', { class: 'warn', hidden: storageOk }, T().cantSave));
   }
 
