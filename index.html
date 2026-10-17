@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@100..600&display=swap" crossorigin media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@100..700&family=Geist:wght@100..600&family=JetBrains+Mono:wght@400;500&display=swap" crossorigin media="print" onload="this.media='all'">
 <style>
   :root {
     --bg: #000;
@@ -27,6 +27,10 @@
     --ghost: rgba(255, 255, 255, .26); /* last session's numbers: there if you look */
     --line: rgba(255, 255, 255, .14);  /* hairlines: the card's outline, ring and bar tracks */
     --font: "Geist", "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif;
+    --display: "Antonio", "Arial Narrow", "Helvetica Neue", sans-serif;   /* tall condensed headlines */
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; /* small labels */
+    --crimson: #800a20;        /* deep crimson: the artwork's base */
+    --crimson-hi: #d4203f;     /* crimson that reads on black: bars, markers, label marks */
     --ease: cubic-bezier(.2, .8, .2, 1);
     color-scheme: dark;
   }
@@ -96,48 +100,73 @@
   .warn { margin-top: 8px; font-size: 13px; color: var(--dim); }
 
   .title {
-    margin-top: 64px;
-    font-weight: 100;
-    font-size: clamp(48px, 15vw, 64px);
-    line-height: .95;
-    letter-spacing: -.04em;
+    margin-top: 56px;
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(60px, 19vw, 80px);
+    line-height: .92;
+    letter-spacing: -.005em;
   }
-  .sub { margin-top: 12px; font-size: 15px; color: var(--dim); }
+  .sub { margin-top: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .label { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+  .label b { color: var(--crimson-hi); font-weight: 500; }
 
   /* day */
   /* The day's card: workout, date, progress ring and three stats. */
-  .card { margin-top: 40px; padding: 22px 20px 20px; border: 1px solid var(--line); border-radius: 22px; }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-  .card .title { margin-top: 0; font-size: clamp(40px, 12vw, 52px); overflow-wrap: anywhere; }
-  .ring { position: relative; flex: none; width: 76px; height: 76px; }
+  .card { margin-top: 28px; }
+  .art { position: relative; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: var(--crimson) center / cover no-repeat; }
+  .card .label { margin-top: 20px; }
+  .card .title { margin-top: 8px; font-size: clamp(54px, 17vw, 72px); overflow-wrap: anywhere; }
+  .card .sub { margin-top: 10px; }
+  .ring { position: absolute; right: 14px; bottom: 14px; width: 78px; height: 78px; }
+  .ring::before { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: rgba(0, 0, 0, .6); }
   .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .ring circle { fill: none; stroke-width: 2.5; }
-  .ring .track { stroke: var(--line); }
+  .ring .track { stroke: rgba(255, 255, 255, .25); }
   .ring .fill { stroke: var(--fg); stroke-linecap: round; transition: stroke-dashoffset .4s var(--ease); }
-  .ring-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-size: 17px; line-height: 1.15; }
-  .ring-text small { font-size: 11px; color: var(--dim); }
-  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 26px; }
-  .stat-v { font-size: 17px; font-weight: 500; white-space: nowrap; }
-  .stat-v small { font-size: 12px; font-weight: 400; color: var(--dim); }
-  .stat-l { margin-top: 2px; font-size: 12px; color: var(--dim); }
+  .ring-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-family: var(--display); font-size: 21px; line-height: 1.05; }
+  .ring-text small { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+  .stat-v { font-family: var(--display); font-size: 28px; font-weight: 400; line-height: 1; white-space: nowrap; }
+  .stat-v small { font-family: var(--mono); font-size: 10px; color: var(--dim); }
+  .stat-l { margin-top: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
   .bar { height: 2px; margin-top: 10px; border-radius: 1px; background: var(--line); overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--fg); transition: width .4s var(--ease); }
-  .next { margin-top: 18px; font-size: 14px; color: var(--dim); }
-  .list { margin-top: 40px; }
-  .ex { margin-bottom: 44px; }
-  .head { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; }
+  .bar i { display: block; height: 100%; background: var(--crimson-hi); transition: width .4s var(--ease); }
+  .next { margin-top: 16px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .list { margin-top: 44px; }
+  .ex { margin-bottom: 40px; }
+  /* Each exercise opens with a crimson artwork banner (by muscle group), name over it. */
+  .head {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    column-gap: 16px;
+    min-height: 84px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--crimson) right center / cover no-repeat;
+    isolation: isolate;
+  }
+  .head::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
+    linear-gradient(0deg, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, 0) 75%),
+    linear-gradient(90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .55) 55%, rgba(0, 0, 0, .1) 100%); }
   .head > .remove, .head > .target { grid-column: 2; grid-row: 1; justify-self: end; }
   /* Plain text in the same cell as "remove": it must never catch the tap meant for it. */
-  .target { color: var(--dim); font-size: 15px; transition: opacity .15s; pointer-events: none; }
+  .target { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--fg); transition: opacity .15s; pointer-events: none; }
   .remove.on + .target, .remove:focus-visible + .target { opacity: 0; }
   .ex-name {
-    padding: 6px 0;
-    font-size: 19px;
-    font-weight: 500;
-    letter-spacing: -.01em;
+    padding: 2px 0;
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.05;
     overflow-wrap: anywhere;
   }
+  .head .remove { color: var(--fg); }
 
+  .sets { margin-top: 6px; }
   .row {
     display: grid;
     grid-template-columns: 1.6em 3.6em 1.7em 1.1em 2.6em 1fr 2.2em;
@@ -145,7 +174,7 @@
     font-size: 17px;
   }
   .row > * { padding: 8px 0; }
-  .n { color: var(--faint); font-size: 13px; }
+  .n { font-family: var(--mono); color: var(--faint); font-size: 12px; }
   .w, .kg { text-align: right; padding-right: .3em; }
   .u { color: var(--dim); }
   .set { cursor: pointer; }
@@ -156,12 +185,12 @@
   .remove.on, .remove:focus-visible { opacity: 1; pointer-events: auto; }
   .plus { grid-column: 7; }
   /* Last session's matching set, barely visible at the right; "remove" takes its place. */
-  .prev { grid-column: 6; grid-row: 1; justify-self: end; font-size: 13px; color: var(--ghost); white-space: nowrap; transition: opacity .15s; }
+  .prev { grid-column: 6; grid-row: 1; justify-self: end; font-family: var(--mono); font-size: 12px; color: var(--ghost); white-space: nowrap; transition: opacity .15s; }
   .set .remove { grid-column: 6 / 8; grid-row: 1; }
   .remove.on + .prev, .remove:focus-visible + .prev { opacity: 0; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .add-ex input { padding: 8px 0; font-size: 19px; font-weight: 500; letter-spacing: -.01em; }
+  .add-ex input { padding: 8px 0; font-family: var(--display); font-size: 26px; font-weight: 400; }
 
 
   /* plan */
@@ -178,11 +207,11 @@
   }
   .hint { margin-top: 40px; font-size: 13px; line-height: 1.6; color: var(--dim); }
   /* Comfortable tap targets; the negative margins keep the letters aligned with the summary. */
-  .lang { display: flex; align-items: center; gap: 2px; align-self: flex-start; margin: -10px -8px 0 0; font-size: 15px; color: var(--ghost); }
+  .lang { display: flex; align-items: center; gap: 2px; align-self: flex-start; margin: -10px -8px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ghost); }
   .lang button { padding: 10px 8px; color: var(--dim); transition: color .2s; }
   .lang button[aria-pressed="true"] { color: var(--fg); }
   .presets { display: flex; flex-wrap: wrap; gap: 2px 24px; margin-top: 36px; }
-  .presets button { padding: 6px 0; font-size: 15px; color: var(--dim); transition: color .2s; }
+  .presets button { padding: 6px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); transition: color .2s; }
   .presets button[aria-pressed="true"] { color: var(--fg); }
 
   /* history: a month calendar */
@@ -192,27 +221,30 @@
   .months a, .months span { padding: 6px 10px; font-size: 26px; font-weight: 200; line-height: 1; color: var(--dim); transition: color .2s; }
   .months .off { color: var(--ghost); }
   .cal { margin-top: 44px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 4px; text-align: center; touch-action: pan-y; }
-  .wd { padding-bottom: 12px; font-size: 12px; color: var(--faint); }
+  .wd { padding-bottom: 12px; font-family: var(--mono); font-size: 11px; color: var(--faint); }
   .cal-day {
     display: flex;
     flex-direction: column;
     align-items: center;
     min-width: 0;
-    min-height: 54px;
+    min-height: 56px;
     padding-top: 8px;
-    font-size: 17px;
+    font-family: var(--display);
+    font-size: 21px;
     color: var(--ghost);
   }
-  .cal-day.has { color: var(--fg); font-weight: 500; }
+  .cal-day.has { color: var(--fg); }
   .cal-day.future { color: rgba(255, 255, 255, .14); }
-  .cal-day.today .num { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+  .cal-day.today .num { text-decoration: underline; text-decoration-color: var(--crimson-hi); text-decoration-thickness: 2px; text-underline-offset: 5px; }
   .cal-name {
     max-width: 100%;
     margin-top: 4px;
     overflow: hidden;
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 8.5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--crimson-hi);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -220,7 +252,7 @@
   footer { margin-top: 72px; font-size: 14px; }
   .backup { font-size: 13px; color: var(--faint); }
   .backup-actions { display: flex; gap: 24px; }
-  footer button { color: var(--dim); padding: 10px 0; transition: color .2s; }
+  footer button { color: var(--dim); padding: 10px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; transition: color .2s; }
   footer button.due { color: var(--fg); }
 
   /* bottom tab bar: History · Today · Plan */
@@ -879,6 +911,28 @@ Penktadienis C
     return null;
   }
 
+  // Artwork: one per planned workout (by its place in the plan), one per muscle group.
+  function dayArt(key) {
+    const title = dayTitle(key);
+    if (title === T().rest) return 'art/day-4.png';
+    const i = parsePlan(db.plan).findIndex(r => r.name === title);
+    return `art/day-${i < 0 ? 5 : [1, 2, 3, 5, 6][i % 5]}.png`;
+  }
+
+  const MUSCLES = [
+    ['core', /plank|lenta|crunch|\babs\b|core|hanging|kybant/],
+    ['shoulders', /shoulder|pečių|lateral|šonin|į šalis|delt|upright|smakro|face ?pull|facepull|veido|rear|pec deck|atvedimas/],
+    ['legs', /squat|pritūp|\bleg|kojų|lunge|įtūp|split|rdl|deadlift|mirties|calf|blauzd|glute|sėdmen/],
+    ['back', /\brow\b|trauka|pulldown|pull-?up|\blat\b|chin|back|nugar/],
+    ['chest', /bench|press|spaudimas|chest|krūtin|\bfly|\bdips?\b/],
+    ['arms', /curl|lenkimas|bicep|tricep|pushdown|extension|tiesimas/],
+  ];
+  const muscleArt = name => {
+    const n = name.toLowerCase();
+    const hit = MUSCLES.find(([, re]) => re.test(n));
+    return `art/${hit ? hit[0] : 'other'}.png`;
+  };
+
   let refreshCard = () => {};
 
   function dayCard(key, isToday) {
@@ -901,6 +955,7 @@ Penktadienis C
     svg.append(circle('track'), fill);
     const ringNum = el('span');
     const ring = el('div', { class: 'ring' }, svg, el('div', { class: 'ring-text' }, ringNum, el('small', null, T().ringOf)));
+    const art = el('div', { class: 'art', role: 'img', 'aria-hidden': 'true' }, ring);
 
     const title = el('h1', { class: 'title' });
     const stat = label => {
@@ -914,7 +969,10 @@ Penktadienis C
     const statsRow = el('div', { class: 'stats' }, sets.node, exs.node, vol.node);
     const next = el('p', { class: 'next' });
     const card = el('section', { class: 'card' },
-      el('div', { class: 'card-top' }, el('div', null, title, el('p', { class: 'sub' }, fullDate(key))), ring),
+      art,
+      el('p', { class: 'label' }, el('b', null, '#'), isToday ? T().tabs.today : T().tabs.history),
+      title,
+      el('p', { class: 'sub' }, fullDate(key)),
       statsRow, next);
 
     const pct = (a, b) => `${b ? Math.min(100, Math.round((a / b) * 100)) : 0}%`;
@@ -922,6 +980,7 @@ Penktadienis C
     const update = () => {
       const st = dayStats(key);
       title.textContent = dayTitle(key);
+      art.style.backgroundImage = `url(${dayArt(key)})`;
       const active = st.total > 0;
       ring.hidden = !active || !st.planned;
       statsRow.hidden = !active;
@@ -1135,7 +1194,9 @@ Penktadienis C
     }, label);
 
     const target = ex.target && el('span', { class: 'target' }, fmtTarget(ex.target));
-    const block = el('article', { class: 'ex' }, el('div', { class: 'head' }, name, remove, target), sets, entry);
+    const head = el('div', { class: 'head' }, name, remove, target);
+    head.style.backgroundImage = `url(${muscleArt(ex.name)})`;
+    const block = el('article', { class: 'ex' }, head, sets, entry);
     blocks.set(ex, block);
     paint(false);
     return block;

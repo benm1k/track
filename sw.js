@@ -12,6 +12,20 @@ const SHELL = [
   './icon-512.png',
   './icon-maskable-512.png',
   './apple-touch-icon.png',
+  './art/arms.png',
+  './art/back.png',
+  './art/chest.png',
+  './art/core.png',
+  './art/day-1.png',
+  './art/day-2.png',
+  './art/day-3.png',
+  './art/day-4.png',
+  './art/day-5.png',
+  './art/day-6.png',
+  './art/legs.png',
+  './art/other.png',
+  './art/shoulders.png',
+  './art/signin.png',
 ];
 const SHELL_URLS = new Set(SHELL.map(u => new URL(u, self.location).href));
 const FONT_HOSTS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
