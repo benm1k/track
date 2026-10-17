@@ -95,7 +95,6 @@
     gap: 16px;
     font-size: 15px;
   }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; padding: 10px 0; }
   .mark { width: 19px; height: 19px; flex: none; }
   .warn { margin-top: 8px; font-size: 13px; color: var(--dim); }
 
@@ -111,34 +110,26 @@
   .label { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .label b { color: var(--fg); font-weight: 700; }
 
-  /* profile header: avatar, name (tap to edit), level */
-  .profile { display: flex; align-items: center; gap: 12px; min-height: 52px; }
+  /* profile header: the mark, your name and level; the whole row opens the profile */
+  .profile { display: flex; align-items: center; gap: 12px; min-height: 52px; transition: opacity .2s; -webkit-touch-callout: none; }
+  .profile:active { opacity: .6; }
   .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; color: var(--fg); margin-left: -12px; }
   .avatar .mark { width: 20px; height: 20px; }
   .who { flex: 1; min-width: 0; }
-  .who-name { display: block; width: 100%; padding: 12px 0; margin: -10px 0; font-family: var(--display); font-size: 17px; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .who-name { display: block; font-family: var(--display); font-size: 17px; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .who-name.empty { color: var(--faint); }
-  .who-level { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
+  .who-level { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
 
-  /* the day's card: the workout, date, ring and three stats */
+  /* the day's card: the workout, date and three stats */
   .card {
     display: flex;
     flex-direction: column;
     margin-top: 20px;
     padding: 18px 0;
   }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
   .card .title { margin-top: 6px; font-size: clamp(26px, 8vw, 32px); overflow-wrap: anywhere; }
   .card .sub { margin-top: 6px; color: rgba(255, 255, 255, .8); }
   .card .label { color: rgba(255, 255, 255, .8); }
-  .ring { position: relative; flex: none; width: 74px; height: 74px; }
-  .ring::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--bg); }
-  .ring svg, .mini svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .ring circle, .mini circle { fill: none; stroke-width: 1.2; }
-  .ring .track, .mini .track { stroke: rgba(255, 255, 255, .16); }
-  .ring .fill, .mini .fill { stroke: var(--fg); stroke-linecap: butt; transition: stroke-dashoffset .4s var(--ease); }
-  .ring-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-family: var(--display); font-size: 16px; font-weight: 700; line-height: 1.1; }
-  .ring-text small { font-family: var(--mono); font-size: 9px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
   .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: auto; padding-top: 22px; }
   .stat-v { font-family: var(--display); font-size: 20px; font-weight: 400; line-height: 1; white-space: nowrap; }
   .stat-v small { font-family: var(--mono); font-size: 10px; color: rgba(255, 255, 255, .75); }
@@ -149,30 +140,24 @@
   .go.stop { color: var(--dim); }
   .stat-v.live { font-variant-numeric: tabular-nums; }
   .next { margin-top: auto; padding-top: 22px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
+  .next + .next { margin-top: 0; padding-top: 8px; }
 
-  /* workout program: heading, one card per exercise (tap to log) */
-  .section-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 32px; }
-  .section-h h2 { font-family: var(--display); font-size: 17px; font-weight: 700; }
-  .section-h span { flex: none; white-space: nowrap; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
-  .list { margin-top: 16px; }
+  /* the workout: one card per exercise (tap to log) */
+  .list { margin-top: 24px; }
   .ex { margin-bottom: 12px; }
   .ex-card {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
+    align-content: center;
     width: 100%;
     min-height: 84px;
     padding: 14px 0;
   }
   .ex-info { display: grid; gap: 4px; min-width: 0; }
-  .ex-name { font-family: var(--display); font-size: 17px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .ex-name { font-family: var(--display); font-size: 17px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; transition: color .3s; }
+  .ex.done .ex-name { color: var(--dim); }   /* today: finished lifts step back */
   .ex-sub { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: rgba(255, 255, 255, .8); }
   .ex-meta { margin-top: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .7); }
-  .mini { position: relative; width: 52px; height: 52px; }
-  .mini::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--bg); }
-  .mini .ring-text { font-size: 11px; }
   /* The set list folds open and shut: rows animate 0fr -> 1fr, so the height follows the content. */
   .ex-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .34s var(--ease), opacity .22s ease; }
   .ex.open .ex-body { grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .34s var(--ease), opacity .3s ease .06s; }
@@ -180,8 +165,11 @@
   .ex-pad { padding: 6px 2px 10px; }
   .ex-card { transition: transform .18s var(--ease); }
   .ex-card:active { transform: scale(.985); }
-  .mini .fill, .ring .fill { transition: stroke-dashoffset .5s var(--ease); }
-  .remove-ex { min-height: 48px; padding: 14px 32px 14px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+  /* Under the sets: the lift's history on the left, remove on the right. */
+  .ex-foot { display: flex; justify-content: space-between; gap: 16px; }
+  .ex-foot a, .ex-foot button { display: flex; align-items: center; min-height: 48px; padding: 14px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); transition: color .2s; }
+  .ex-foot a { padding-right: 32px; color: var(--dim); }
+  .ex-foot button { margin-left: auto; padding-left: 32px; }
   .sets { margin-top: 6px; }
   .row {
     display: grid;
@@ -200,10 +188,15 @@
   .remove { font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .15s; }
   .remove.on, .remove:focus-visible { opacity: 1; pointer-events: auto; }
   .plus { grid-column: 7; }
+  .plus.save { font-size: 18px; }   /* ✓ while changing a logged set */
   /* Last session's matching set, barely visible at the right; "remove" takes its place. */
   .prev { grid-column: 6; grid-row: 1; justify-self: end; font-family: var(--mono); font-size: 12px; color: var(--ghost); white-space: nowrap; transition: opacity .15s; }
   .set .remove { grid-column: 6 / 8; grid-row: 1; }
   .remove.on + .prev, .remove:focus-visible + .prev { opacity: 0; }
+  /* A set that beat your best for the lift. */
+  .pr { grid-column: 6; grid-row: 1; justify-self: start; padding-left: .7em; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .04em; color: var(--fg); }
+  /* The set being changed: its numbers are up in the fields below. */
+  .set.editing, .set.editing .u { color: var(--faint); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   .add-ex input { padding: 16px 0; font-family: var(--display); font-size: 17px; font-weight: 700; }
@@ -221,7 +214,10 @@
     outline: none;
     caret-color: var(--fg);
   }
-  .hint { margin-top: 40px; font-size: 13px; line-height: 1.6; color: var(--dim); }
+  /* How to write a plan: a few example lines, each with a word on what it does. */
+  .hint { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 18px; margin-top: 40px; font-size: 12px; line-height: 1.5; }
+  .hint code { font: inherit; color: var(--dim); white-space: nowrap; }
+  .hint span { color: var(--faint); }
   /* Comfortable tap targets; the negative margins keep the letters aligned with the summary. */
   .lang { display: flex; align-items: center; gap: 0; align-self: flex-start; margin: -14px -14px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ghost); }
   .lang button { min-width: 46px; padding: 14px 14px; text-align: center; color: var(--dim); transition: color .2s; }
@@ -264,7 +260,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .cal-name.rest { color: var(--ghost); }
   footer { margin-top: 72px; font-size: 14px; }
   .backup { font-size: 13px; color: var(--faint); }
   .backup-actions { display: flex; gap: 24px; }
@@ -325,16 +320,18 @@
   .rest-t { flex: 1; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .restbar button { padding: 18px 8px; margin: 0 -8px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
   .restbar button:active { color: var(--fg); }
+  /* The countdown itself: tap it to change how long you rest. */
+  .restbar .rest-t { margin: 0; padding: 16px 0; font-family: var(--font); font-size: 22px; letter-spacing: 0; text-transform: none; color: var(--fg); }
+  .restbar .rest-t:active { opacity: .6; }
   .restbar.done .rest-t { animation: nope .6s ease 2; }
   body.resting main { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
   body.kb .restbar, body.onboarding .restbar { display: none; }
 
-  /* profile (first launch and from the avatar): artwork, "Welcome, <name>", four fields */
+  /* profile (first launch, and from the header): your name and the language */
   body.onboarding .tabbar { display: none; }
   body.onboarding main { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
   .ob { display: flex; flex-direction: column; min-height: calc(100dvh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom))); }
   .ob-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
-  .ob-top .lang { text-shadow: 0 0 6px #000, 0 0 2px #000; }
   .ob-close { display: grid; place-items: center; width: 44px; height: 44px; margin-left: -10px; font-size: 22px; }
   .ob-head { margin-top: 14vh; }
   .ob-hello { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 8.5vw, 34px); line-height: 1.15; letter-spacing: -.02em; overflow-wrap: anywhere; }
@@ -353,10 +350,20 @@
   .row.cardio { grid-template-columns: 1.6em 3.6em 2.2em 3.4em 1.9em 1fr 2.2em; }
   .row.cardio .kg, .row.cardio .km { text-align: right; padding-right: .3em; }
 
+  /* one lift's history: every session, newest first */
+  .back { display: grid; place-items: center; width: 44px; height: 44px; margin: -6px 0 0 -12px; font-size: 22px; }
+  .hist .title { margin-top: 28px; overflow-wrap: anywhere; }
+  .sessions { margin-top: 36px; }
+  .session { display: grid; grid-template-columns: 5.4em minmax(0, 1fr) 2em; gap: 12px; align-items: baseline; padding: 13px 0; font-size: 14px; }
+  .session-d { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+  .session-s { overflow-wrap: anywhere; }
+  .session .pr { padding-left: 0; justify-self: end; }
+  .empty-note { margin-top: 36px; font-size: 13px; color: var(--faint); }
+
   @media (hover: hover) {
-    .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
+    .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover, .ex-foot a:hover, .ex-foot button:hover, a.session:hover .session-d { color: var(--fg); }
   }
-  footer button:active, .act:active, .presets button:active, .months a:active, a.cal-day:active { color: var(--fg); }
+  footer button:active, .act:active, .presets button:active, .months a:active, a.cal-day:active, .ex-foot a:active, .ex-foot button:active, a.session:active .session-d { color: var(--fg); }
 
   /* motion */
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -440,15 +447,30 @@
     en: {
       rest: 'Rest',
       workout: 'Workout',
+      cardio: 'Cardio',
       addExercise: 'Add exercise',
       remove: 'remove',
       exercises: 'Exercises',
       weight: name => `${name} weight, kg`,
       reps: name => `${name} reps`,
       addSet: name => `Add set to ${name}`,
+      saveSet: i => `Save set ${i}`,
       removeExercise: name => `Remove ${name}`,
+      removeAsk: (name, n) => `Remove ${name} and its ${n} set${n === 1 ? '' : 's'}?`,
       removeSet: i => `Remove set ${i}`,
       lastTime: 'last time ',
+      pr: 'Personal record',
+      history: 'History',
+      back: 'Back',
+      best: 'best',
+      sessions: n => `${n} session${n === 1 ? '' : 's'}`,
+      nothingYet: 'Nothing logged yet.',
+      minutes: 'Minutes',
+      km: 'Km',
+      thisWeek: (n, planned) => (planned ? `This week ${n}/${planned}` : `This week: ${n} workout${n === 1 ? '' : 's'}`),
+      setCount: n => `${n} set${n === 1 ? '' : 's'}`,
+      duration: (h, m) => (h ? `${h} h ${m} min` : `${m} min`),
+      restLength: s => `Rest length ${s}, tap to change`,
       cantSave: 'Can’t save on this device. Private browsing?',
       days: 'Days',
       month: 'Month',
@@ -471,12 +493,11 @@
       planPlaceholder: 'Monday Push\n- Bench press 4x8',
       dayShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       hint: [
-        'Tap a preset above to start from it, or write your own. ',
-        'Start each workout with the day you train it, e.g. “Monday Push”; it loads on that day, and other days are rest days. ',
-        'List exercises as “- Squat 5x8” or with ranges, “- Bench 3-4x6-8”. ',
-        'Cardio takes time and distance: “- Running 30min” or “- Bike 20min 8km”. ',
-        'Use / for alternates; they take turns each session. ',
-        'Changes apply to days you haven’t started yet.',
+        ['Monday Push', 'a workout for Mondays'],
+        ['- Squat 5x8', 'sets × reps'],
+        ['- Bench 3-4x6-8', 'or ranges'],
+        ['- Running 30min 5km', 'cardio'],
+        ['- Row / Pulldown 3x12', 'take turns'],
       ],
       tabs: { main: 'Main', history: 'History', today: 'Today', plan: 'Plan' },
       sets: 'Sets',
@@ -486,36 +507,44 @@
       restLabel: 'Rest',
       skipRest: 'Skip',
       goNow: 'Go',
-      ringOf: 'sets',
       next: (name, day) => `Next: ${name}, ${day}`,
-      program: 'Workout program',
-      exerciseCount: n => `${n} exercise${n === 1 ? '' : 's'}`,
       removeExerciseText: 'Remove exercise',
       yourName: 'Your name',
       levels: ['Gym beginner', 'Regular', 'Dedicated', 'Veteran'],
       ob: {
         welcome: 'Welcome,',
         name: 'Name',
-        age: 'Age',
-        height: 'Height (cm)',
-        weight: 'Weight (kg)',
         start: 'Start',
         save: 'Save',
       },
-      goals: { muscle: 'Build muscle', strength: 'Get stronger', fat: 'Lose fat', fit: 'Stay fit' },
     },
     lt: {
       rest: 'Poilsis',
       workout: 'Treniruotė',
+      cardio: 'Kardio',
       addExercise: 'Pridėti pratimą',
       remove: 'šalinti',
       exercises: 'Pratimai',
       weight: name => `${name}: svoris, kg`,
       reps: name => `${name}: pakartojimai`,
       addSet: name => `Pridėti seriją: ${name}`,
+      saveSet: i => `Išsaugoti ${i} seriją`,
       removeExercise: name => `Šalinti: ${name}`,
+      removeAsk: (name, n) => `Šalinti „${name}“ ir ${n} ${ltPlural(n, 'seriją', 'serijas', 'serijų')}?`,
       removeSet: i => `Šalinti ${i} seriją`,
       lastTime: 'praeitą kartą ',
+      pr: 'Asmeninis rekordas',
+      history: 'Istorija',
+      back: 'Atgal',
+      best: 'geriausia',
+      sessions: n => `${n} ${ltPlural(n, 'treniruotė', 'treniruotės', 'treniruočių')}`,
+      nothingYet: 'Dar nieko neužrašyta.',
+      minutes: 'Minutės',
+      km: 'Km',
+      thisWeek: (n, planned) => (planned ? `Šią savaitę ${n}/${planned}` : `Šią savaitę: ${n} ${ltPlural(n, 'treniruotė', 'treniruotės', 'treniruočių')}`),
+      setCount: n => `${n} ${ltPlural(n, 'serija', 'serijos', 'serijų')}`,
+      duration: (h, m) => (h ? `${h} val. ${m} min` : `${m} min`),
+      restLength: s => `Poilsio trukmė ${s}, bakstelk, kad pakeistum`,
       cantSave: 'Šiame įrenginyje nepavyksta išsaugoti. Gal įjungtas privatus naršymas?',
       days: 'Dienos',
       month: 'Mėnuo',
@@ -538,12 +567,11 @@
       planPlaceholder: 'Pirmadienis A\n- Pritūpimai 5x8',
       dayShort: ['Sk', 'Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št'],
       hint: [
-        'Pasirink paruoštą planą viršuje arba parašyk savo. ',
-        'Kiekvieną treniruotę pradėk savaitės diena, pvz. „Pirmadienis A“: ji įsikels tą dieną, o kitos dienos bus poilsio. ',
-        'Pratimus rašyk taip: „- Pritūpimai 5x8“ arba su intervalais „- Spaudimas 3-4x6-8“. ',
-        'Kardio – laikas ir atstumas: „- Bėgimas 30min“ arba „- Dviratis 20min 8km“. ',
-        'Alternatyvas atskirk „/“ – jos keičiasi kas treniruotę. ',
-        'Pakeitimai galioja dar nepradėtoms dienoms.',
+        ['Pirmadienis A', 'treniruotė pirmadieniais'],
+        ['- Pritūpimai 5x8', 'serijos × kartai'],
+        ['- Spaudimas 3-4x6-8', 'arba intervalai'],
+        ['- Bėgimas 30min 5km', 'kardio'],
+        ['- Trauka / Lenkimas 3x12', 'keičiasi kas kartą'],
       ],
       tabs: { main: 'Pagrindinis meniu', history: 'Istorija', today: 'Šiandien', plan: 'Planas' },
       sets: 'Serijos',
@@ -553,23 +581,16 @@
       restLabel: 'Poilsis',
       skipRest: 'Praleisti',
       goNow: 'Pirmyn',
-      ringOf: 'serijos',
       next: (name, day) => `Kita: ${name}, ${day}`,
-      program: 'Treniruočių programa',
-      exerciseCount: n => `${n} ${ltPlural(n, 'pratimas', 'pratimai', 'pratimų')}`,
       removeExerciseText: 'Šalinti pratimą',
       yourName: 'Tavo vardas',
       levels: ['Pradedantysis', 'Reguliarus', 'Atsidavęs', 'Veteranas'],
       ob: {
         welcome: 'Sveiki,',
         name: 'Vardas',
-        age: 'Amžius',
-        height: 'Ūgis (cm)',
-        weight: 'Svoris (kg)',
         start: 'Pradėti',
         save: 'Išsaugoti',
       },
-      goals: { muscle: 'Auginti raumenis', strength: 'Tapti stipresniu', fat: 'Numesti svorio', fit: 'Palaikyti formą' },
     },
   };
 
@@ -723,7 +744,9 @@ Penktadienis C
   const defaultPlan = l => PRESETS[0].plan[l === 'lt' || l === 'en' ? l : deviceLang()];
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', age: null, height: null, weight: null, goal: null, onboarded: false, days: {}, timers: {}, titles: {} });
+  // Rest between sets, in seconds (tap the countdown to change it). Between exercises is twice that, at most 5 min.
+  const REST_STEPS = [60, 90, 120, 180];
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', rest: 90, onboarded: false, days: {}, timers: {}, titles: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -796,10 +819,7 @@ Penktadienis C
       lastBackup: typeof input.lastBackup === 'string' && isDayKey(input.lastBackup) ? input.lastBackup : null,
       lang: input.lang === 'lt' || input.lang === 'en' ? input.lang : null,
       name: typeof input.name === 'string' ? clean(input.name).slice(0, 40) : '',
-      goal: ['muscle', 'strength', 'fat', 'fit'].includes(input.goal) ? input.goal : null,
-      age: inRange(input.age, 10, 100) ? Math.round(input.age) : null,
-      height: inRange(input.height, 100, 250) ? round2(input.height) : null,
-      weight: inRange(input.weight, 25, 300) ? round2(input.weight) : null,
+      rest: REST_STEPS.includes(input.rest) ? input.rest : 90,
       onboarded: input.onboarded === true,
       days,
       timers: cleanTimers(input.timers),
@@ -897,11 +917,15 @@ Penktadienis C
   // and a barbell is the default ("Bench press" = "Barbell bench press" = "Štangos spaudimas gulint").
   // So switching plans keeps your last sets for every lift the plans share.
   const bare = n => n.replace(/\b(barbell|flat)\b|\bsu štanga\b|(^|\s)štangos(?=\s|$)/g, ' ').replace(/\s+/g, ' ').trim();
+  const sameCache = new Map();   // the presets never change, so neither does the answer for a name
   const same = name => {
+    let key = sameCache.get(name);
+    if (key !== undefined) return key;
     const n = norm(name);
     const pair = names().get(n) || names().get(`~${bare(n)}`);
-    const key = bare(pair ? norm(pair.en) : n);
-    return key || n;
+    key = bare(pair ? norm(pair.en) : n) || n;
+    sameCache.set(name, key);
+    return key;
   };
 
   // Most recent earlier day that has sets for this exercise.
@@ -924,8 +948,48 @@ Penktadienis C
     const found = previous(key, ex.name);
     const prev = found && (found.sets[0].min !== undefined) === cardio ? found : null;   // same kind only
     if (cardio) return prev ? prev.sets[0] : ex.aim ? { min: ex.aim.min || 0, km: ex.aim.km || 0 } : null;
-    if (ex.target) return { kg: prev ? prev.sets[0].kg : 0, reps: ex.target.reps };
+    if (ex.target) {
+      if (!prev) return { kg: 0, reps: ex.target.reps };
+      const up = bumpFrom(prev.sets, ex.target);
+      return { kg: up ? round2(up + BUMP) : prev.sets[0].kg, reps: ex.target.reps };
+    }
     return prev ? prev.sets[0] : null;
+  }
+
+  // Every planned set reached the top of the rep range at your working (heaviest) weight: time
+  // to go up from it. Returns that weight, or 0. Lighter warm-up sets don't count either way.
+  const BUMP = 2.5;
+  function bumpFrom(sets, target) {
+    const kg = Math.max(...sets.map(s => s.kg || 0));
+    const top = target.repsTo || target.reps;
+    return kg && sets.filter(s => s.kg === kg && s.reps >= top).length >= target.sets ? kg : 0;
+  }
+
+  // Records: a set's estimated one-rep max (Epley), so heavier and more reps both count.
+  // Bodyweight sets and cardio don't take part.
+  const e1rm = s => (s.min === undefined && s.kg > 0 ? s.kg * (1 + s.reps / 30) : 0);
+
+  function bestBefore(key, name) {
+    const n = same(name);
+    let best = 0;
+    for (const k of Object.keys(db.days)) {
+      if (k >= key) continue;
+      for (const e of db.days[k]) if (same(e.name) === n) for (const s of e.sets) best = Math.max(best, e1rm(s));
+    }
+    return best;
+  }
+
+  // The sets on this day that beat everything before them. The first time a lift is logged
+  // nothing is a record yet.
+  function records(key, ex) {
+    const out = new Set();
+    let best = bestBefore(key, ex.name);
+    if (!best) return out;
+    for (const s of ex.sets) {
+      const v = e1rm(s);
+      if (v > best + 1e-9) { out.add(s); best = v; }
+    }
+    return out;
   }
 
   // Days with at least one logged set. An exercise added but never done isn't a workout.
@@ -1038,14 +1102,17 @@ Penktadienis C
   }
 
   // The big title on a day: the name of the planned workout it matches best ("Push"),
-  // "Workout" for anything else, "Rest" when nothing is there.
+  // "Cardio" or "Workout" for anything else, "Rest" when nothing is there.
   function dayTitle(key) {
-    const names = (db.days[key] || []).map(e => same(e.name));
-    if (!names.length) return T().rest;
+    const exs = db.days[key] || [];
+    if (!exs.length) return T().rest;
     // Finished days keep the name they had; today's follows what's in it.
-    if (key < todayKey() && Object.prototype.hasOwnProperty.call(db.titles, key)) return db.titles[key] ? titleIn(db.titles[key]) : T().workout;
-    return planTitle(key, names);
+    if (key < todayKey() && Object.prototype.hasOwnProperty.call(db.titles, key)) return db.titles[key] ? titleIn(db.titles[key]) : offPlanTitle(exs);
+    return planTitle(key, exs.map(e => same(e.name))) || offPlanTitle(exs);
   }
+
+  const cardioDay = exs => exs.length > 0 && exs.every(cardioEx);
+  const offPlanTitle = exs => (cardioDay(exs) ? T().cardio : T().workout);
 
   // A preset's workout name in the app's language ("Push" <-> "Stūmimas"); anything else as written.
   let titleMap = null;
@@ -1067,7 +1134,7 @@ Penktadienis C
     return pair ? pair[lang()] : name;
   }
 
-  // The planned workout these exercises match best, by the current plan.
+  // The planned workout these exercises match best, by the current plan, or null.
   function planTitle(key, names) {
     const dow = dateOf(key).getDay();
     let best = null;
@@ -1080,7 +1147,7 @@ Penktadienis C
         bestScore = score;
       }
     }
-    return best && bestScore * 2 >= names.length ? best.name : T().workout;
+    return best && bestScore * 2 >= names.length ? best.name : null;
   }
 
   // Today's numbers: sets done of planned, exercises finished.
@@ -1129,6 +1196,7 @@ Penktadienis C
     db.timers[key] = { start: Date.now(), end: null };
     save();
     refreshCard(key);
+    syncWake();
   }
 
   function finishWorkout(key) {
@@ -1138,6 +1206,47 @@ Penktadienis C
     save();
     rest.stop();
     refreshCard(key);
+    syncWake();
+  }
+
+  // The screen stays on while today's workout clock runs, so the rest countdown is there to see.
+  let wake = null;
+  let waking = false;
+  async function syncWake() {
+    if (!navigator.wakeLock || waking) return;
+    const want = running(todayKey()) && document.visibilityState === 'visible';
+    if (want && !wake) {
+      waking = true;
+      try {
+        wake = await navigator.wakeLock.request('screen');
+        wake.addEventListener('release', () => { wake = null; });
+      } catch (_) { wake = null; }
+      waking = false;
+      if (!running(todayKey()) && wake) syncWake();   // finished while asking
+    } else if (!want && wake) {
+      const w = wake;
+      wake = null;
+      w.release().catch(() => {});
+    }
+  }
+  // The phone drops the lock whenever the app is hidden; take it again on the way back.
+  document.addEventListener('visibilitychange', syncWake);
+
+  // A quiet line for a rest day: "This week 2/3 · 41 sets · 2 h 40 min" (weeks start on Monday).
+  function weekSummary(key) {
+    const d = dateOf(key);
+    const from = keyOf(new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7));
+    const keys = workoutKeys(db.days).filter(k => k >= from && k <= key);
+    if (!keys.length) return null;
+    const t = T();
+    const planned = new Set(parsePlan(db.plan).filter(r => r.day != null).map(r => r.day)).size;
+    const sets = keys.reduce((n, k) => n + db.days[k].reduce((m, e) => m + e.sets.filter(s => s.min === undefined).length, 0), 0);
+    const ms = keys.reduce((n, k) => n + (db.timers[k] && db.timers[k].end ? db.timers[k].end - db.timers[k].start : 0), 0);
+    const mins = Math.round(ms / 60000);
+    const parts = [t.thisWeek(keys.length, planned)];
+    if (sets) parts.push(t.setCount(sets));
+    if (mins) parts.push(t.duration(Math.floor(mins / 60), mins % 60));
+    return parts.join(' · ');
   }
 
   // The next planned workout after today, e.g. "Next: Push, Monday".
@@ -1152,65 +1261,34 @@ Penktadienis C
     return null;
   }
 
-  // A progress ring: returns the element and a setter for 0..1 and its label.
-  function ringEl(size, cls) {
-    const ns = 'http://www.w3.org/2000/svg';
-    const r = size / 2 - 4;
-    const C = 2 * Math.PI * r;
-    const circle = c => {
-      const n = document.createElementNS(ns, 'circle');
-      n.setAttribute('cx', String(size / 2));
-      n.setAttribute('cy', String(size / 2));
-      n.setAttribute('r', String(r));
-      n.setAttribute('class', c);
-      return n;
-    };
-    const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-    svg.setAttribute('aria-hidden', 'true');
-    const fill = circle('fill');
-    fill.setAttribute('stroke-dasharray', String(C));
-    svg.append(circle('track'), fill);
-    const num = el('span');
-    const small = el('small');
-    const node = el('div', { class: cls }, svg, el('div', { class: 'ring-text' }, num, small));
-    const set = (part, text, unit) => {
-      fill.setAttribute('stroke-dashoffset', String(C * (1 - Math.max(0, Math.min(1, part)))));
-      num.textContent = text;
-      small.textContent = unit || '';
-      small.hidden = !unit;
-    };
-    return { node, set };
-  }
-
   let refreshCard = () => {};
   let clock = null;
 
   function dayCard(key, isToday) {
-    const ring = ringEl(76, 'ring');
     const title = el('h1', { class: 'title' });
-    const stat = label => {
+    const stat = () => {
       const v = el('div', { class: 'stat-v' });
-      return { v, node: el('div', null, v, el('div', { class: 'stat-l' }, label)) };
+      const l = el('div', { class: 'stat-l' });
+      return { v, l, node: el('div', null, v, l) };
     };
-    const sets = stat(T().sets);
-    const exs = stat(T().exercises);
-    const time = stat(T().time);
+    // Sets and exercises; minutes and km on a day of only cardio.
+    const first = stat();
+    const second = stat();
+    const time = stat();
+    time.l.textContent = T().time;
     time.v.classList.add('live');
-    const statsRow = el('div', { class: 'stats' }, sets.node, exs.node, time.node);
+    const statsRow = el('div', { class: 'stats' }, first.node, second.node, time.node);
     const go = el('button', {
       type: 'button', class: 'go',
       onclick: () => (running(key) ? finishWorkout(key) : startWorkout(key)),
     });
+    const week = el('p', { class: 'next' });
     const next = el('p', { class: 'next' });
     const card = el('section', { class: 'card' },
-      el('div', { class: 'card-top' },
-        el('div', null,
-          el('p', { class: 'label' }, el('b', null, '#'), isToday ? T().tabs.today : T().tabs.history),
-          title,
-          el('p', { class: 'sub' }, fullDate(key))),
-        ring.node),
-      statsRow, go, next);
+      el('p', { class: 'label' }, el('b', null, '#'), isToday ? T().tabs.today : T().tabs.history),
+      title,
+      el('p', { class: 'sub' }, fullDate(key)),
+      statsRow, go, week, next);
 
     // The clock ticks once a second while the workout runs, and stops with the view.
     const tickClock = () => {
@@ -1219,14 +1297,23 @@ Penktadienis C
     };
     const update = () => {
       const st = dayStats(key);
+      const exs = db.days[key] || [];
       title.textContent = dayTitle(key);
       const active = st.total > 0;
-      ring.node.hidden = !active || !st.planned;
       statsRow.hidden = !active;
+      if (active && cardioDay(exs)) {
+        const sum = f => fmtKg(exs.reduce((n, e) => n + e.sets.reduce((m, s) => m + (s[f] || 0), 0), 0));
+        first.l.textContent = T().minutes;
+        first.v.textContent = sum('min');
+        second.l.textContent = T().km;
+        second.v.textContent = sum('km');
+      } else if (active) {
+        first.l.textContent = T().sets;
+        first.v.textContent = `${st.sets}/${st.planned}`;
+        second.l.textContent = T().exercises;
+        second.v.textContent = `${st.done}/${st.total}`;
+      }
       if (active) {
-        ring.set(st.planned ? st.sets / st.planned : 0, `${st.sets}/${st.planned}`, T().ringOf);
-        sets.v.textContent = `${st.sets}/${st.planned}`;
-        exs.v.textContent = `${st.done}/${st.total}`;
         time.v.textContent = fmtClock(elapsed(key));
         time.v.style.color = db.timers[key] ? '' : 'var(--faint)';
       }
@@ -1237,6 +1324,10 @@ Penktadienis C
       go.classList.toggle('stop', !!t);
       clearInterval(clock);
       clock = running(key) ? setInterval(tickClock, 1000) : null;
+      // A rest day: how the week went, and what's next.
+      const sofar = !active && isToday ? weekSummary(key) : null;
+      week.hidden = !sofar;
+      if (sofar) week.textContent = sofar;
       const upcoming = !active && isToday ? nextWorkout(key) : null;
       next.hidden = !upcoming;
       if (upcoming) next.textContent = upcoming;
@@ -1244,14 +1335,6 @@ Penktadienis C
     update();
     refreshCard = k => { if (k === key && current.view === 'day' && current.key === key) update(); };
     return card;
-  }
-
-  let refreshCount = () => {};
-
-  // After an exercise is added or removed: the card's numbers and the program heading.
-  function retitle(key) {
-    refreshCard(key);
-    if (current.view === 'day' && current.key === key) refreshCount();
   }
 
   function loadRoutine(key, routine) {
@@ -1305,22 +1388,15 @@ Penktadienis C
     let changed = false;
     for (const k of workoutKeys(db.days)) {
       if (k >= today || Object.prototype.hasOwnProperty.call(db.titles, k)) continue;
-      const t = planTitle(k, db.days[k].map(e => same(e.name)));
-      db.titles[k] = t === T().workout ? '' : t;
+      db.titles[k] = planTitle(k, db.days[k].map(e => same(e.name))) || '';
       changed = true;
     }
     if (changed) save();
   }
 
-  /* ---------- tap-to-reveal "remove" ---------- */
+  /* ---------- "remove" next to the set you tapped ---------- */
 
   let revealed = null;
-
-  function reveal(btn) {
-    if (revealed && revealed !== btn) revealed.classList.remove('on');
-    btn.classList.toggle('on');
-    revealed = btn.classList.contains('on') ? btn : null;
-  }
 
   function closeReveal() {
     if (revealed) { revealed.classList.remove('on'); revealed = null; }
@@ -1368,38 +1444,15 @@ Penktadienis C
     return T().levels[n < 5 ? 0 : n < 25 ? 1 : n < 100 ? 2 : 3];
   }
 
-  // Your name: tap to edit, Enter or leaving the field saves it.
-  function nameField() {
-    const show = () => el('button', {
-      type: 'button', class: `who-name${db.name ? '' : ' empty'}`, onclick: e => e.currentTarget.replaceWith(edit()),
-    }, db.name || T().yourName);
-    const edit = () => {
-      const input = el('input', {
-        class: 'who-name', value: db.name, placeholder: T().yourName, maxlength: '40',
-        enterkeyhint: 'done', autocomplete: 'given-name', 'aria-label': T().yourName,
-      });
-      let done = false;
-      const commit = () => {
-        if (done) return;
-        done = true;
-        db.name = clean(input.value).slice(0, 40);
-        save();
-        input.replaceWith(show());
-      };
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
-      input.addEventListener('blur', commit);
-      requestAnimationFrame(() => input.focus());
-      return input;
-    };
-    return show();
-  }
-
+  // The mark, your name and level. Tap it for the profile (name and language).
   function header() {
     return el('div', null,
-      el('header', { class: 'profile' },
-        el('a', { href: '#/profile', class: 'avatar', 'aria-label': T().ob.name }, mark()),
-        el('div', { class: 'who' }, nameField(),
-          el('div', { class: 'who-level' }, db.goal ? `${level()} · ${T().goals[db.goal]}` : level()))),
+      el('header', null,
+        el('a', { href: '#/profile', class: 'profile' },
+          el('span', { class: 'avatar' }, mark()),
+          el('span', { class: 'who' },
+            el('span', { class: `who-name${db.name ? '' : ' empty'}` }, db.name || T().yourName),
+            el('span', { class: 'who-level' }, level())))),
       el('p', { class: 'warn', hidden: storageOk }, T().cantSave));
   }
 
@@ -1409,10 +1462,11 @@ Penktadienis C
     plan: document.getElementById('tab-plan'),
   };
 
-  // Light up the current tab. A past day belongs to History, whose tab leads back to its month.
+  // Light up the current tab. A past day belongs to History, whose tab leads back to its month,
+  // and so does a lift's history.
   function updateTabs() {
     const pastDay = current.view === 'day' && !current.isToday;
-    const active = current.view === 'history' || pastDay ? 'history' : current.view === 'plan' ? 'plan' : 'today';
+    const active = current.view === 'history' || current.view === 'exercise' || pastDay ? 'history' : current.view === 'plan' ? 'plan' : 'today';
     for (const [name, tab] of Object.entries(tabs)) {
       if (name === active) tab.setAttribute('aria-current', 'page');
       else tab.removeAttribute('aria-current');
@@ -1482,21 +1536,12 @@ Penktadienis C
       const first = exs.find(e => e.sets.length < (e.target ? e.target.sets : 1));
       if (first) blocks.get(first).toggle(true, true);
     }
-    const head = el('div', { class: 'section-h' }, el('h2', null, T().program), el('span', null, T().exerciseCount(exs.length)));
-    head.hidden = !exs.length;
-    refreshCount = () => {
-      const n = (db.days[key] || []).length;
-      head.lastChild.textContent = T().exerciseCount(n);
-      head.hidden = !n;
-    };
     mount(el('div', { class: 'view' },
       header(),
       dayCard(key, isToday),
-      head,
       list,
       addExerciseForm(key, list)));
   }
-
 
   function exerciseBlock(key, ex) {
     const label = ex.name;
@@ -1513,6 +1558,7 @@ Penktadienis C
       autocomplete: 'off', 'aria-label': T().reps(label),
       onkeydown: e => { if (e.key === 'Enter') tapped = false; },
     });
+    for (const input of [kg, reps]) input.addEventListener('keydown', e => { if (e.key === 'Escape' && editing) stopEdit(); });
 
     // Tapping "+" logs and closes the keyboard; Enter keeps focus for fast typing.
     let tapped = false;
@@ -1521,6 +1567,8 @@ Penktadienis C
       onpointerdown: () => { tapped = true; },
       onpointercancel: () => { tapped = false; },
     }, '+');
+    // A logged set you tapped to change: its numbers are in the fields and "+" saves it in place.
+    let editing = null;
 
     // Cardio: the two fields are minutes and km.
     const cardio = cardioEx(ex);
@@ -1538,18 +1586,18 @@ Penktadienis C
         num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
 
     const meta = el('span', { class: 'ex-meta' });
-    const mini = ringEl(52, 'mini');
     const card = el('button', { type: 'button', class: 'ex-card', 'aria-expanded': 'false', onclick: () => toggle() },
       el('span', { class: 'ex-info' },
         el('span', { class: 'ex-name' }, label),
         ex.target && el('span', { class: 'ex-sub' }, fmtTarget(ex.target)),
         ex.aim && el('span', { class: 'ex-sub' }, fmtCardio({ min: ex.aim.min || 0, km: ex.aim.km || 0 }).replace(/^0 min · /, '')),
-        meta),
-      mini.node);
+        meta));
+    const hist = el('a', { href: `#/ex/${encodeURIComponent(label)}` }, T().history);
     const removeEx = el('button', {
-      type: 'button', class: 'remove-ex', 'aria-label': T().removeExercise(label), onclick: removeExercise,
+      type: 'button', 'aria-label': T().removeExercise(label), onclick: removeExercise,
     }, T().removeExerciseText);
-    const body = el('div', { class: 'ex-body' }, el('div', { class: 'ex-fold' }, el('div', { class: 'ex-pad' }, sets, entry, removeEx)));
+    const body = el('div', { class: 'ex-body' }, el('div', { class: 'ex-fold' }, el('div', { class: 'ex-pad' },
+      sets, entry, el('div', { class: 'ex-foot' }, hist, removeEx))));
     body.inert = true;
     const block = el('article', { class: 'ex' }, card, body);
     blocks.set(ex, { block, toggle, focus: () => { toggle(true, true); kg.focus({ preventScroll: true }); bringIntoView(block); } });
@@ -1561,6 +1609,7 @@ Penktadienis C
     // One card open at a time: opening this one folds the others shut.
     function toggle(open = !block.classList.contains('open'), quiet = false) {
       if (open === block.classList.contains('open')) return;
+      if (!open && editing) stopEdit();
       if (open && block.parentElement) {
         for (const other of block.parentElement.querySelectorAll('.ex.open')) {
           if (other !== block && folds.has(other)) folds.get(other)(false);
@@ -1575,31 +1624,58 @@ Penktadienis C
     }
 
     function paint(added) {
+      if (editing && !ex.sets.includes(editing)) editing = null;
       const before = previous(key, ex.name);
       const ref = before ? before.sets : [];
+      const prs = records(key, ex);
+      if (revealed && sets.contains(revealed)) revealed = null;
       sets.textContent = '';
-      ex.sets.forEach((s, i) => sets.append(setRow(s, i, added && i === ex.sets.length - 1, ref[i])));
-      const sug = suggestion(key, ex);
-      num.textContent = ex.sets.length + 1;
-      fillPrev(nextPrev, ref[ex.sets.length]);
+      ex.sets.forEach((s, i) => sets.append(setRow(s, i, added && i === ex.sets.length - 1, ref[i], prs.has(s))));
+      // The entry row: the next set, or the one being changed.
+      const at = editing ? ex.sets.indexOf(editing) : ex.sets.length;
+      num.textContent = at + 1;
+      fillPrev(nextPrev, ref[at]);
+      plus.textContent = editing ? '✓' : '+';
+      plus.classList.toggle('save', !!editing);
+      plus.setAttribute('aria-label', editing ? T().saveSet(at + 1) : T().addSet(label));
+      const sug = !editing ? suggestion(key, ex)
+        : cardio ? { min: editing.min, km: 0 } : { kg: 0, reps: editing.reps };   // what an emptied field saves
       const lastSet = ex.sets[ex.sets.length - 1];
       if (cardio) {
         kg.placeholder = sug && sug.min ? fmtKg(sug.min) : '0';
         reps.placeholder = sug && sug.km ? fmtKg(sug.km) : '0';
         const mins = ex.sets.reduce((m, s) => m + (s.min || 0), 0);
         const kms = ex.sets.reduce((m, s) => m + (s.km || 0), 0);
-        const part = ex.aim && ex.aim.min ? mins / ex.aim.min : ex.aim && ex.aim.km ? kms / ex.aim.km : ex.sets.length ? 1 : 0;
         meta.textContent = ex.sets.length ? fmtCardio({ min: mins, km: kms }) : '0 min';
-        mini.set(part, `${Math.min(100, Math.round(part * 100))}%`);
       } else {
         kg.placeholder = sug && sug.kg ? fmtKg(sug.kg) : '0';
         reps.placeholder = sug ? String(sug.reps) : '0';
         const want = ex.target ? ex.target.sets : 0;
         meta.textContent = `${ex.sets.length}${want ? `/${want}` : ''} ${T().sets}` + (lastSet ? ` · ${setText(lastSet)}` : '');
-        mini.set(want ? ex.sets.length / want : ex.sets.length ? 1 : 0,
-          `${Math.min(100, Math.round(want ? (ex.sets.length / want) * 100 : ex.sets.length ? 100 : 0))}%`);
       }
+      block.classList.toggle('done', key === todayKey() && !unfinished(ex));
+      hist.hidden = !(ex.sets.length || before);
       refreshCard(key);
+    }
+
+    // Tap a logged set to change it (its numbers go up into the fields); tap it again to leave it.
+    function startEdit(s) {
+      editing = s;
+      if (s.min !== undefined) {
+        kg.value = fmtKg(s.min);
+        reps.value = s.km ? fmtKg(s.km) : '';
+      } else {
+        kg.value = s.kg ? fmtKg(s.kg) : '';
+        reps.value = String(s.reps);
+      }
+      paint(false);
+    }
+
+    function stopEdit() {
+      editing = null;
+      kg.value = '';
+      reps.value = '';
+      paint(false);
     }
 
     function fillPrev(span, s) {
@@ -1608,22 +1684,34 @@ Penktadienis C
       return span;
     }
 
-    // Tap the row to show "remove". The button is always reachable by keyboard and screen readers.
-    function setRow(s, i, fresh, then) {
+    // Tap the row to change the set; "remove" shows up next to it. The button is always
+    // reachable by keyboard and screen readers.
+    function setRow(s, i, fresh, then, pr) {
       const rm = el('button', {
         type: 'button', class: 'act remove', 'aria-label': T().removeSet(i + 1),
         onclick: () => {
           const j = ex.sets.indexOf(s);
           if (j > -1) ex.sets.splice(j, 1);
+          if (editing === s) { editing = null; kg.value = ''; reps.value = ''; }
           save();
           paint(false);
         },
       }, T().remove);
+      const isEditing = editing === s;
+      if (isEditing) {
+        closeReveal();
+        rm.classList.add('on');
+        revealed = rm;
+      }
+      const cls = `row set${s.min !== undefined ? ' cardio' : ''}${fresh ? ' fresh' : ''}${isEditing ? ' editing' : ''}`;
+      const onclick = e => {
+        if (e.target.closest('.remove')) return;
+        if (isEditing) stopEdit();
+        else startEdit(s);
+      };
+      const record = pr && el('span', { class: 'pr' }, el('span', { class: 'sr' }, T().pr), el('span', { 'aria-hidden': 'true' }, 'PR'));
       if (s.min !== undefined) {
-        return el('div', {
-          class: 'row set cardio' + (fresh ? ' fresh' : ''), 'data-reveal': '',
-          onclick: e => { if (!e.target.closest('.remove')) reveal(rm); },
-        },
+        return el('div', { class: cls, 'data-reveal': '', onclick },
           el('span', { class: 'n' }, i + 1),
           el('span', { class: 'w' }, fmtKg(s.min)),
           el('span', { class: 'u' }, 'min'),
@@ -1632,17 +1720,15 @@ Penktadienis C
           rm,
           then && fillPrev(el('span', { class: 'prev' }), then));
       }
-      return el('div', {
-        class: 'row set' + (fresh ? ' fresh' : ''), 'data-reveal': '',
-        onclick: e => { if (!e.target.closest('.remove')) reveal(rm); },
-      },
+      return el('div', { class: cls, 'data-reveal': '', onclick },
         el('span', { class: 'n' }, i + 1),
         el('span', { class: 'w' }, s.kg ? fmtKg(s.kg) : ''),
         el('span', { class: 'u' }, s.kg ? 'kg' : 'bw'),
         el('span', { class: 'u' }, '×'),
         el('span', null, s.reps),
         rm,
-        then && fillPrev(el('span', { class: 'prev' }), then));
+        then && fillPrev(el('span', { class: 'prev' }), then),
+        record);
     }
 
     function nudge(input) {
@@ -1657,6 +1743,7 @@ Penktadienis C
       e.preventDefault();
       const viaTap = tapped;
       tapped = false;
+      if (editing) return saveEdit(viaTap);
       const sug = suggestion(key, ex);
       if (cardio) {
         const m = kg.value.trim() ? parseKg(kg.value) : (sug ? sug.min : null);
@@ -1681,33 +1768,57 @@ Penktadienis C
       if (viaTap && document.activeElement && entry.contains(document.activeElement)) document.activeElement.blur();
     }
 
+    // The changed numbers replace the set's own. An emptied weight (or distance) means none;
+    // emptied reps (or minutes) stay as they were, as the grey placeholder shows.
+    function saveEdit(viaTap) {
+      const s = editing;
+      if (s.min !== undefined) {
+        const m = kg.value.trim() ? parseKg(kg.value) : s.min;
+        const d = reps.value.trim() ? parseKg(reps.value) : 0;
+        if (m == null || m < 0.1) return nudge(kg);
+        if (d == null) return nudge(reps);
+        s.min = m;
+        s.km = d;
+      } else {
+        const w = kg.value.trim() ? parseKg(kg.value) : 0;
+        const r = reps.value.trim() ? parseReps(reps.value) : s.reps;
+        if (w == null) return nudge(kg);
+        if (r == null) return nudge(reps);
+        s.kg = w;
+        s.reps = r;
+      }
+      save();
+      if (viaTap && document.activeElement && entry.contains(document.activeElement)) document.activeElement.blur();
+      stopEdit();
+    }
+
     function removeExercise() {
+      // Logged sets go with it, so ask first; an untouched exercise just goes.
+      if (ex.sets.length && !confirm(T().removeAsk(label, ex.sets.length))) return;
       const day = db.days[key];
       if (day) {
         const i = day.indexOf(ex);
         if (i > -1) day.splice(i, 1); // an emptied day stays, so the plan doesn't refill it
       }
       save();
-      revealed = null;
+      closeReveal();
       block.remove();
       refreshNames();
-      retitle(key);
+      refreshCard(key);
     }
   }
 
   // Rest between sets, longer between exercises, then the next exercise opens by itself.
-  const REST_SET = 90;
-  const REST_EXERCISE = 180;
   const unfinished = e => e.sets.length < (e.target ? e.target.sets : 1);
   function afterSet(key, ex) {
     if (key !== todayKey()) return;
     startWorkout(key);
     if (cardioEx(ex)) return;
     const done = ex.target ? ex.sets.length >= ex.target.sets : false;
-    if (!done) return rest.start(REST_SET);
+    if (!done) return rest.start('set');
     const next = (db.days[key] || []).find(e => e !== ex && unfinished(e));
     if (!next) return rest.stop();   // last set of the day: no rest, the card offers Finish
-    rest.start(REST_EXERCISE);
+    rest.start('exercise');
     const b = blocks.get(next);
     const typing = !!document.activeElement && !!document.activeElement.closest && !!document.activeElement.closest('.ex-body');
     if (b) setTimeout(() => (typing ? b.focus() : b.toggle(true)), 420);
@@ -1740,7 +1851,7 @@ Penktadienis C
         block.classList.add('fresh');
         list.append(block);
         refreshNames();
-        retitle(key);
+        refreshCard(key);
         blocks.get(ex).focus();
       },
     }, input);
@@ -1765,17 +1876,15 @@ Penktadienis C
     for (let i = 0; i < lead; i++) cal.append(el('span', { 'aria-hidden': 'true' }));
     let count = 0;
     const last = new Date(y, m + 1, 0).getDate();
-    // Today isn't a rest day yet if a workout is planned for it.
-    const plannedToday = parsePlan(db.plan).some(r => r.day === now.getDay());
+    // Only training days are named; the rest stay a dim number.
     for (let d = 1; d <= last; d++) {
       const k = `${monthKey(y, m)}-${pad(d)}`;
       const done = (db.days[k] || []).some(e => e.sets.length);
       if (done) count++;
       const future = k > today;
-      const rest = !done && !future && !(k === today && plannedToday);
       const cls = `cal-day${done ? ' has' : ''}${k === today ? ' today' : ''}${future ? ' future' : ''}`;
-      const name = done ? dayTitle(k) : rest && T().rest;
-      const kids = [el('span', { class: 'num' }, d), name && el('span', { class: `cal-name${rest ? ' rest' : ''}` }, name)];
+      const name = done && dayTitle(k);
+      const kids = [el('span', { class: 'num' }, d), name && el('span', { class: 'cal-name' }, name)];
       cal.append(future
         ? el('span', { class: cls, 'aria-hidden': 'true' }, ...kids)
         : el('a', { class: cls, href: `#/${k}`, 'aria-label': name ? `${fullDate(k)}, ${name}` : fullDate(k) }, ...kids));
@@ -1851,29 +1960,59 @@ Penktadienis C
     save();
   }
 
-  function setLang(l) {
-    if (lang() === l && db.lang === l) return;
-    changeLang(l);
-    renderPlan();
-  }
+  // Two short beeps when a rest runs out: iPhones can't vibrate for a web app. The sound is set up
+  // on the tap that starts the rest (phones only allow sound after a tap) and mixes with your music.
+  const chime = (() => {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    let ctx = null;
+    function ready() {
+      if (!AC) return;
+      try {
+        if (navigator.audioSession) navigator.audioSession.type = 'ambient';
+        if (!ctx) ctx = new AC();
+        if (ctx.state !== 'running') ctx.resume().catch(() => {});
+      } catch (_) { ctx = null; }
+    }
+    function play() {
+      if (!ctx || ctx.state !== 'running') return;
+      const t0 = ctx.currentTime + 0.02;
+      for (const at of [0, 0.24]) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, t0 + at);
+        gain.gain.exponentialRampToValueAtTime(0.3, t0 + at + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + at + 0.17);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t0 + at);
+        osc.stop(t0 + at + 0.2);
+      }
+    }
+    // Let the phone's audio go quiet again between rests.
+    function sleep() { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); }
+    return { ready, play, sleep };
+  })();
 
   // The rest countdown lives outside the views, so it keeps running across tabs and reloads.
+  // Tap the time to change how long you rest: 1:00, 1:30, 2:00 or 3:00 between sets.
   const rest = (() => {
     const RKEY = 'track.rest';
     const line = el('i');
     const label = el('span', { class: 'rest-l' });
-    const clockEl = el('span', { class: 'rest-t', 'aria-live': 'off' });
+    const clockEl = el('button', { type: 'button', class: 'rest-t', 'aria-live': 'off', onclick: () => cycle() });
     const more = el('button', { type: 'button', onclick: () => add(15) }, '+15');
     const skip = el('button', { type: 'button', onclick: () => stop() });
     const node = el('div', { class: 'restbar off', role: 'timer', 'aria-hidden': 'true' },
       el('div', { class: 'rest-in' }, el('div', { class: 'rest-line' }, line), label, clockEl, more, skip));
     node.inert = true;
     document.body.append(node);
-    let state = null;   // { until, total } in ms
+    let state = null;   // { until, total } in ms, and kind: 'set' or 'exercise'
     let timer = null;
     let doneAt = 0;
     try { state = JSON.parse(localStorage.getItem(RKEY)); } catch (_) { state = null; }
     if (!state || !Number.isFinite(state.until) || !Number.isFinite(state.total) || state.until < Date.now() - 5000) state = null;
+
+    const length = kind => (kind === 'exercise' ? Math.min(300, db.rest * 2) : db.rest);
 
     function persist() {
       try { if (state) localStorage.setItem(RKEY, JSON.stringify(state)); else localStorage.removeItem(RKEY); } catch (_) { /* ignore */ }
@@ -1881,13 +2020,17 @@ Penktadienis C
     function paint() {
       const t = T();
       skip.textContent = t.skipRest;
+      clockEl.setAttribute('aria-label', t.restLength(fmtClock(db.rest * 1000)));
       if (!state) return;
       const left = state.until - Date.now();
       if (left <= 0) {
         if (!doneAt) {
           doneAt = Date.now();
           node.classList.add('done');
-          if (document.visibilityState === 'visible' && navigator.vibrate) navigator.vibrate([180, 90, 180]);
+          if (document.visibilityState === 'visible') {
+            if (navigator.vibrate) navigator.vibrate([180, 90, 180]);
+            chime.play();
+          }
         }
         label.textContent = t.goNow;
         clockEl.textContent = '0:00';
@@ -1913,17 +2056,28 @@ Penktadienis C
       show(true);
       timer = setInterval(paint, 250);
     }
-    function start(seconds) {
-      state = { until: Date.now() + seconds * 1000, total: seconds * 1000 };
+    function start(kind) {
+      chime.ready();
+      const ms = length(kind) * 1000;
+      state = { until: Date.now() + ms, total: ms, kind };
       persist();
       run();
     }
     function add(seconds) {
       if (!state) return;
+      chime.ready();
       const base = Math.max(Date.now(), state.until);
-      state = { until: base + seconds * 1000, total: Math.max(state.total, base + seconds * 1000 - Date.now()) };
+      state = { until: base + seconds * 1000, total: Math.max(state.total, base + seconds * 1000 - Date.now()), kind: state.kind };
       persist();
       run();
+    }
+    // The next length along, kept for every rest from now on; this one starts over at it.
+    function cycle() {
+      const i = REST_STEPS.indexOf(db.rest);
+      db.rest = REST_STEPS[(i + 1) % REST_STEPS.length];
+      save();
+      if (state && state.until > Date.now()) start(state.kind === 'exercise' ? 'exercise' : 'set');
+      else paint();
     }
     function stop() {
       clearInterval(timer);
@@ -1931,10 +2085,11 @@ Penktadienis C
       state = null;
       persist();
       show(false);
+      setTimeout(() => { if (!state) chime.sleep(); }, 1000);   // after the beeps have played
     }
     if (state) run();
     document.addEventListener('visibilitychange', () => { if (state && document.visibilityState === 'visible') paint(); });
-    return { start, stop };
+    return { start, stop, active: () => !!state };
   })();
 
   // Page language and the tab bar's labels (the bar lives outside the views).
@@ -2002,16 +2157,10 @@ Penktadienis C
     mount(el('div', { class: 'view' },
       header(),
       el('h1', { class: 'title' }, T().plan),
-      el('div', { class: 'subrow' },
-        summary,
-        el('nav', { class: 'lang', 'aria-label': T().language },
-          ...['lt', 'en'].flatMap((l, i) => [
-            i ? el('span', { 'aria-hidden': 'true' }, '·') : null,
-            el('button', { type: 'button', lang: l, 'aria-pressed': String(lang() === l), onclick: () => setLang(l) }, l.toUpperCase()),
-          ]))),
+      summary,
       el('div', { class: 'presets', role: 'group', 'aria-label': T().presets }, ...presetButtons),
       area,
-      el('p', { class: 'hint' }, ...T().hint)));
+      el('p', { class: 'hint' }, ...T().hint.flatMap(([line, what]) => [el('code', null, line), el('span', null, what)]))));
     describe();
     refitPlan = fit;
     requestAnimationFrame(fit);
@@ -2062,6 +2211,7 @@ Penktadienis C
     try { parsed = JSON.parse(await f.text()); data = sanitize(parsed); } catch (_) { /* handled below */ }
     if (!data) { alert(T().notABackup); return; }
     if (typeof parsed.plan !== 'string') data.plan = db.plan; // older backups have no plan: keep yours
+    if (!REST_STEPS.includes(parsed.rest)) data.rest = db.rest; // nor a rest length
     const n = workoutKeys(data.days).length;
     if (!confirm(T().replaceAll(n))) return;
     data.lang = db.lang; // the language is this phone's choice, not the file's
@@ -2090,37 +2240,25 @@ Penktadienis C
       ]));
   }
 
-  // First launch, and later from the avatar: name, age, height, weight. Stays on this phone.
+  // First launch, and later from the header: your name, and the language. Stays on this phone.
   function renderProfile(first, draft) {
     current = { view: first ? 'onboarding' : 'profile' };
     const t = T();
-    const start = draft || { name: db.name, age: db.age ?? '', height: db.height ?? '', weight: db.weight ?? '' };
     const hello = el('span');
-    const number = (lo, hi) => v => { const n = parseKg(String(v)); return n != null && n >= lo && n <= hi; };
-    const field = (key, label, attrs, valid) => {
-      const input = el('input', Object.assign({ class: 'ob-input', value: String(start[key] ?? ''), autocomplete: 'off' }, attrs));
-      const tick = el('span', { class: 'ob-tick', 'aria-hidden': 'true' }, '✓');
-      const sync = () => {
-        tick.hidden = !valid(input.value);
-        if (key === 'name') hello.textContent = clean(input.value) || '…';
-      };
-      input.addEventListener('input', sync);
-      sync();
-      return { key, input, node: el('label', { class: 'ob-field' }, el('span', { class: 'ob-label' }, label), el('span', { class: 'ob-line' }, input, tick)) };
+    const input = el('input', {
+      class: 'ob-input', value: draft != null ? draft : db.name, maxlength: '40',
+      autocomplete: 'given-name', enterkeyhint: 'done', autocapitalize: 'words',
+    });
+    const tick = el('span', { class: 'ob-tick', 'aria-hidden': 'true' }, '✓');
+    const sync = () => {
+      tick.hidden = !clean(input.value);
+      hello.textContent = clean(input.value) || '…';
     };
-    const fields = [
-      field('name', t.ob.name, { maxlength: '40', autocomplete: 'given-name', enterkeyhint: 'next', autocapitalize: 'words' }, v => !!clean(v)),
-      field('age', t.ob.age, { inputmode: 'numeric', enterkeyhint: 'next' }, number(10, 100)),
-      field('height', t.ob.height, { inputmode: 'decimal', enterkeyhint: 'next' }, number(100, 250)),
-      field('weight', t.ob.weight, { inputmode: 'decimal', enterkeyhint: 'done' }, number(25, 300)),
-    ];
-    const read = () => Object.fromEntries(fields.map(f => [f.key, f.input.value]));
-    const value = (v, lo, hi) => { const n = parseKg(String(v)); return n != null && n >= lo && n <= hi ? n : null; };
+    input.addEventListener('input', sync);
+    sync();
     const done = () => {
-      const v = read();
-      const name = clean(v.name).slice(0, 40);
+      const name = clean(input.value).slice(0, 40);
       if (!name) {
-        const input = fields[0].input;
         input.classList.remove('nope');
         void input.offsetWidth;
         input.classList.add('nope');
@@ -2128,37 +2266,96 @@ Penktadienis C
         return;
       }
       db.name = name;
-      const age = value(v.age, 10, 100);
-      db.age = age == null ? null : Math.round(age);
-      db.height = value(v.height, 100, 250);
-      db.weight = value(v.weight, 25, 300);
       db.onboarded = true;
       save();
       location.hash = '#/';
       route();
     };
-    fields.forEach((f, i) => f.input.addEventListener('keydown', e => {
+    input.addEventListener('keydown', e => {
       if (e.key !== 'Enter') return;
       e.preventDefault();
-      if (fields[i + 1]) fields[i + 1].input.focus();
-      else done();
-    }));
+      done();
+    });
     mount(el('div', { class: 'ob' },
       el('div', { class: 'ob-top' },
         first ? el('span') : el('a', { href: '#/', class: 'ob-close', 'aria-label': t.tabs.today }, '←'),
-        langSwitch(() => renderProfile(first, read()))),
-      el('div', { class: 'ob-head' }, el('h1', { class: 'ob-hello' }, t.ob.welcome, el('br'), hello)),
-      el('div', { class: 'ob-form' }, ...fields.map(f => f.node)),
+        langSwitch(() => renderProfile(first, input.value))),
+      // "Welcome," only greets you the first time; after that it's just your name.
+      el('div', { class: 'ob-head' }, el('h1', { class: 'ob-hello' }, ...(first ? [t.ob.welcome, el('br')] : []), hello)),
+      el('div', { class: 'ob-form' },
+        el('label', { class: 'ob-field' }, el('span', { class: 'ob-label' }, t.ob.name), el('span', { class: 'ob-line' }, input, tick))),
       el('div', { class: 'ob-nav' }, el('button', { type: 'button', class: 'ob-next', onclick: done }, first ? t.ob.start : t.ob.save, ' ▸'))));
   }
+
+  // "70 × 12, 12, 11 · 75 × 8": a session's sets, with repeated weights written once.
+  function setsLine(sets) {
+    const parts = [];
+    for (const s of sets) {
+      const last = parts[parts.length - 1];
+      if (s.min !== undefined) parts.push({ text: fmtCardio(s) });
+      else if (last && last.kg === s.kg) last.reps.push(s.reps);
+      else parts.push({ kg: s.kg, reps: [s.reps] });
+    }
+    return parts.map(p => p.text || `${p.kg ? fmtKg(p.kg) : 'bw'} × ${p.reps.join(', ')}`).join(' · ');
+  }
+
+  const LT_MONTHS = ['saus.', 'vas.', 'kov.', 'bal.', 'geg.', 'birž.', 'liep.', 'rugp.', 'rugs.', 'spal.', 'lapkr.', 'gruod.'];
+
+  // Your best set of a lift: the strongest by estimated max, else the most reps (bodyweight),
+  // else the farthest or longest (cardio).
+  function bestSet(sets) {
+    const by = f => sets.reduce((a, b) => (f(b) > f(a) ? b : a));
+    if (sets.some(s => e1rm(s) > 0)) return by(e1rm);
+    if (sets.some(s => s.min !== undefined)) return by(s => (s.km || 0) * 1000 + (s.min || 0));
+    return by(s => s.reps || 0);
+  }
+
+  // One lift's history: every session, newest first. Tap one to open that day.
+  function renderExercise(name, back) {
+    current = { view: 'exercise', name };
+    const n = same(name);
+    const sessions = [];
+    let best = 0;
+    for (const k of sortedKeys()) {
+      const e = db.days[k].find(x => same(x.name) === n && x.sets.length);
+      if (!e) continue;
+      const top = Math.max(...e.sets.map(e1rm));
+      sessions.push({ k, sets: e.sets, pr: best > 0 && top > best + 1e-9 });
+      best = Math.max(best, top);
+    }
+    sessions.reverse();
+    const t = T();
+    const all = sessions.flatMap(s => s.sets);
+    // "12 Oct" / "spal. 12" (Lithuanian has no short month names of its own in the browser).
+    const date = k => {
+      const d = dateOf(k);
+      const year = d.getFullYear() !== new Date().getFullYear() ? ` ’${String(d.getFullYear()).slice(2)}` : '';
+      return lang() === 'lt' ? `${LT_MONTHS[d.getMonth()]} ${d.getDate()}${year}` : `${fmt(k, { day: 'numeric', month: 'short' })}${year}`;
+    };
+    mount(el('div', { class: 'view hist' },
+      el('a', { href: back, class: 'back', 'aria-label': t.back }, '←'),
+      el('h1', { class: 'title' }, name),
+      el('p', { class: 'sub' }, sessions.length ? `${t.sessions(sessions.length)} · ${t.best} ${setText(bestSet(all))}` : t.nothingYet),
+      sessions.length > 0 && el('div', { class: 'sessions' },
+        ...sessions.map(s => el('a', { class: 'session', href: `#/${s.k}`, 'aria-label': `${fullDate(s.k)}: ${setsLine(s.sets)}${s.pr ? `, ${t.pr}` : ''}` },
+          el('span', { class: 'session-d' }, date(s.k)),
+          el('span', { class: 'session-s' }, setsLine(s.sets)),
+          s.pr ? el('span', { class: 'pr', 'aria-hidden': 'true' }, 'PR') : el('span'))))));
+  }
+
+  // Where a lift's history goes back to: the screen it was opened from.
+  let backTo = '#/';
 
   function route() {
     settleTimers();
     freezeTitles();
+    syncWake();
     if (!db.onboarded) return renderProfile(true);
     if (current.view === 'plan') flushPlan();
     let h = location.hash.replace(/^#\/?/, '');
     try { h = decodeURIComponent(h); } catch (_) { h = ''; }
+    if (h.startsWith('ex/') && clean(h.slice(3))) return renderExercise(clean(h.slice(3)), backTo);
+    backTo = `#/${h === todayKey() ? '' : h}`;
     const hm = h.match(/^history(?:\/(\d{4})-(\d{2}))?$/);
     if (hm) {
       const mm = hm[2] ? Number(hm[2]) - 1 : -1;
@@ -2202,7 +2399,36 @@ Penktadienis C
   refreshNames();
   route();
 
+  /* ---------- updates ---------- */
+
+  // The app opens from its offline copy, and sw.js says when a newer one has come in. It's put
+  // in place at a quiet moment: straight away if it lands while the app is still opening, else
+  // the next time the app goes to the background or comes back, but never mid-workout or while
+  // you're typing.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    const openedAt = Date.now();
+    let touched = false;
+    let updateReady = false;
+    document.addEventListener('pointerdown', () => { touched = true; }, { capture: true, passive: true });
+    const busy = () => running(todayKey()) || rest.active() ||
+      current.view === 'profile' || current.view === 'onboarding' ||
+      !!(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) ||
+      [...app.querySelectorAll('.entry input, .add-ex input')].some(i => i.value.trim());
+    const update = () => {
+      if (!updateReady || busy()) return;
+      try {   // never more than once in a short while, whatever happens
+        if (Date.now() - Number(sessionStorage.getItem('track.updated') || 0) < 30000) return;
+        sessionStorage.setItem('track.updated', String(Date.now()));
+      } catch (_) { return; }
+      flushPlan();
+      location.reload();
+    };
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (!e.data || e.data.type !== 'updated') return;
+      updateReady = true;
+      if (!touched && Date.now() - openedAt < 4000) update();
+    });
+    document.addEventListener('visibilitychange', update);
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
 })();
