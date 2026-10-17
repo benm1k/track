@@ -138,8 +138,8 @@
     background: var(--crimson) center / cover no-repeat;
   }
   .card::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
-    linear-gradient(180deg, rgba(0, 0, 0, .35) 0%, rgba(0, 0, 0, .55) 50%, rgba(0, 0, 0, .85) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, 0) 70%); }
+    linear-gradient(180deg, rgba(0, 0, 0, .1) 0%, rgba(0, 0, 0, .3) 50%, rgba(0, 0, 0, .85) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, .6) 0%, rgba(0, 0, 0, 0) 65%); }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
   .card .title { margin-top: 6px; font-size: clamp(38px, 12vw, 48px); overflow-wrap: anywhere; }
   .card .sub { margin-top: 6px; color: rgba(255, 255, 255, .8); }
@@ -184,7 +184,7 @@
     background: var(--crimson) right center / cover no-repeat;
   }
   .ex-card::before { content: ''; position: absolute; inset: 0; z-index: -1; background:
-    linear-gradient(90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .6) 55%, rgba(0, 0, 0, .25) 100%); }
+    linear-gradient(90deg, rgba(0, 0, 0, .85) 0%, rgba(0, 0, 0, .45) 50%, rgba(0, 0, 0, .05) 100%); }
   .ex-info { display: grid; gap: 4px; min-width: 0; }
   .ex-name { font-family: var(--display); font-size: 24px; font-weight: 400; line-height: 1.05; overflow-wrap: anywhere; }
   .ex-sub { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: rgba(255, 255, 255, .8); }
@@ -1028,9 +1028,9 @@ Penktadienis C
   // Artwork: one per planned workout (by its place in the plan), one per muscle group.
   function dayArt(key) {
     const title = dayTitle(key);
-    if (title === T().rest) return 'art/day-4.png';
+    if (title === T().rest) return 'art/day-4.jpg';
     const i = parsePlan(db.plan).findIndex(r => r.name === title);
-    return `art/day-${i < 0 ? 5 : [1, 2, 3, 5, 6][i % 5]}.png`;
+    return `art/day-${i < 0 || i > 2 ? 5 : i + 1}.jpg`;
   }
 
   const MUSCLES = [
@@ -1046,7 +1046,7 @@ Penktadienis C
     const hit = MUSCLES.find(([, re]) => re.test(n));
     return hit ? hit[0] : 'other';
   };
-  const muscleArt = name => `art/${muscleOf(name)}.png`;
+  const muscleArt = name => `art/${muscleOf(name)}.jpg`;
 
   // A progress ring: returns the element and a setter for 0..1 and its label.
   function ringEl(size, cls) {
@@ -1796,11 +1796,12 @@ Penktadienis C
       location.hash = '#/';
       route();
     };
-    let art = `art/day-${[1, 2, 3][step % 3]}.png`;
+    // Slides: the scribe, the war room, the summit. Name: the training hall. Goal: the climb.
+    let art = step === ob.slides.length ? 'art/day-5.jpg' : 'art/day-3.jpg';
     let body;
     let read = () => {};
     if (step < ob.slides.length) {
-      if (step === 0) art = 'art/signin.png';
+      art = `art/slide-${step + 1}.jpg`;
       body = [el('h1', { class: 'title' }, ob.slides[step][0]), el('p', { class: 'ob-text' }, ob.slides[step][1])];
     } else if (step === ob.slides.length) {
       const input = el('input', {
@@ -1834,7 +1835,7 @@ Penktadienis C
             type: 'button', class: 'ob-plan', role: 'radio', 'aria-checked': String(picks.plan === i),
             onclick: () => { picks.plan = i; draw(); },
           }, presetName(preset));
-          b.style.backgroundImage = `url(art/day-${i + 1}.png)`;
+          b.style.backgroundImage = `url(art/day-${i + 1}.jpg)`;
           list.append(b);
         });
         list.append(el('button', {

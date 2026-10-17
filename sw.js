@@ -2,7 +2,7 @@
 // Everything is served from the cache first (so it opens instantly with no signal)
 // and refreshed in the background, so a new version shows up on the next launch.
 
-const CACHE = 'track-v2';
+const CACHE = 'track-v3';
 const INDEX = './'; // some hosts redirect /index.html to /, and redirected responses can't serve a page
 const SHELL = [
   INDEX,
@@ -12,20 +12,21 @@ const SHELL = [
   './icon-512.png',
   './icon-maskable-512.png',
   './apple-touch-icon.png',
-  './art/arms.png',
-  './art/back.png',
-  './art/chest.png',
-  './art/core.png',
-  './art/day-1.png',
-  './art/day-2.png',
-  './art/day-3.png',
-  './art/day-4.png',
-  './art/day-5.png',
-  './art/day-6.png',
-  './art/legs.png',
-  './art/other.png',
-  './art/shoulders.png',
-  './art/signin.png',
+  './art/arms.jpg',
+  './art/back.jpg',
+  './art/chest.jpg',
+  './art/core.jpg',
+  './art/day-1.jpg',
+  './art/day-2.jpg',
+  './art/day-3.jpg',
+  './art/day-4.jpg',
+  './art/day-5.jpg',
+  './art/legs.jpg',
+  './art/other.jpg',
+  './art/shoulders.jpg',
+  './art/slide-1.jpg',
+  './art/slide-2.jpg',
+  './art/slide-3.jpg',
 ];
 const SHELL_URLS = new Set(SHELL.map(u => new URL(u, self.location).href));
 const FONT_HOSTS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
