@@ -447,8 +447,13 @@
 
   /* ---------- storage ---------- */
 
-  // The weekly plan, as plain text the user can edit on the Plan screen.
-  const DEFAULT_PLAN = `Monday Push
+  // Ready-made plans, each in English and Lithuanian. The two texts must match line for line:
+  // that's how an exercise is linked to its translation (see names()). Add new ones here.
+  const PRESETS = [
+    {
+      name: { en: 'Push Pull Legs', lt: 'Stūmimas Traukimas Kojos' },
+      plan: {
+        en: `Monday Push
 - Shoulder press / Incline press 4x12
 - Incline press / Shoulder press 3x12
 - Lateral raise 4x15
@@ -467,10 +472,57 @@ Friday Legs
 - RDL 3x8
 - Bulgarian split 3x12
 - Leg extension 3x12
-- Calf raise 4x20`;
+- Calf raise 4x20`,
+        lt: `Pirmadienis Stūmimas
+- Pečių spaudimas / Spaudimas ant pasvirusio suolo 4x12
+- Spaudimas ant pasvirusio suolo / Pečių spaudimas 3x12
+- Šoniniai kėlimai 4x15
+- Lyno trauka prie veido 3x15
+- Tricepso tiesimas / Tricepso tiesimas virš galvos 4x12
 
-  // A 3-day full-body programme (from "3 Dienų Treniruočių Programa").
-  const PLAN_3_DAYS = `Pirmadienis A
+Trečiadienis Traukimas
+- Viršutinio bloko trauka 4x12
+- Horizontali trauka 3x12
+- Trauka prie smakro 3x12
+- Lyno trauka prie veido 3x15
+- Plaktuko lenkimas / Hantelių lenkimas 4x12
+
+Penktadienis Kojos
+- Pritūpimai 5x8
+- Rumuniška mirties trauka 3x8
+- Bulgariški įtūpstai 3x12
+- Kojų tiesimas 3x12
+- Blauzdų kėlimas 4x20`,
+      },
+    },
+    {
+      // From "3 Dienų Treniruočių Programa".
+      name: { en: '3-day programme', lt: '3 dienų programa' },
+      plan: {
+        en: `Monday A
+- Barbell squat 3x5-6
+- Barbell bench press 3-4x6-8
+- Seated cable row 3x8-10
+- Machine leg curl 3x10-12
+- Standing barbell curl 3x10-12
+- Plank 3x45-60
+
+Wednesday B
+- Trap bar deadlift 3x5
+- Smith machine shoulder press 3x6-8
+- Lat pulldown to chest 3-4x8-10
+- Machine leg extension 3x10-12
+- Dumbbell lateral raise 3x12-15
+- Cable triceps pushdown 3x10-12
+
+Friday C
+- 30° incline dumbbell press 3-4x8-10
+- Leg press 3x10-12
+- One-arm dumbbell row 3x8-10
+- 45° back extension 3x10-12
+- Reverse pec deck 3x12-15
+- Hanging leg raise 3x10-12`,
+        lt: `Pirmadienis A
 - Pritūpimai su štanga 3x5-6
 - Štangos spaudimas gulint 3-4x6-8
 - Horizontalaus bloko trauka sėdint 3x8-10
@@ -492,16 +544,15 @@ Penktadienis C
 - Vienos rankos hantelio trauka atsirėmus 3x8-10
 - Nugaros ir sėdmenų tiesimas 45° suoliuke 3x10-12
 - Galinės deltinių dalies atvedimas (Reverse Pec Deck) 3x12-15
-- Kojų kėlimas kybant 3x10-12`;
-
-  // Ready-made plans on the Plan screen. Add new ones here.
-  const PRESETS = [
-    { name: 'Push Pull Legs', plan: DEFAULT_PLAN },
-    { name: '3 dienų programa', plan: PLAN_3_DAYS },
+- Kojų kėlimas kybant 3x10-12`,
+      },
+    },
   ];
+  // A new phone starts with Push Pull Legs in its own language.
+  const defaultPlan = () => PRESETS[0].plan[/^lt\b/i.test(navigator.language || '') ? 'lt' : 'en'];
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, lastBackup: null, lang: null, days: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, days: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -543,7 +594,7 @@ Penktadienis C
     }
     return {
       version: 1,
-      plan: typeof input.plan === 'string' ? input.plan.slice(0, PLAN_MAX) : DEFAULT_PLAN,
+      plan: typeof input.plan === 'string' ? input.plan.slice(0, PLAN_MAX) : defaultPlan(),
       // Which day the plan last filled, and the plan text it used (see followPlan).
       filledFrom: input.filledFrom && typeof input.filledFrom === 'object' &&
         isDayKey(input.filledFrom.key) && typeof input.filledFrom.plan === 'string'
@@ -592,13 +643,42 @@ Penktadienis C
 
   const sortedKeys = () => Object.keys(db.days).sort();
 
+  // Exercise names from the presets, linked to their translation by position:
+  // norm(name) -> { en, lt }. Built on first use.
+  let nameMap = null;
+  function names() {
+    if (nameMap) return nameMap;
+    nameMap = new Map();
+    const link = (en, lt) => {
+      const pair = { en, lt };
+      nameMap.set(norm(en), pair);
+      nameMap.set(norm(lt), pair);
+    };
+    for (const p of PRESETS) {
+      const en = parsePlan(p.plan.en);
+      const lt = parsePlan(p.plan.lt);
+      en.forEach((r, i) => {
+        if (!lt[i]) return;
+        r.items.forEach((it, j) => it.names.forEach((n, k) => {
+          const other = lt[i].items[j] && lt[i].items[j].names[k];
+          if (other) link(n, other);
+        }));
+      });
+    }
+    return nameMap;
+  }
+  // The same exercise whatever language it was written in ("Squat" = "Pritūpimai").
+  const same = name => { const pair = names().get(norm(name)); return pair ? `en:${norm(pair.en)}` : norm(name); };
+  // A name shown in the current language, when it's one the presets know.
+  const shown = name => { const pair = names().get(norm(name)); return pair ? pair[lang()] : name; };
+
   // Most recent earlier day that has sets for this exercise.
   function previous(key, name) {
-    const n = norm(name);
+    const n = same(name);
     const keys = sortedKeys();
     for (let i = keys.length - 1; i >= 0; i--) {
       if (keys[i] >= key) continue;
-      const ex = db.days[keys[i]].find(e => norm(e.name) === n && e.sets.length);
+      const ex = db.days[keys[i]].find(e => same(e.name) === n && e.sets.length);
       if (ex) return { key: keys[i], sets: ex.sets };
     }
     return null;
@@ -622,8 +702,8 @@ Penktadienis C
     for (const k of sortedKeys().reverse()) {
       for (const e of db.days[k]) {
         if (!e.sets.length) continue;
-        const n = norm(e.name);
-        if (!seen.has(n)) { seen.add(n); out.push(e.name); }
+        const n = same(e.name);
+        if (!seen.has(n)) { seen.add(n); out.push(shown(e.name)); }
       }
     }
     return out;
@@ -635,7 +715,7 @@ Penktadienis C
   }
 
   // Reuse the spelling from earlier workouts so "bench press" matches "Bench press".
-  const canonical = name => allNames().find(n => norm(n) === norm(name)) || name;
+  const canonical = name => (names().has(norm(name)) ? shown(name) : allNames().find(n => norm(n) === norm(name)) || name);
 
   /* ---------- plan ---------- */
 
@@ -716,13 +796,13 @@ Penktadienis C
   // The big title on a day: the name of the planned workout it matches best ("Push"),
   // "Workout" for anything else, "Rest" when nothing is there.
   function dayTitle(key) {
-    const names = (db.days[key] || []).map(e => norm(e.name));
+    const names = (db.days[key] || []).map(e => same(e.name));
     if (!names.length) return T().rest;
     const dow = dateOf(key).getDay();
     let best = null;
     let bestScore = 0;
     for (const r of parsePlan(db.plan)) {
-      const pool = new Set(r.items.flatMap(it => it.names.map(norm)));
+      const pool = new Set(r.items.flatMap(it => it.names.map(same)));
       const score = names.filter(n => pool.has(n)).length;
       if (score > bestScore || (score && score === bestScore && r.day === dow && best.day !== dow)) {
         best = r;
@@ -742,7 +822,7 @@ Penktadienis C
     const day = db.days[key] || (db.days[key] = []);
     for (const it of routine.items) {
       const name = canonical(it.names[turn % it.names.length]);
-      if (day.some(e => norm(e.name) === norm(name))) continue;
+      if (day.some(e => same(e.name) === same(name))) continue;
       day.push(it.target ? { name, sets: [], target: copyTarget(it.target) } : { name, sets: [] });
     }
     db.filledFrom = { key, plan: db.plan };
@@ -889,24 +969,25 @@ Penktadienis C
   }
 
   function exerciseBlock(key, ex) {
+    const label = shown(ex.name);
     const sets = el('div', { class: 'sets' });
     const nextPrev = el('span', { class: 'prev' });
     const num = el('span', { class: 'n', 'aria-hidden': 'true' });
     const kg = el('input', {
       class: 'kg', inputmode: 'decimal', enterkeyhint: 'next',
-      autocomplete: 'off', 'aria-label': T().weight(ex.name),
+      autocomplete: 'off', 'aria-label': T().weight(label),
       onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); reps.focus(); } },
     });
     const reps = el('input', {
       class: 'reps', inputmode: 'numeric', pattern: '[0-9]*', enterkeyhint: 'done',
-      autocomplete: 'off', 'aria-label': T().reps(ex.name),
+      autocomplete: 'off', 'aria-label': T().reps(label),
       onkeydown: e => { if (e.key === 'Enter') tapped = false; },
     });
 
     // Tapping "+" logs and closes the keyboard; Enter keeps focus for fast typing.
     let tapped = false;
     const plus = el('button', {
-      class: 'act plus', 'aria-label': T().addSet(ex.name),
+      class: 'act plus', 'aria-label': T().addSet(label),
       onpointerdown: () => { tapped = true; },
       onpointercancel: () => { tapped = false; },
     }, '+');
@@ -915,11 +996,11 @@ Penktadienis C
       num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
 
     const remove = el('button', {
-      type: 'button', class: 'act remove', 'aria-label': T().removeExercise(ex.name), onclick: removeExercise,
+      type: 'button', class: 'act remove', 'aria-label': T().removeExercise(label), onclick: removeExercise,
     }, T().remove);
     const name = el('button', {
       type: 'button', class: 'ex-name', 'data-reveal': '', onclick: () => reveal(remove),
-    }, ex.name);
+    }, label);
 
     const target = ex.target && el('span', { class: 'target' }, fmtTarget(ex.target));
     const block = el('article', { class: 'ex' }, el('div', { class: 'head' }, name, remove, target), sets, entry);
@@ -1023,7 +1104,7 @@ Penktadienis C
         if (!name) return;
         input.value = '';
         const day = db.days[key] || [];
-        const existing = day.find(x => norm(x.name) === norm(name));
+        const existing = day.find(x => same(x.name) === same(name));
         if (existing) {
           const b = blocks.get(existing);
           if (b) b.querySelector('.kg').focus();
@@ -1141,7 +1222,11 @@ Penktadienis C
   function setLang(l) {
     if (lang() === l && db.lang === l) return;
     flushPlan();
+    // An unedited preset follows the language; a plan you wrote stays as written.
+    const now = db.plan.trim();
+    const preset = PRESETS.find(p => p.plan.en.trim() === now || p.plan.lt.trim() === now);
     db.lang = l;
+    if (preset) db.plan = preset.plan[l];
     save();
     renderPlan();
   }
@@ -1156,15 +1241,17 @@ Penktadienis C
     tabs.plan.setAttribute('aria-label', t.tabs.plan);
   }
 
+  const isPreset = (p, text) => p.plan.en.trim() === text.trim() || p.plan.lt.trim() === text.trim();
+
   function usePreset(preset) {
     const now = db.plan.trim();
-    if (now === preset.plan.trim()) return;
+    if (now === preset.plan[lang()].trim()) return;
     // Only ask when it would throw away a plan you wrote or changed yourself.
-    const own = now && !PRESETS.some(p => p.plan.trim() === now);
-    if (own && !confirm(T().replacePlan(preset.name))) return;
+    const own = now && !PRESETS.some(p => isPreset(p, now));
+    if (own && !confirm(T().replacePlan(preset.name[lang()]))) return;
     clearTimeout(planTimer);
     planTimer = 0;
-    db.plan = preset.plan;
+    db.plan = preset.plan[lang()];
     save();
     renderPlan();
   }
@@ -1187,13 +1274,13 @@ Penktadienis C
       se.scrollTop = y;
     };
     // Presets: tap to load one. The one matching the text is lit.
-    const presetButtons = PRESETS.map(p => el('button', { type: 'button', onclick: () => usePreset(p) }, p.name));
+    const presetButtons = PRESETS.map(p => el('button', { type: 'button', onclick: () => usePreset(p) }, p.name[lang()]));
     const describe = () => {
       const rs = parsePlan(area.value);
       summary.textContent = rs.length
         ? rs.map(r => (r.day == null ? r.name : `${T().dayShort[r.day]} ${r.name}`)).join(' · ')
         : T().nothingPlanned;
-      PRESETS.forEach((p, i) => presetButtons[i].setAttribute('aria-pressed', String(p.plan.trim() === area.value.trim())));
+      PRESETS.forEach((p, i) => presetButtons[i].setAttribute('aria-pressed', String(isPreset(p, area.value))));
     };
     // Memory is updated on every keystroke (so leaving the screen uses the new plan right
     // away); the write to storage is batched.
