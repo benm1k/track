@@ -723,7 +723,7 @@ Penktadienis C
   const defaultPlan = l => PRESETS[0].plan[l === 'lt' || l === 'en' ? l : deviceLang()];
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', age: null, height: null, weight: null, goal: null, onboarded: false, days: {}, timers: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', age: null, height: null, weight: null, goal: null, onboarded: false, days: {}, timers: {}, titles: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -803,7 +803,20 @@ Penktadienis C
       onboarded: input.onboarded === true,
       days,
       timers: cleanTimers(input.timers),
+      titles: cleanTitles(input.titles),
     };
+  }
+
+  // The workout a day was, fixed when the plan filled it or when it became history:
+  // { 'YYYY-MM-DD': 'Push' }, '' for a workout that matched no plan. Changing the plan later
+  // doesn't rename what you already did.
+  function cleanTitles(t) {
+    const out = {};
+    if (!t || typeof t !== 'object') return out;
+    for (const k of Object.keys(t)) {
+      if (isDayKey(k) && typeof t[k] === 'string') out[k] = clean(t[k]).slice(0, 60);
+    }
+    return out;
   }
 
   // Workout clocks: { 'YYYY-MM-DD': { start, end } } in ms; end is null while it runs.
@@ -865,6 +878,7 @@ Penktadienis C
       const pair = { en, lt };
       nameMap.set(norm(en), pair);
       nameMap.set(norm(lt), pair);
+      nameMap.set(`~${bare(norm(lt))}`, pair);   // "Spaudimas gulint" finds "Štangos spaudimas gulint"
     };
     for (const p of PRESETS) {
       const en = parsePlan(p.plan.en);
@@ -879,8 +893,16 @@ Penktadienis C
     }
     return nameMap;
   }
-  // The same exercise whatever language it was written in ("Squat" = "Pritūpimai").
-  const same = name => { const pair = names().get(norm(name)); return pair ? `en:${norm(pair.en)}` : norm(name); };
+  // The same exercise whatever language or spelling it was written in: "Squat" = "Pritūpimai",
+  // and a barbell is the default ("Bench press" = "Barbell bench press" = "Štangos spaudimas gulint").
+  // So switching plans keeps your last sets for every lift the plans share.
+  const bare = n => n.replace(/\b(barbell|flat)\b|\bsu štanga\b|(^|\s)štangos(?=\s|$)/g, ' ').replace(/\s+/g, ' ').trim();
+  const same = name => {
+    const n = norm(name);
+    const pair = names().get(n) || names().get(`~${bare(n)}`);
+    const key = bare(pair ? norm(pair.en) : n);
+    return key || n;
+  };
 
   // Most recent earlier day that has sets for this exercise.
   function previous(key, name) {
@@ -1010,7 +1032,7 @@ Penktadienis C
     let sessions = 0;
     for (const k of sortedKeys()) {
       if (k >= key) break;
-      if (db.days[k].some(e => e.sets.length) && dayTitle(k) === routine.name) sessions++;
+      if (db.days[k].some(e => e.sets.length) && dayTitle(k) === titleIn(routine.name)) sessions++;
     }
     return sessions;
   }
@@ -1020,6 +1042,33 @@ Penktadienis C
   function dayTitle(key) {
     const names = (db.days[key] || []).map(e => same(e.name));
     if (!names.length) return T().rest;
+    // Finished days keep the name they had; today's follows what's in it.
+    if (key < todayKey() && Object.prototype.hasOwnProperty.call(db.titles, key)) return db.titles[key] ? titleIn(db.titles[key]) : T().workout;
+    return planTitle(key, names);
+  }
+
+  // A preset's workout name in the app's language ("Push" <-> "Stūmimas"); anything else as written.
+  let titleMap = null;
+  function titleIn(name) {
+    if (!titleMap) {
+      titleMap = new Map();
+      for (const p of PRESETS) {
+        const en = parsePlan(p.plan.en);
+        const lt = parsePlan(p.plan.lt);
+        en.forEach((r, i) => {
+          if (!lt[i]) return;
+          const pair = { en: r.name, lt: lt[i].name };
+          titleMap.set(r.name, pair);
+          titleMap.set(lt[i].name, pair);
+        });
+      }
+    }
+    const pair = titleMap.get(name);
+    return pair ? pair[lang()] : name;
+  }
+
+  // The planned workout these exercises match best, by the current plan.
+  function planTitle(key, names) {
     const dow = dateOf(key).getDay();
     let best = null;
     let bestScore = 0;
@@ -1219,19 +1268,48 @@ Penktadienis C
     save();
   }
 
-  // Today was filled from an older version of the plan and nothing is logged yet: refill it
-  // from the current plan's workout for this weekday (or make it a rest day if there is none).
-  // Works however the plan was changed: in the app, before closing it, or by an import.
+  // Today was filled from an older version of the plan: rebuild it from the current plan's
+  // workout for this weekday. Everything you logged stays (with its sets), and so does anything
+  // you added yourself; only the old plan's untouched exercises make way. No workout today in
+  // the new plan and nothing done: a rest day. Works however the plan was changed: in the app,
+  // before closing it, by switching language, or by an import.
   function followPlan(key) {
     const from = db.filledFrom;
     const day = db.days[key];
     if (!from || from.key !== key || from.plan === db.plan) return;
-    if (!day || !day.length || day.some(e => e.sets.length)) return;
-    delete db.days[key];
-    const routine = parsePlan(db.plan).find(r => r.day === dateOf(key).getDay());
-    if (routine) return loadRoutine(key, routine);
+    if (!day || !day.length) return;   // emptied by hand: stays empty
+    const dow = dateOf(key).getDay();
+    const old = parsePlan(from.plan).find(r => r.day === dow);
+    const fromOld = new Set(old ? old.items.flatMap(it => it.names.map(same)) : []);
+    const keep = day.filter(e => e.sets.length || !fromOld.has(same(e.name)));
+    const routine = parsePlan(db.plan).find(r => r.day === dow);
+    if (routine) {
+      db.days[key] = keep;
+      loadRoutine(key, routine);   // adds what's missing
+      // In the plan's order; anything off the plan you already did goes first.
+      const at = new Map();
+      routine.items.forEach((it, i) => it.names.forEach(n => at.set(same(n), i)));
+      db.days[key].sort((a, b) => (at.has(same(a.name)) ? at.get(same(a.name)) : -1) - (at.has(same(b.name)) ? at.get(same(b.name)) : -1));
+      return save();
+    }
+    if (keep.length) db.days[key] = keep;
+    else delete db.days[key];
     db.filledFrom = null;
     save();
+  }
+
+  // Finished days keep the name they had, whatever the plan becomes. Days from before titles
+  // were saved get theirs from the plan in use now (the one they were done with).
+  function freezeTitles() {
+    const today = todayKey();
+    let changed = false;
+    for (const k of workoutKeys(db.days)) {
+      if (k >= today || Object.prototype.hasOwnProperty.call(db.titles, k)) continue;
+      const t = planTitle(k, db.days[k].map(e => same(e.name)));
+      db.titles[k] = t === T().workout ? '' : t;
+      changed = true;
+    }
+    if (changed) save();
   }
 
   /* ---------- tap-to-reveal "remove" ---------- */
@@ -2076,6 +2154,7 @@ Penktadienis C
 
   function route() {
     settleTimers();
+    freezeTitles();
     if (!db.onboarded) return renderProfile(true);
     if (current.view === 'plan') flushPlan();
     let h = location.hash.replace(/^#\/?/, '');
@@ -2105,6 +2184,8 @@ Penktadienis C
     if (document.visibilityState === 'visible' && current.view === 'day' &&
         current.isToday && current.key !== todayKey()) route();
   });
+
+  freezeTitles();
 
   // An unedited preset saved in the other language moves to the app's language (today follows it).
   if (!db.onboarded && workoutKeys(db.days).length) {
