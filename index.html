@@ -144,15 +144,12 @@
 
   .add-ex input { padding: 8px 0; font-size: 19px; font-weight: 500; letter-spacing: -.01em; }
 
-  /* routine picker on an empty day */
-  .routines { display: flex; flex-wrap: wrap; gap: 4px 32px; margin-bottom: 28px; }
-  .routines button { padding: 6px 0; font-size: 19px; font-weight: 500; letter-spacing: -.01em; color: var(--dim); transition: color .2s; }
 
   /* plan */
   .plan {
     display: block;
     width: 100%;
-    margin-top: 48px;
+    margin-top: 28px;
     font-size: 17px;
     line-height: 1.7;
     resize: none;
@@ -161,6 +158,9 @@
     caret-color: var(--fg);
   }
   .hint { margin-top: 40px; font-size: 13px; line-height: 1.6; color: var(--dim); }
+  .presets { display: flex; flex-wrap: wrap; gap: 2px 24px; margin-top: 36px; }
+  .presets button { padding: 6px 0; font-size: 15px; color: var(--dim); transition: color .2s; }
+  .presets button[aria-pressed="true"] { color: var(--fg); }
 
   /* history: a month calendar */
   .subrow { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 4px; }
@@ -217,9 +217,9 @@
   body:has(input:focus, textarea:focus) .tabbar { visibility: hidden; }
 
   @media (hover: hover) {
-    .tab:hover, footer button:hover, .act:hover, .routines button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
+    .tab:hover, footer button:hover, .act:hover, .presets button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
   }
-  footer button:active, .act:active, .routines button:active, .months a:active, a.cal-day:active { color: var(--fg); }
+  footer button:active, .act:active, .presets button:active, .months a:active, a.cal-day:active { color: var(--fg); }
 
   /* motion */
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -336,14 +336,51 @@ Friday Legs
 - Bulgarian split 3x12
 - Leg extension 3x12
 - Calf raise 4x20`;
+
+  // A 3-day full-body programme (from "3 Dienų Treniruočių Programa").
+  const PLAN_3_DAYS = `Pirmadienis A
+- Pritūpimai su štanga 3x5-6
+- Štangos spaudimas gulint 3-4x6-8
+- Horizontalaus bloko trauka sėdint 3x8-10
+- Kojų lenkimas staklėse 3x10-12
+- Bicepso lenkimas su štanga stovint 3x10-12
+- Lenta (Plank) 3x45-60
+
+Trečiadienis B
+- Trap Bar mirties trauka 3x5
+- Pečių spaudimas Smito mašinoje 3x6-8
+- Viršutinio bloko trauka prie krūtinės 3-4x8-10
+- Kojų tiesimas treniruoklyje 3x10-12
+- Hantelių kėlimas į šalis 3x12-15
+- Tricepso tiesimas prie viršutinio bloko 3x10-12
+
+Penktadienis C
+- Hantelių spaudimas 30° kampu 3-4x8-10
+- Kojų spaudimas treniruoklyje 3x10-12
+- Vienos rankos hantelio trauka atsirėmus 3x8-10
+- Nugaros ir sėdmenų tiesimas 45° suoliuke 3x10-12
+- Galinės deltinių dalies atvedimas (Reverse Pec Deck) 3x12-15
+- Kojų kėlimas kybant 3x10-12`;
+
+  // Ready-made plans on the Plan screen. Add new ones here.
+  const PRESETS = [
+    { name: 'Push Pull Legs', plan: DEFAULT_PLAN },
+    { name: '3 dienų programa', plan: PLAN_3_DAYS },
+  ];
   const PLAN_MAX = 10000;
 
   const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, days: {} });
   let storageOk = true;
 
+  // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
   const validTarget = t => t && typeof t === 'object' &&
     Number.isInteger(t.sets) && t.sets >= 1 && t.sets <= 20 &&
-    Number.isInteger(t.reps) && t.reps >= 1 && t.reps <= 999;
+    Number.isInteger(t.reps) && t.reps >= 1 && t.reps <= 999 &&
+    (t.setsTo === undefined || (Number.isInteger(t.setsTo) && t.setsTo > t.sets && t.setsTo <= 20)) &&
+    (t.repsTo === undefined || (Number.isInteger(t.repsTo) && t.repsTo > t.reps && t.repsTo <= 999));
+  const copyTarget = t => Object.assign({ sets: t.sets, reps: t.reps },
+    t.setsTo && { setsTo: t.setsTo }, t.repsTo && { repsTo: t.repsTo });
+  const fmtTarget = t => `${t.sets}${t.setsTo ? `–${t.setsTo}` : ''} × ${t.reps}${t.repsTo ? `–${t.repsTo}` : ''}`;
 
   // Accepts anything (localStorage or an imported file) and returns clean data, or null.
   function sanitize(input) {
@@ -368,7 +405,7 @@ Friday Legs
             sets.push({ kg: Number.isFinite(kg) && kg >= 0 && kg <= 1000 ? round2(kg) : 0, reps });
           }
         }
-        exs.push(validTarget(e.target) ? { name, sets, target: { sets: e.target.sets, reps: e.target.reps } } : { name, sets });
+        exs.push(validTarget(e.target) ? { name, sets, target: copyTarget(e.target) } : { name, sets });
       }
       days[k] = exs; // an empty day is kept: it means "started, then cleared" (don't reload the plan)
     }
@@ -468,6 +505,18 @@ Friday Legs
   /* ---------- plan ---------- */
 
   const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const WEEKDAYS_LT = ['sekmadienis', 'pirmadienis', 'antradienis', 'treciadienis', 'ketvirtadienis', 'penktadienis', 'sestadienis'];
+  const plain = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+
+  // The weekday a heading starts with, else -1. English: any 3+ letter prefix ("Mon", "Monday").
+  // Lithuanian: the word must reach "…dien…" ("Pirmadienis"), so "Pirma diena" isn't Monday.
+  function weekdayOf(word) {
+    const w = plain(word);
+    if (w.length < 3) return -1;
+    const en = WEEKDAYS.findIndex(d => d.toLowerCase().startsWith(w));
+    if (en > -1) return en;
+    return w.includes('dien') ? WEEKDAYS_LT.findIndex(d => d.startsWith(w)) : -1;
+  }
 
   // "Monday Push" starts a routine (the weekday is optional), "- A / B 4x12" adds an exercise.
   function parsePlan(text) {
@@ -481,11 +530,16 @@ Friday Legs
         if (!cur) continue;
         let body = item[1];
         let target = null;
-        const t = body.match(/(?:^|[\s(])(\d{1,2})\s*[x×X*]\s*(\d{1,3})\s*\)?\.?\s*$/);
+        // A sets range must be written tight ("3-4x8"), so "Superset 1 - 3x10" stays "Superset 1".
+        const t = body.match(/(?:^|[\s(])(\d{1,2})(?:[-–—](\d{1,2}))?\s*[x×X*]\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?\s*\)?\.?\s*$/);
         if (t) {
-          const v = { sets: Number(t[1]), reps: Number(t[2]) };
-          if (validTarget(v)) target = v;
-          body = body.slice(0, t.index);
+          const v = { sets: Number(t[1]), reps: Number(t[3]) };
+          if (t[2] && Number(t[2]) > v.sets) v.setsTo = Number(t[2]);
+          if (t[4] && Number(t[4]) > v.reps) v.repsTo = Number(t[4]);
+          if (validTarget(v)) {
+            target = v;
+            body = body.slice(0, t.index); // otherwise the text stays in the name, so nothing vanishes
+          }
         }
         // "Squat: 5x8", "Squat - 5x8" and "Squat (5x8)" all mean "Squat".
         const names = body.split('/').map(s => clean(s.replace(/[\s:,·•–—(-]+$/, ''))).filter(Boolean);
@@ -493,8 +547,7 @@ Friday Legs
         continue;
       }
       const [first, ...rest] = line.split(/\s+/);
-      const w = first.toLowerCase().replace(/[^a-z]/g, '');
-      const day = w.length >= 3 ? WEEKDAYS.findIndex(d => d.toLowerCase().startsWith(w)) : -1;
+      const day = weekdayOf(first);
       const name = day > -1 ? clean(rest.join(' ').replace(/^[:·•–—-]+\s*/, '')) || WEEKDAYS[day] : clean(line);
       cur = { name, day: day > -1 ? day : null, items: [] };
       routines.push(cur);
@@ -516,13 +569,13 @@ Friday Legs
 
   // The big title on a day: the name of the planned workout it matches best ("Push"),
   // "Workout" for anything else, "Rest" when nothing is there.
-  function dayTitle(key, planText = db.plan) {
+  function dayTitle(key) {
     const names = (db.days[key] || []).map(e => norm(e.name));
     if (!names.length) return 'Rest';
     const dow = dateOf(key).getDay();
     let best = null;
     let bestScore = 0;
-    for (const r of parsePlan(planText)) {
+    for (const r of parsePlan(db.plan)) {
       const pool = new Set(r.items.flatMap(it => it.names.map(norm)));
       const score = names.filter(n => pool.has(n)).length;
       if (score > bestScore || (score && score === bestScore && r.day === dow && best.day !== dow)) {
@@ -544,24 +597,22 @@ Friday Legs
     for (const it of routine.items) {
       const name = canonical(it.names[turn % it.names.length]);
       if (day.some(e => norm(e.name) === norm(name))) continue;
-      day.push(it.target ? { name, sets: [], target: { ...it.target } } : { name, sets: [] });
+      day.push(it.target ? { name, sets: [], target: copyTarget(it.target) } : { name, sets: [] });
     }
     db.filledFrom = { key, plan: db.plan };
     save();
   }
 
   // Today was filled from an older version of the plan and nothing is logged yet: refill it
-  // from the current plan (the weekday's routine, or the same routine if it was picked by hand).
+  // from the current plan's workout for this weekday (or make it a rest day if there is none).
   // Works however the plan was changed: in the app, before closing it, or by an import.
   function followPlan(key) {
     const from = db.filledFrom;
     const day = db.days[key];
     if (!from || from.key !== key || from.plan === db.plan) return;
     if (!day || !day.length || day.some(e => e.sets.length)) return;
-    const was = dayTitle(key, from.plan);
     delete db.days[key];
-    const routines = parsePlan(db.plan);
-    const routine = routines.find(r => r.day === dateOf(key).getDay()) || routines.find(r => r.name === was);
+    const routine = parsePlan(db.plan).find(r => r.day === dateOf(key).getDay());
     if (routine) return loadRoutine(key, routine);
     db.filledFrom = null;
     save();
@@ -647,21 +698,13 @@ Friday Legs
   function renderDay(key, isToday) {
     current = { view: 'day', key, isToday };
     if (isToday) followPlan(key);
-    const routines = parsePlan(db.plan);
-    // A planned weekday fills itself in the first time it's opened.
+    // A planned weekday fills itself in the first time it's opened; any other day is a rest day.
     if (isToday && !Object.prototype.hasOwnProperty.call(db.days, key)) {
-      const planned = routines.find(r => r.day === dateOf(key).getDay());
+      const planned = parsePlan(db.plan).find(r => r.day === dateOf(key).getDay());
       if (planned) loadRoutine(key, planned);
     }
     const exs = db.days[key] || [];
     const list = el('section', { class: 'list', 'aria-label': 'Exercises' });
-    // Any other empty day: offer the planned workouts (for a missed or moved session).
-    if (!exs.length && routines.length) {
-      list.append(el('div', { class: 'routines', role: 'group', 'aria-label': 'Start a planned workout' },
-        ...routines.map(r => el('button', {
-          type: 'button', onclick: () => { loadRoutine(key, r); renderDay(key, isToday); },
-        }, r.name))));
-    }
     for (const ex of exs) list.append(exerciseBlock(key, ex));
     mount(el('div', { class: 'view' },
       header(),
@@ -704,7 +747,7 @@ Friday Legs
       type: 'button', class: 'ex-name', 'data-reveal': '', onclick: () => reveal(remove),
     }, ex.name);
 
-    const target = ex.target && el('span', { class: 'target' }, `${ex.target.sets} × ${ex.target.reps}`);
+    const target = ex.target && el('span', { class: 'target' }, fmtTarget(ex.target));
     const block = el('article', { class: 'ex' }, el('div', { class: 'head' }, name, remove, target), sets, entry);
     blocks.set(ex, block);
     paint(false);
@@ -787,10 +830,8 @@ Friday Legs
       }
       save();
       revealed = null;
-      refreshNames();
-      // Emptied: redraw so the routine picker comes back.
-      if (!day || !day.length) return renderDay(key, current.isToday);
       block.remove();
+      refreshNames();
       retitle(key);
     }
   }
@@ -818,8 +859,6 @@ Friday Legs
         day.push(ex);
         db.days[key] = day;
         save();
-        const picker = list.querySelector('.routines');
-        if (picker) picker.remove();
         const block = exerciseBlock(key, ex);
         block.classList.add('fresh');
         list.append(block);
@@ -910,6 +949,19 @@ Friday Legs
   let refitPlan = null;
   window.addEventListener('resize', () => { if (refitPlan) refitPlan(); });
 
+  function usePreset(preset) {
+    const now = db.plan.trim();
+    if (now === preset.plan.trim()) return;
+    // Only ask when it would throw away a plan you wrote or changed yourself.
+    const own = now && !PRESETS.some(p => p.plan.trim() === now);
+    if (own && !confirm(`Replace your plan with “${preset.name}”?`)) return;
+    clearTimeout(planTimer);
+    planTimer = 0;
+    db.plan = preset.plan;
+    save();
+    renderPlan();
+  }
+
   function renderPlan() {
     current = { view: 'plan' };
     const summary = el('p', { class: 'sub' });
@@ -927,11 +979,14 @@ Friday Legs
       area.style.height = `${area.scrollHeight}px`;
       se.scrollTop = y;
     };
+    // Presets: tap to load one. The one matching the text is lit.
+    const presetButtons = PRESETS.map(p => el('button', { type: 'button', onclick: () => usePreset(p) }, p.name));
     const describe = () => {
       const rs = parsePlan(area.value);
       summary.textContent = rs.length
         ? rs.map(r => (r.day == null ? r.name : `${WEEKDAYS[r.day].slice(0, 3)} ${r.name}`)).join(' · ')
         : 'Nothing planned.';
+      PRESETS.forEach((p, i) => presetButtons[i].setAttribute('aria-pressed', String(p.plan.trim() === area.value.trim())));
     };
     // Memory is updated on every keystroke (so leaving the screen uses the new plan right
     // away); the write to storage is batched.
@@ -948,10 +1003,13 @@ Friday Legs
       header(),
       el('h1', { class: 'title' }, 'Plan'),
       summary,
+      el('div', { class: 'presets', role: 'group', 'aria-label': 'Presets' }, ...presetButtons),
       area,
       el('p', { class: 'hint' },
-        'Start a line with a weekday to schedule it, e.g. “Monday Push”. ',
-        'List exercises as “- Squat 5x8”. Use / for alternates; they take turns each session. ',
+        'Tap a preset above to start from it, or write your own. ',
+        'Start each workout with the day you train it, e.g. “Monday Push”; it loads on that day, and other days are rest days. ',
+        'List exercises as “- Squat 5x8” or with ranges, “- Bench 3-4x6-8”. ',
+        'Use / for alternates; they take turns each session. ',
         'Changes apply to days you haven’t started yet.')));
     describe();
     refitPlan = fit;
