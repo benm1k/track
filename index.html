@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="A minimal gym workout tracker.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Track.">
+<title>Track.</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@100..600&display=swap" crossorigin media="print" onload="this.media='all'">
+<style>
+  :root {
+    --bg: #000;
+    --fg: #fff;
+    --dim: rgba(255, 255, 255, .66);   /* 9:1 on black */
+    --faint: rgba(255, 255, 255, .47); /* 4.8:1 on black, still readable in a gym */
+    --ghost: rgba(255, 255, 255, .26); /* last session's numbers: there if you look */
+    --font: "Geist", "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+
+  html {
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 400 16px/1.4 var(--font);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  a, button, input, textarea { font: inherit; color: inherit; }
+  a { text-decoration: none; }
+  button, input, textarea {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  button { cursor: pointer; text-align: left; touch-action: manipulation; }
+  input { width: 100%; min-width: 0; outline: none; caret-color: var(--fg); }
+  input::placeholder { color: var(--faint); opacity: 1; }
+  /* Chrome draws an arrow on inputs with a datalist; keep the suggestions, drop the arrow.
+     Separate rules, because an unknown pseudo-element would void the whole list. */
+  input::-webkit-calendar-picker-indicator { display: none !important; }
+  input::-webkit-list-button { display: none !important; }
+  ::selection { background: var(--fg); color: var(--bg); }
+  :focus { outline: none; }
+  :focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
+  input:focus-visible { outline: none; }
+
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding:
+      max(24px, env(safe-area-inset-top))
+      max(24px, env(safe-area-inset-right))
+      calc(132px + env(safe-area-inset-bottom)) /* room for the tab bar */
+      max(24px, env(safe-area-inset-left));
+  }
+
+  /* header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    font-size: 15px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 500; letter-spacing: -.01em; padding: 10px 0; }
+  .mark { width: 19px; height: 19px; flex: none; }
+  .warn { margin-top: 8px; font-size: 13px; color: var(--dim); }
+
+  .title {
+    margin-top: 64px;
+    font-weight: 100;
+    font-size: clamp(48px, 15vw, 64px);
+    line-height: .95;
+    letter-spacing: -.04em;
+  }
+  .sub { margin-top: 12px; font-size: 15px; color: var(--dim); }
+
+  /* day */
+  .list { margin-top: 56px; }
+  .ex { margin-bottom: 44px; }
+  .head { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; }
+  .head > .remove, .head > .target { grid-column: 2; grid-row: 1; justify-self: end; }
+  /* Plain text in the same cell as "remove": it must never catch the tap meant for it. */
+  .target { color: var(--dim); font-size: 15px; transition: opacity .15s; pointer-events: none; }
+  .remove.on + .target, .remove:focus-visible + .target { opacity: 0; }
+  .ex-name {
+    padding: 6px 0;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    overflow-wrap: anywhere;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1.6em 3.6em 1.7em 1.1em 2.6em 1fr 2.2em;
+    align-items: baseline;
+    font-size: 17px;
+  }
+  .row > * { padding: 8px 0; }
+  .n { color: var(--faint); font-size: 13px; }
+  .w, .kg { text-align: right; padding-right: .3em; }
+  .u { color: var(--dim); }
+  .set { cursor: pointer; }
+  .act { justify-self: end; align-self: center; color: var(--dim); padding: 8px 0 8px 20px; }
+  .plus { color: var(--fg); font-size: 26px; font-weight: 200; line-height: 1; padding-top: 4px; padding-bottom: 4px; }
+  /* Always in the accessibility tree; shown on tap (.on) or keyboard focus. */
+  .remove { font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .remove.on, .remove:focus-visible { opacity: 1; pointer-events: auto; }
+  .plus { grid-column: 7; }
+  /* Last session's matching set, barely visible at the right; "remove" takes its place. */
+  .prev { grid-column: 6; grid-row: 1; justify-self: end; font-size: 13px; color: var(--ghost); white-space: nowrap; transition: opacity .15s; }
+  .set .remove { grid-column: 6 / 8; grid-row: 1; }
+  .remove.on + .prev, .remove:focus-visible + .prev { opacity: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .add-ex input { padding: 8px 0; font-size: 19px; font-weight: 500; letter-spacing: -.01em; }
+
+  /* routine picker on an empty day */
+  .routines { display: flex; flex-wrap: wrap; gap: 4px 32px; margin-bottom: 28px; }
+  .routines button { padding: 6px 0; font-size: 19px; font-weight: 500; letter-spacing: -.01em; color: var(--dim); transition: color .2s; }
+
+  /* plan */
+  .plan {
+    display: block;
+    width: 100%;
+    margin-top: 48px;
+    font-size: 17px;
+    line-height: 1.7;
+    resize: none;
+    overflow: hidden;
+    outline: none;
+    caret-color: var(--fg);
+  }
+  .hint { margin-top: 40px; font-size: 13px; line-height: 1.6; color: var(--dim); }
+
+  /* history: a month calendar */
+  .subrow { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 4px; }
+  .subrow .sub { margin-top: 0; }
+  .months { display: flex; gap: 12px; margin-right: -10px; }
+  .months a, .months span { padding: 6px 10px; font-size: 26px; font-weight: 200; line-height: 1; color: var(--dim); transition: color .2s; }
+  .months .off { color: var(--ghost); }
+  .cal { margin-top: 44px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 4px; text-align: center; touch-action: pan-y; }
+  .wd { padding-bottom: 12px; font-size: 12px; color: var(--faint); }
+  .cal-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    min-height: 54px;
+    padding-top: 8px;
+    font-size: 17px;
+    color: var(--ghost);
+  }
+  .cal-day.has { color: var(--fg); font-weight: 500; }
+  .cal-day.future { color: rgba(255, 255, 255, .14); }
+  .cal-day.today .num { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+  .cal-name {
+    max-width: 100%;
+    margin-top: 4px;
+    overflow: hidden;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--dim);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cal-name.rest { color: var(--ghost); }
+  footer { margin-top: 72px; display: flex; gap: 24px; font-size: 14px; }
+  footer button { color: var(--dim); padding: 10px 0; transition: color .2s; }
+
+  /* bottom tab bar: History · Today · Plan */
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 10px max(24px, env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    background: var(--bg);
+  }
+  .tabbar-inner { max-width: 34rem; margin: 0 auto; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .tab { justify-self: center; display: grid; place-items: center; width: 52px; height: 52px; color: var(--dim); transition: color .2s; }
+  .tab[aria-current="page"] { color: var(--fg); }
+  .tab svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .tab .dot { stroke-width: 2.4; }
+  .tab-home svg { width: 28px; height: 28px; fill: currentColor; stroke: none; } /* just the mark, a touch larger */
+  /* Out of the way while typing (it would otherwise ride on top of the keyboard). */
+  body:has(input:focus, textarea:focus) .tabbar { visibility: hidden; }
+
+  @media (hover: hover) {
+    .tab:hover, footer button:hover, .act:hover, .routines button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
+  }
+  footer button:active, .act:active, .routines button:active, .months a:active, a.cal-day:active { color: var(--fg); }
+
+  /* motion */
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .view > * { animation: rise .6s var(--ease) both; }
+  .view > :nth-child(2) { animation-delay: .04s; }
+  .view > :nth-child(3) { animation-delay: .08s; }
+  .view > :nth-child(4) { animation-delay: .12s; }
+  .view > :nth-child(n+5) { animation-delay: .16s; }
+  .fresh { animation: rise .4s var(--ease) both; }
+  @keyframes nope { 50% { opacity: .25; } }
+  .nope { animation: nope .5s ease 2; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main id="app"></main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 98.71 100"><path fill="currentColor" d="M61.2 2.51A4.54 4.54 0 0 1 65.26 0L94.17 0A4.54 4.54 0 0 1 98.23 6.56L88.65 25.71A4.54 4.54 0 0 1 84.6 28.22L56.57 28.22A3.53 3.53 0 0 0 53.42 30.17L45.76 45.48A3.53 3.53 0 0 0 47.34 50.21L63.73 58.4A4.54 4.54 0 0 1 66.24 62.46L66.24 95.47A4.54 4.54 0 0 1 59.67 99.52L40.52 89.95A4.54 4.54 0 0 1 38.01 85.89L38.01 52.16A3.53 3.53 0 0 0 34.49 48.63L4.53 48.63A4.54 4.54 0 0 1 0.48 42.07L8.54 25.94A4.54 4.54 0 0 1 12.6 23.43L48.56 23.43A3.53 3.53 0 0 0 51.71 21.48Z"/></symbol>
+</svg>
+<nav class="tabbar" aria-label="Main">
+  <div class="tabbar-inner">
+    <a class="tab" id="tab-history" href="#/history" aria-label="History">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+    </a>
+    <a class="tab tab-home" id="tab-today" href="#/" aria-label="Today">
+      <svg viewBox="0 0 98.71 100" aria-hidden="true"><use href="#mark"/></svg>
+    </a>
+    <a class="tab" id="tab-plan" href="#/plan" aria-label="Plan">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6.5h10M9.5 12h10M9.5 17.5h10"/><path class="dot" d="M5 6.5h.01M5 12h.01M5 17.5h.01"/></svg>
+    </a>
+  </div>
+</nav>
+<datalist id="names"></datalist>
+<noscript>Track. needs JavaScript.</noscript>
+<script>
+(() => {
+  'use strict';
+
+  const KEY = 'track.v1';
+  const app = document.getElementById('app');
+  const namesList = document.getElementById('names');
+
+  /* ---------- DOM helper: strings are always added as text, never as HTML ---------- */
+
+  function el(tag, attrs, ...kids) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (v == null || v === false) continue;
+        if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+        else node.setAttribute(k, v === true ? '' : v);
+      }
+    }
+    for (const kid of kids) if (kid != null && kid !== false) node.append(kid);
+    return node;
+  }
+
+  /* ---------- dates (local time, keyed YYYY-MM-DD) ---------- */
+
+  const pad = n => String(n).padStart(2, '0');
+  const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const dateOf = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const todayKey = () => keyOf(new Date());
+  const isDayKey = k => /^\d{4}-\d{2}-\d{2}$/.test(k) && keyOf(dateOf(k)) === k;
+  const fmt = (k, opts) => dateOf(k).toLocaleDateString('en-GB', opts);
+  const fullDate = k => fmt(k, dateOf(k).getFullYear() === new Date().getFullYear()
+    ? { weekday: 'long', day: 'numeric', month: 'long' }
+    : { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  /* ---------- values ---------- */
+
+  const clean = s => String(s).replace(/\s+/g, ' ').trim().slice(0, 60);
+  const norm = s => clean(s).toLowerCase();
+  const round2 = n => Math.round(n * 100) / 100;
+  const fmtKg = n => String(round2(n));
+  const setText = s => `${s.kg ? fmtKg(s.kg) : 'bw'} × ${s.reps}`;
+
+  function parseKg(s) {
+    const t = s.trim().replace(',', '.');
+    if (!/^(\d+(\.\d*)?|\.\d+)$/.test(t)) return null;
+    const v = Number(t);
+    return v <= 1000 ? round2(v) : null;
+  }
+
+  function parseReps(s) {
+    const t = s.trim();
+    if (!/^\d+$/.test(t)) return null;
+    const v = Number(t);
+    return v >= 1 && v <= 999 ? v : null;
+  }
+
+  /* ---------- storage ---------- */
+
+  // The weekly plan, as plain text the user can edit on the Plan screen.
+  const DEFAULT_PLAN = `Monday Push
+- Shoulder press / Incline press 4x12
+- Incline press / Shoulder press 3x12
+- Lateral raise 4x15
+- Facepull 3x15
+- Tricep extension / Overhead tricep extension 4x12
+
+Wednesday Pull
+- Lat pulldown 4x12
+- Row 3x12
+- Upright row 3x12
+- Facepull 3x15
+- Hammer curl / DB curl 4x12
+
+Friday Legs
+- Squat 5x8
+- RDL 3x8
+- Bulgarian split 3x12
+- Leg extension 3x12
+- Calf raise 4x20`;
+  const PLAN_MAX = 10000;
+
+  const empty = () => ({ version: 1, plan: DEFAULT_PLAN, filledFrom: null, days: {} });
+  let storageOk = true;
+
+  const validTarget = t => t && typeof t === 'object' &&
+    Number.isInteger(t.sets) && t.sets >= 1 && t.sets <= 20 &&
+    Number.isInteger(t.reps) && t.reps >= 1 && t.reps <= 999;
+
+  // Accepts anything (localStorage or an imported file) and returns clean data, or null.
+  function sanitize(input) {
+    if (!input || typeof input !== 'object' || !input.days ||
+        typeof input.days !== 'object' || Array.isArray(input.days)) return null;
+    const days = {};
+    for (const k of Object.keys(input.days)) {
+      const list = input.days[k];
+      if (!isDayKey(k) || !Array.isArray(list)) continue;
+      const exs = [];
+      for (const e of list) {
+        if (!e || typeof e !== 'object' || typeof e.name !== 'string') continue;
+        const name = clean(e.name);
+        if (!name) continue;
+        const sets = [];
+        if (Array.isArray(e.sets)) {
+          for (const s of e.sets) {
+            if (!s || typeof s !== 'object') continue;
+            const reps = Number(s.reps);
+            const kg = Number(s.kg);
+            if (!Number.isInteger(reps) || reps < 1 || reps > 999) continue;
+            sets.push({ kg: Number.isFinite(kg) && kg >= 0 && kg <= 1000 ? round2(kg) : 0, reps });
+          }
+        }
+        exs.push(validTarget(e.target) ? { name, sets, target: { sets: e.target.sets, reps: e.target.reps } } : { name, sets });
+      }
+      days[k] = exs; // an empty day is kept: it means "started, then cleared" (don't reload the plan)
+    }
+    return {
+      version: 1,
+      plan: typeof input.plan === 'string' ? input.plan.slice(0, PLAN_MAX) : DEFAULT_PLAN,
+      // Which day the plan last filled, and the plan text it used (see followPlan).
+      filledFrom: input.filledFrom && typeof input.filledFrom === 'object' &&
+        isDayKey(input.filledFrom.key) && typeof input.filledFrom.plan === 'string'
+        ? { key: input.filledFrom.key, plan: input.filledFrom.plan.slice(0, PLAN_MAX) }
+        : null,
+      days,
+    };
+  }
+
+  function load() {
+    let raw;
+    try { raw = localStorage.getItem(KEY); } catch (_) { storageOk = false; return empty(); }
+    if (raw == null) return empty();
+    try {
+      const data = sanitize(JSON.parse(raw));
+      if (data) return data;
+    } catch (_) { /* fall through */ }
+    // Never overwrite something we couldn't read: park it under another key first.
+    try { localStorage.setItem(`${KEY}.unreadable.${Date.now()}`, raw); } catch (_) { /* ignore */ }
+    return empty();
+  }
+
+  let db = load();
+  let askedPersist = false;
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(db));
+      storageOk = true;
+    } catch (_) {
+      storageOk = false;
+    }
+    // Show or hide the warning in place, without re-rendering (keeps focus and scroll).
+    const warn = app.querySelector('.warn');
+    if (warn) warn.hidden = storageOk;
+    if (!askedPersist && navigator.storage && navigator.storage.persist) {
+      askedPersist = true;
+      navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {});
+    }
+  }
+
+  /* ---------- queries ---------- */
+
+  const sortedKeys = () => Object.keys(db.days).sort();
+
+  // Most recent earlier day that has sets for this exercise.
+  function previous(key, name) {
+    const n = norm(name);
+    const keys = sortedKeys();
+    for (let i = keys.length - 1; i >= 0; i--) {
+      if (keys[i] >= key) continue;
+      const ex = db.days[keys[i]].find(e => norm(e.name) === n && e.sets.length);
+      if (ex) return { key: keys[i], sets: ex.sets };
+    }
+    return null;
+  }
+
+  // What tapping "+" with empty fields would log: today's last set, else last session's
+  // first set (with the planned reps, if the exercise came from the plan).
+  function suggestion(key, ex) {
+    if (ex.sets.length) return ex.sets[ex.sets.length - 1];
+    const prev = previous(key, ex.name);
+    if (ex.target) return { kg: prev ? prev.sets[0].kg : 0, reps: ex.target.reps };
+    return prev ? prev.sets[0] : null;
+  }
+
+  // Days with at least one logged set. An exercise added but never done isn't a workout.
+  const workoutKeys = days => Object.keys(days).filter(k => days[k].some(e => e.sets.length)).sort();
+
+  function allNames() {
+    const seen = new Set();
+    const out = [];
+    for (const k of sortedKeys().reverse()) {
+      for (const e of db.days[k]) {
+        if (!e.sets.length) continue;
+        const n = norm(e.name);
+        if (!seen.has(n)) { seen.add(n); out.push(e.name); }
+      }
+    }
+    return out;
+  }
+
+  function refreshNames() {
+    namesList.textContent = '';
+    for (const n of allNames()) namesList.append(el('option', { value: n }));
+  }
+
+  // Reuse the spelling from earlier workouts so "bench press" matches "Bench press".
+  const canonical = name => allNames().find(n => norm(n) === norm(name)) || name;
+
+  /* ---------- plan ---------- */
+
+  const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  // "Monday Push" starts a routine (the weekday is optional), "- A / B 4x12" adds an exercise.
+  function parsePlan(text) {
+    const routines = [];
+    let cur = null;
+    for (const raw of String(text || '').split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line) continue;
+      const item = line.match(/^[-–—•*]\s*(.*)$/);
+      if (item) {
+        if (!cur) continue;
+        let body = item[1];
+        let target = null;
+        const t = body.match(/(?:^|[\s(])(\d{1,2})\s*[x×X*]\s*(\d{1,3})\s*\)?\.?\s*$/);
+        if (t) {
+          const v = { sets: Number(t[1]), reps: Number(t[2]) };
+          if (validTarget(v)) target = v;
+          body = body.slice(0, t.index);
+        }
+        // "Squat: 5x8", "Squat - 5x8" and "Squat (5x8)" all mean "Squat".
+        const names = body.split('/').map(s => clean(s.replace(/[\s:,·•–—(-]+$/, ''))).filter(Boolean);
+        if (names.length) cur.items.push({ names, target });
+        continue;
+      }
+      const [first, ...rest] = line.split(/\s+/);
+      const w = first.toLowerCase().replace(/[^a-z]/g, '');
+      const day = w.length >= 3 ? WEEKDAYS.findIndex(d => d.toLowerCase().startsWith(w)) : -1;
+      const name = day > -1 ? clean(rest.join(' ').replace(/^[:·•–—-]+\s*/, '')) || WEEKDAYS[day] : clean(line);
+      cur = { name, day: day > -1 ? day : null, items: [] };
+      routines.push(cur);
+    }
+    return routines.filter(r => r.items.length);
+  }
+
+  // Alternates ("A / B") take turns: count the earlier sessions of this routine; every slot
+  // moves on one step per session and cycles through however many alternates it has.
+  function rotation(key, routine) {
+    if (!routine.items.some(it => it.names.length > 1)) return 0;
+    let sessions = 0;
+    for (const k of sortedKeys()) {
+      if (k >= key) break;
+      if (db.days[k].some(e => e.sets.length) && dayTitle(k) === routine.name) sessions++;
+    }
+    return sessions;
+  }
+
+  // The big title on a day: the name of the planned workout it matches best ("Push"),
+  // "Workout" for anything else, "Rest" when nothing is there.
+  function dayTitle(key, planText = db.plan) {
+    const names = (db.days[key] || []).map(e => norm(e.name));
+    if (!names.length) return 'Rest';
+    const dow = dateOf(key).getDay();
+    let best = null;
+    let bestScore = 0;
+    for (const r of parsePlan(planText)) {
+      const pool = new Set(r.items.flatMap(it => it.names.map(norm)));
+      const score = names.filter(n => pool.has(n)).length;
+      if (score > bestScore || (score && score === bestScore && r.day === dow && best.day !== dow)) {
+        best = r;
+        bestScore = score;
+      }
+    }
+    return best && bestScore * 2 >= names.length ? best.name : 'Workout';
+  }
+
+  function retitle(key) {
+    const t = app.querySelector('.title');
+    if (t && current.view === 'day' && current.key === key) t.textContent = dayTitle(key);
+  }
+
+  function loadRoutine(key, routine) {
+    const turn = rotation(key, routine);
+    const day = db.days[key] || (db.days[key] = []);
+    for (const it of routine.items) {
+      const name = canonical(it.names[turn % it.names.length]);
+      if (day.some(e => norm(e.name) === norm(name))) continue;
+      day.push(it.target ? { name, sets: [], target: { ...it.target } } : { name, sets: [] });
+    }
+    db.filledFrom = { key, plan: db.plan };
+    save();
+  }
+
+  // Today was filled from an older version of the plan and nothing is logged yet: refill it
+  // from the current plan (the weekday's routine, or the same routine if it was picked by hand).
+  // Works however the plan was changed: in the app, before closing it, or by an import.
+  function followPlan(key) {
+    const from = db.filledFrom;
+    const day = db.days[key];
+    if (!from || from.key !== key || from.plan === db.plan) return;
+    if (!day || !day.length || day.some(e => e.sets.length)) return;
+    const was = dayTitle(key, from.plan);
+    delete db.days[key];
+    const routines = parsePlan(db.plan);
+    const routine = routines.find(r => r.day === dateOf(key).getDay()) || routines.find(r => r.name === was);
+    if (routine) return loadRoutine(key, routine);
+    db.filledFrom = null;
+    save();
+  }
+
+  /* ---------- tap-to-reveal "remove" ---------- */
+
+  let revealed = null;
+
+  function reveal(btn) {
+    if (revealed && revealed !== btn) revealed.classList.remove('on');
+    btn.classList.toggle('on');
+    revealed = btn.classList.contains('on') ? btn : null;
+  }
+
+  function closeReveal() {
+    if (revealed) { revealed.classList.remove('on'); revealed = null; }
+  }
+
+  document.addEventListener('pointerdown', e => {
+    if (revealed && !e.target.closest('.remove, [data-reveal]')) closeReveal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReveal(); });
+
+  /* ---------- views ---------- */
+
+  let current = {};
+  const blocks = new WeakMap();
+
+  // The Track. mark (the #mark symbol in the page, same geometry as logo.svg).
+  function mark() {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 98.71 100');
+    svg.setAttribute('class', 'mark');
+    svg.setAttribute('aria-hidden', 'true');
+    const use = document.createElementNS(ns, 'use');
+    use.setAttribute('href', '#mark');
+    svg.append(use);
+    return svg;
+  }
+
+  function header() {
+    return el('div', null,
+      el('header', null, el('a', { href: '#/', class: 'brand' }, mark(), 'Track.')),
+      el('p', { class: 'warn', hidden: storageOk }, 'Can’t save on this device. Private browsing?'));
+  }
+
+  const tabs = {
+    history: document.getElementById('tab-history'),
+    today: document.getElementById('tab-today'),
+    plan: document.getElementById('tab-plan'),
+  };
+
+  // Light up the current tab. A past day belongs to History, whose tab leads back to its month.
+  function updateTabs() {
+    const pastDay = current.view === 'day' && !current.isToday;
+    const active = current.view === 'history' || pastDay ? 'history' : current.view === 'plan' ? 'plan' : 'today';
+    for (const [name, tab] of Object.entries(tabs)) {
+      if (name === active) tab.setAttribute('aria-current', 'page');
+      else tab.removeAttribute('aria-current');
+    }
+    tabs.history.setAttribute('href', pastDay ? `#/history/${current.key.slice(0, 7)}` : '#/history');
+  }
+
+  // Already on today: the middle button goes back to the top.
+  tabs.today.addEventListener('click', e => {
+    if (current.view === 'day' && current.isToday) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  function mount(view) {
+    revealed = null;
+    refitPlan = null;
+    app.textContent = '';
+    app.append(view);
+    updateTabs();
+    window.scrollTo(0, 0);
+  }
+
+  function renderDay(key, isToday) {
+    current = { view: 'day', key, isToday };
+    if (isToday) followPlan(key);
+    const routines = parsePlan(db.plan);
+    // A planned weekday fills itself in the first time it's opened.
+    if (isToday && !Object.prototype.hasOwnProperty.call(db.days, key)) {
+      const planned = routines.find(r => r.day === dateOf(key).getDay());
+      if (planned) loadRoutine(key, planned);
+    }
+    const exs = db.days[key] || [];
+    const list = el('section', { class: 'list', 'aria-label': 'Exercises' });
+    // Any other empty day: offer the planned workouts (for a missed or moved session).
+    if (!exs.length && routines.length) {
+      list.append(el('div', { class: 'routines', role: 'group', 'aria-label': 'Start a planned workout' },
+        ...routines.map(r => el('button', {
+          type: 'button', onclick: () => { loadRoutine(key, r); renderDay(key, isToday); },
+        }, r.name))));
+    }
+    for (const ex of exs) list.append(exerciseBlock(key, ex));
+    mount(el('div', { class: 'view' },
+      header(),
+      el('h1', { class: 'title' }, dayTitle(key)),
+      el('p', { class: 'sub' }, fullDate(key)),
+      list,
+      addExerciseForm(key, list)));
+  }
+
+  function exerciseBlock(key, ex) {
+    const sets = el('div', { class: 'sets' });
+    const nextPrev = el('span', { class: 'prev' });
+    const num = el('span', { class: 'n', 'aria-hidden': 'true' });
+    const kg = el('input', {
+      class: 'kg', inputmode: 'decimal', enterkeyhint: 'next',
+      autocomplete: 'off', 'aria-label': `${ex.name} weight, kg`,
+      onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); reps.focus(); } },
+    });
+    const reps = el('input', {
+      class: 'reps', inputmode: 'numeric', pattern: '[0-9]*', enterkeyhint: 'done',
+      autocomplete: 'off', 'aria-label': `${ex.name} reps`,
+      onkeydown: e => { if (e.key === 'Enter') tapped = false; },
+    });
+
+    // Tapping "+" logs and closes the keyboard; Enter keeps focus for fast typing.
+    let tapped = false;
+    const plus = el('button', {
+      class: 'act plus', 'aria-label': `Add set to ${ex.name}`,
+      onpointerdown: () => { tapped = true; },
+      onpointercancel: () => { tapped = false; },
+    }, '+');
+
+    const entry = el('form', { class: 'row entry', novalidate: true, onsubmit: addSet },
+      num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
+
+    const remove = el('button', {
+      type: 'button', class: 'act remove', 'aria-label': `Remove ${ex.name}`, onclick: removeExercise,
+    }, 'remove');
+    const name = el('button', {
+      type: 'button', class: 'ex-name', 'data-reveal': '', onclick: () => reveal(remove),
+    }, ex.name);
+
+    const target = ex.target && el('span', { class: 'target' }, `${ex.target.sets} × ${ex.target.reps}`);
+    const block = el('article', { class: 'ex' }, el('div', { class: 'head' }, name, remove, target), sets, entry);
+    blocks.set(ex, block);
+    paint(false);
+    return block;
+
+    function paint(added) {
+      const before = previous(key, ex.name);
+      const ref = before ? before.sets : [];
+      sets.textContent = '';
+      ex.sets.forEach((s, i) => sets.append(setRow(s, i, added && i === ex.sets.length - 1, ref[i])));
+      const sug = suggestion(key, ex);
+      num.textContent = ex.sets.length + 1;
+      kg.placeholder = sug && sug.kg ? fmtKg(sug.kg) : '0';
+      reps.placeholder = sug ? String(sug.reps) : '0';
+      fillPrev(nextPrev, ref[ex.sets.length]);
+    }
+
+    function fillPrev(span, s) {
+      span.textContent = '';
+      if (s) span.append(el('span', { class: 'sr' }, 'last time '), setText(s));
+      return span;
+    }
+
+    // Tap the row to show "remove". The button is always reachable by keyboard and screen readers.
+    function setRow(s, i, fresh, then) {
+      const rm = el('button', {
+        type: 'button', class: 'act remove', 'aria-label': `Remove set ${i + 1}`,
+        onclick: () => {
+          const j = ex.sets.indexOf(s);
+          if (j > -1) ex.sets.splice(j, 1);
+          save();
+          paint(false);
+        },
+      }, 'remove');
+      return el('div', {
+        class: 'row set' + (fresh ? ' fresh' : ''), 'data-reveal': '',
+        onclick: e => { if (!e.target.closest('.remove')) reveal(rm); },
+      },
+        el('span', { class: 'n' }, i + 1),
+        el('span', { class: 'w' }, s.kg ? fmtKg(s.kg) : ''),
+        el('span', { class: 'u' }, s.kg ? 'kg' : 'bw'),
+        el('span', { class: 'u' }, '×'),
+        el('span', null, s.reps),
+        rm,
+        then && fillPrev(el('span', { class: 'prev' }), then));
+    }
+
+    function nudge(input) {
+      input.classList.remove('nope');
+      void input.offsetWidth; // restart the animation
+      input.classList.add('nope');
+      input.focus();
+      input.select();
+    }
+
+    function addSet(e) {
+      e.preventDefault();
+      const viaTap = tapped;
+      tapped = false;
+      const sug = suggestion(key, ex);
+      const w = kg.value.trim() ? parseKg(kg.value) : (sug ? sug.kg : 0);
+      const r = reps.value.trim() ? parseReps(reps.value) : (sug ? sug.reps : null);
+      if (w == null) return nudge(kg);
+      if (r == null) return nudge(reps);
+      ex.sets.push({ kg: w, reps: r });
+      save();
+      if (ex.sets.length === 1) refreshNames();
+      kg.value = '';
+      reps.value = '';
+      closeReveal();
+      paint(true);
+      if (viaTap && document.activeElement && entry.contains(document.activeElement)) document.activeElement.blur();
+    }
+
+    function removeExercise() {
+      const day = db.days[key];
+      if (day) {
+        const i = day.indexOf(ex);
+        if (i > -1) day.splice(i, 1); // an emptied day stays, so the plan doesn't refill it
+      }
+      save();
+      revealed = null;
+      refreshNames();
+      // Emptied: redraw so the routine picker comes back.
+      if (!day || !day.length) return renderDay(key, current.isToday);
+      block.remove();
+      retitle(key);
+    }
+  }
+
+  function addExerciseForm(key, list) {
+    const input = el('input', {
+      placeholder: 'Add exercise', list: 'names', enterkeyhint: 'done', maxlength: '60',
+      autocomplete: 'off', autocapitalize: 'sentences', 'aria-label': 'Add exercise',
+    });
+    return el('form', {
+      class: 'add-ex',
+      onsubmit: e => {
+        e.preventDefault();
+        const name = clean(input.value);
+        if (!name) return;
+        input.value = '';
+        const day = db.days[key] || [];
+        const existing = day.find(x => norm(x.name) === norm(name));
+        if (existing) {
+          const b = blocks.get(existing);
+          if (b) b.querySelector('.kg').focus();
+          return;
+        }
+        const ex = { name: canonical(name), sets: [] };
+        day.push(ex);
+        db.days[key] = day;
+        save();
+        const picker = list.querySelector('.routines');
+        if (picker) picker.remove();
+        const block = exerciseBlock(key, ex);
+        block.classList.add('fresh');
+        list.append(block);
+        refreshNames();
+        retitle(key);
+        block.querySelector('.kg').focus();
+      },
+    }, input);
+  }
+
+  const monthKey = (y, m) => `${y}-${pad(m + 1)}`;
+
+  // History is a month calendar: tap a day to open it. Months change with ‹ › or a swipe.
+  function renderHistory(ym) {
+    const now = new Date();
+    const y = ym ? ym.y : now.getFullYear();
+    const m = ym ? ym.m : now.getMonth();
+    current = { view: 'history', y, m };
+    const today = todayKey();
+    const prev = m === 0 ? monthKey(y - 1, 11) : monthKey(y, m - 1);
+    const next = m === 11 ? monthKey(y + 1, 0) : monthKey(y, m + 1);
+    const canNext = next <= monthKey(now.getFullYear(), now.getMonth());
+
+    const cal = el('div', { class: 'cal', role: 'group', 'aria-label': 'Days' });
+    for (const d of ['M', 'T', 'W', 'T', 'F', 'S', 'S']) cal.append(el('span', { class: 'wd', 'aria-hidden': 'true' }, d));
+    const lead = (new Date(y, m, 1).getDay() + 6) % 7; // weeks start on Monday
+    for (let i = 0; i < lead; i++) cal.append(el('span', { 'aria-hidden': 'true' }));
+    let count = 0;
+    const last = new Date(y, m + 1, 0).getDate();
+    // Today isn't a rest day yet if a workout is planned for it.
+    const plannedToday = parsePlan(db.plan).some(r => r.day === now.getDay());
+    for (let d = 1; d <= last; d++) {
+      const k = `${monthKey(y, m)}-${pad(d)}`;
+      const done = (db.days[k] || []).some(e => e.sets.length);
+      if (done) count++;
+      const future = k > today;
+      const rest = !done && !future && !(k === today && plannedToday);
+      const cls = `cal-day${done ? ' has' : ''}${k === today ? ' today' : ''}${future ? ' future' : ''}`;
+      const name = done ? dayTitle(k) : rest && 'Rest';
+      const kids = [el('span', { class: 'num' }, d), name && el('span', { class: `cal-name${rest ? ' rest' : ''}` }, name)];
+      cal.append(future
+        ? el('span', { class: cls, 'aria-hidden': 'true' }, ...kids)
+        : el('a', { class: cls, href: `#/${k}`, 'aria-label': name ? `${fullDate(k)}, ${name}` : fullDate(k) }, ...kids));
+    }
+
+    // Swipe sideways on the calendar to change month.
+    let sx = null;
+    let sy = 0;
+    cal.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    cal.addEventListener('touchend', e => {
+      if (sx == null) return;
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      sx = null;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy)) return;
+      if (dx > 0) location.hash = `#/history/${prev}`;
+      else if (canNext) location.hash = `#/history/${next}`;
+    });
+
+    const file = el('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: () => importFile(file) });
+    mount(el('div', { class: 'view' },
+      header(),
+      el('h1', { class: 'title' }, new Date(y, m, 1).toLocaleDateString('en-GB', { month: 'long' })),
+      el('div', { class: 'subrow' },
+        el('p', { class: 'sub' }, `${y} · ${count ? `${count} workout${count === 1 ? '' : 's'}` : 'nothing logged'}`),
+        el('nav', { class: 'months', 'aria-label': 'Month' },
+          el('a', { href: `#/history/${prev}`, 'aria-label': 'Previous month' }, '‹'),
+          canNext
+            ? el('a', { href: `#/history/${next}`, 'aria-label': 'Next month' }, '›')
+            : el('span', { class: 'off', 'aria-hidden': 'true' }, '›'))),
+      cal,
+      el('footer', null,
+        el('button', { type: 'button', onclick: exportData }, 'Export'),
+        el('button', { type: 'button', onclick: () => file.click() }, 'Import'),
+        file)));
+  }
+
+  let planTimer = 0;
+  function flushPlan() {
+    if (!planTimer) return;
+    clearTimeout(planTimer);
+    planTimer = 0;
+    save();
+  }
+  window.addEventListener('pagehide', flushPlan);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushPlan(); });
+
+  let refitPlan = null;
+  window.addEventListener('resize', () => { if (refitPlan) refitPlan(); });
+
+  function renderPlan() {
+    current = { view: 'plan' };
+    const summary = el('p', { class: 'sub' });
+    const area = el('textarea', {
+      class: 'plan', rows: '12', spellcheck: 'false', autocapitalize: 'sentences', 'aria-label': 'Plan',
+    });
+    area.value = db.plan;
+    area.placeholder = 'Monday Push\n- Bench press 4x8';
+    // Grow to fit the text. Collapsing it to measure would shorten the page for a moment and
+    // make the browser jump the scroll, so the scroll position is put back.
+    const fit = () => {
+      const se = document.scrollingElement || document.documentElement;
+      const y = se.scrollTop;
+      area.style.height = 'auto';
+      area.style.height = `${area.scrollHeight}px`;
+      se.scrollTop = y;
+    };
+    const describe = () => {
+      const rs = parsePlan(area.value);
+      summary.textContent = rs.length
+        ? rs.map(r => (r.day == null ? r.name : `${WEEKDAYS[r.day].slice(0, 3)} ${r.name}`)).join(' · ')
+        : 'Nothing planned.';
+    };
+    // Memory is updated on every keystroke (so leaving the screen uses the new plan right
+    // away); the write to storage is batched.
+    area.addEventListener('input', () => {
+      if (area.value.length > PLAN_MAX) area.value = area.value.slice(0, PLAN_MAX);
+      db.plan = area.value;
+      fit();
+      describe();
+      clearTimeout(planTimer);
+      planTimer = setTimeout(flushPlan, 400);
+    });
+    area.addEventListener('blur', flushPlan);
+    mount(el('div', { class: 'view' },
+      header(),
+      el('h1', { class: 'title' }, 'Plan'),
+      summary,
+      area,
+      el('p', { class: 'hint' },
+        'Start a line with a weekday to schedule it, e.g. “Monday Push”. ',
+        'List exercises as “- Squat 5x8”. Use / for alternates; they take turns each session. ',
+        'Changes apply to days you haven’t started yet.')));
+    describe();
+    refitPlan = fit;
+    requestAnimationFrame(fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (refitPlan === fit) fit(); });
+  }
+
+  /* ---------- backup ---------- */
+
+  async function exportData() {
+    const name = `track-${todayKey()}.json`;
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const touch = window.matchMedia('(pointer: coarse)').matches;
+    if (touch && typeof File === 'function' && navigator.canShare) {
+      const file = new File([blob], name, { type: 'application/json' });
+      if (navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file] }); return; } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = el('a', { href: url, download: name });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+
+  async function importFile(input) {
+    const f = input.files && input.files[0];
+    input.value = '';
+    if (!f) return;
+    let data = null;
+    let parsed = null;
+    try { parsed = JSON.parse(await f.text()); data = sanitize(parsed); } catch (_) { /* handled below */ }
+    if (!data) { alert('That file isn’t a Track. backup.'); return; }
+    if (typeof parsed.plan !== 'string') data.plan = db.plan; // older backups have no plan: keep yours
+    const n = workoutKeys(data.days).length;
+    if (!confirm(`Replace everything here with the ${n} workout${n === 1 ? '' : 's'} in this file?`)) return;
+    db = data;
+    save();
+    refreshNames();
+    route();
+  }
+
+  /* ---------- routing ---------- */
+
+  function route() {
+    if (current.view === 'plan') flushPlan();
+    let h = location.hash.replace(/^#\/?/, '');
+    try { h = decodeURIComponent(h); } catch (_) { h = ''; }
+    const hm = h.match(/^history(?:\/(\d{4})-(\d{2}))?$/);
+    if (hm) {
+      const mm = hm[2] ? Number(hm[2]) - 1 : -1;
+      return renderHistory(hm[1] && mm >= 0 && mm <= 11 && Number(hm[1]) >= 1970 ? { y: Number(hm[1]), m: mm } : null);
+    }
+    if (h === 'plan') return renderPlan();
+    // Today's date (e.g. tapped in History) is home, so it rolls over at midnight like home does.
+    if (h === todayKey()) { history.replaceState(null, '', '#/'); return renderDay(h, true); }
+    if (isDayKey(h)) return renderDay(h, false);
+    renderDay(todayKey(), true);
+  }
+
+  window.addEventListener('hashchange', route);
+
+  // Another tab changed the data: reload it rather than overwrite it later.
+  window.addEventListener('storage', e => {
+    if (e.key === KEY || e.key === null) { db = load(); refreshNames(); route(); }
+  });
+
+  // Left open past midnight: roll the home screen over to the new day.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && current.view === 'day' &&
+        current.isToday && current.key !== todayKey()) route();
+  });
+
+  refreshNames();
+  route();
+
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+})();
+</script>
+</body>
+</html>
