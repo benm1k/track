@@ -449,10 +449,12 @@
 
   /* ---------- storage ---------- */
 
-  // Ready-made plans, each in English and Lithuanian. The two texts must match line for line:
-  // that's how an exercise is linked to its translation (see names()). Add new ones here.
+  // Ready-made plans. Each is used in one fixed language (`lang`), whatever the app's language.
+  // Both texts are kept, line for line, so an exercise logged under either name is recognised
+  // as the same one (see names()). Add new ones here.
   const PRESETS = [
     {
+      lang: 'lt',
       name: { en: 'Push Pull Legs', lt: 'Stūmimas Traukimas Kojos' },
       plan: {
         en: `Monday Push
@@ -499,7 +501,8 @@ Penktadienis Kojos
     },
     {
       // From "3 Dienų Treniruočių Programa".
-      name: { en: '3-day programme', lt: '3 dienų programa' },
+      lang: 'en',
+      name: { en: '3 Day Program', lt: '3 dienų programa' },
       plan: {
         en: `Monday A
 - Barbell squat 3x5-6
@@ -550,8 +553,10 @@ Penktadienis C
       },
     },
   ];
-  // A new phone starts with Push Pull Legs in its own language.
-  const defaultPlan = () => PRESETS[0].plan[/^lt\b/i.test(navigator.language || '') ? 'lt' : 'en'];
+  const presetPlan = p => p.plan[p.lang];
+  const presetName = p => p.name[p.lang];
+  // A new phone starts with the first preset.
+  const defaultPlan = () => presetPlan(PRESETS[0]);
   const PLAN_MAX = 10000;
 
   const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, days: {} });
@@ -671,8 +676,6 @@ Penktadienis C
   }
   // The same exercise whatever language it was written in ("Squat" = "Pritūpimai").
   const same = name => { const pair = names().get(norm(name)); return pair ? `en:${norm(pair.en)}` : norm(name); };
-  // A name shown in the current language, when it's one the presets know.
-  const shown = name => { const pair = names().get(norm(name)); return pair ? pair[lang()] : name; };
 
   // Most recent earlier day that has sets for this exercise.
   function previous(key, name) {
@@ -705,7 +708,7 @@ Penktadienis C
       for (const e of db.days[k]) {
         if (!e.sets.length) continue;
         const n = same(e.name);
-        if (!seen.has(n)) { seen.add(n); out.push(shown(e.name)); }
+        if (!seen.has(n)) { seen.add(n); out.push(e.name); }
       }
     }
     return out;
@@ -717,7 +720,7 @@ Penktadienis C
   }
 
   // Reuse the spelling from earlier workouts so "bench press" matches "Bench press".
-  const canonical = name => (names().has(norm(name)) ? shown(name) : allNames().find(n => norm(n) === norm(name)) || name);
+  const canonical = name => (names().has(norm(name)) ? name : allNames().find(n => norm(n) === norm(name)) || name);
 
   /* ---------- plan ---------- */
 
@@ -971,7 +974,7 @@ Penktadienis C
   }
 
   function exerciseBlock(key, ex) {
-    const label = shown(ex.name);
+    const label = ex.name;
     const sets = el('div', { class: 'sets' });
     const nextPrev = el('span', { class: 'prev' });
     const num = el('span', { class: 'n', 'aria-hidden': 'true' });
@@ -1224,11 +1227,7 @@ Penktadienis C
   function setLang(l) {
     if (lang() === l && db.lang === l) return;
     flushPlan();
-    // An unedited preset follows the language; a plan you wrote stays as written.
-    const now = db.plan.trim();
-    const preset = PRESETS.find(p => p.plan.en.trim() === now || p.plan.lt.trim() === now);
     db.lang = l;
-    if (preset) db.plan = preset.plan[l];
     save();
     renderPlan();
   }
@@ -1247,13 +1246,13 @@ Penktadienis C
 
   function usePreset(preset) {
     const now = db.plan.trim();
-    if (now === preset.plan[lang()].trim()) return;
+    if (now === presetPlan(preset).trim()) return;
     // Only ask when it would throw away a plan you wrote or changed yourself.
     const own = now && !PRESETS.some(p => isPreset(p, now));
-    if (own && !confirm(T().replacePlan(preset.name[lang()]))) return;
+    if (own && !confirm(T().replacePlan(presetName(preset)))) return;
     clearTimeout(planTimer);
     planTimer = 0;
-    db.plan = preset.plan[lang()];
+    db.plan = presetPlan(preset);
     save();
     renderPlan();
   }
@@ -1276,7 +1275,7 @@ Penktadienis C
       se.scrollTop = y;
     };
     // Presets: tap to load one. The one matching the text is lit.
-    const presetButtons = PRESETS.map(p => el('button', { type: 'button', onclick: () => usePreset(p) }, p.name[lang()]));
+    const presetButtons = PRESETS.map(p => el('button', { type: 'button', onclick: () => usePreset(p) }, presetName(p)));
     const describe = () => {
       const rs = parsePlan(area.value);
       summary.textContent = rs.length
@@ -1398,6 +1397,13 @@ Penktadienis C
     if (document.visibilityState === 'visible' && current.view === 'day' &&
         current.isToday && current.key !== todayKey()) route();
   });
+
+  // An unedited preset saved in its other language moves to its fixed one (today follows it).
+  const savedPreset = PRESETS.find(p => isPreset(p, db.plan));
+  if (savedPreset && db.plan.trim() !== presetPlan(savedPreset).trim()) {
+    db.plan = presetPlan(savedPreset);
+    save();
+  }
 
   refreshNames();
   route();
