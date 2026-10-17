@@ -2,7 +2,7 @@
 // Everything is served from the cache first (so it opens instantly with no signal)
 // and refreshed in the background, so a new version shows up on the next launch.
 
-const CACHE = 'track-v3';
+const CACHE = 'track-v4';
 const INDEX = './'; // some hosts redirect /index.html to /, and redirected responses can't serve a page
 const SHELL = [
   INDEX,
@@ -22,7 +22,7 @@ const SHELL = [
   './art/day-4.jpg',
   './art/day-5.jpg',
   './art/legs.jpg',
-  './art/other.jpg',
+  './art/other.jpg', './art/cardio.jpg',
   './art/shoulders.jpg',
   './art/slide-1.jpg',
   './art/slide-2.jpg',

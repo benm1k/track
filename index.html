@@ -317,37 +317,31 @@
   /* Out of the way only while the on-screen keyboard is up (see syncKeyboard). */
   body.kb .tabbar { visibility: hidden; }
 
-  /* onboarding: artwork on top fading into black, text and controls at the bottom */
+  /* profile (first launch and from the avatar): artwork, "Welcome, <name>", four fields */
   body.onboarding .tabbar { display: none; }
   body.onboarding main { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
   .ob { display: flex; flex-direction: column; min-height: calc(100dvh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom))); }
-  .ob-top { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
-  .ob-step { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--dim); }
-  .ob-art { position: relative; height: 42vh; min-height: 220px; margin: 12px -24px 0; background: var(--crimson) center / cover no-repeat; }
-  .ob-art.small { height: 20vh; min-height: 120px; } /* question steps: room for the answers */
-  .ob-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, var(--bg) 100%); }
-  .ob-body { flex: 1; padding-top: 12px; }
-  .ob .title { margin-top: 0; font-size: clamp(48px, 15vw, 64px); }
-  .ob-text { max-width: 30ch; margin-top: 14px; font-size: 15px; line-height: 1.5; color: var(--dim); }
-  .ob-name { width: 100%; margin-top: 40px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .3); font-family: var(--display); font-size: 40px; }
-  .ob-name:focus { border-bottom-color: var(--crimson-hi); }
-  /* goal picker: the chosen goal large between two lines, the others dim */
-  .goals { display: grid; justify-items: center; margin-top: 36px; }
-  .goal { width: 100%; padding: 12px 0; text-align: center; font-family: var(--display); font-size: 22px; color: var(--faint); transition: color .2s, font-size .2s; }
-  .goal[aria-checked="true"] { padding: 16px 0; border-block: 1px solid var(--fg); font-size: 32px; color: var(--fg); }
-  .ob-plans { display: grid; gap: 12px; margin-top: 28px; }
-  .ob-plan { position: relative; display: flex; align-items: flex-end; min-height: 96px; padding: 14px 16px; border-radius: 14px; overflow: hidden; isolation: isolate; background: var(--crimson) center / cover no-repeat; font-family: var(--display); font-size: 26px; text-align: left; }
-  .ob-plan::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(0, 0, 0, .85), rgba(0, 0, 0, .25)); }
-  .ob-plan[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--fg); }
-  .ob-plan.plain { min-height: 64px; background: none; border: 1px solid rgba(255, 255, 255, .3); font-size: 20px; }
-  .ob-plan.plain::before { display: none; }
-  .ob-nav { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding-top: 24px; }
-  .ob-back { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, .1); font-size: 20px; }
-  .ob-dots { display: flex; justify-content: center; gap: 6px; }
-  .ob-dots i { width: 6px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .25); transition: width .25s, background .25s; }
-  .ob-dots i.on { width: 22px; background: var(--crimson-hi); }
+  .ob-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+  .ob-top .lang { text-shadow: 0 0 6px #000, 0 0 2px #000; }
+  .ob-close { display: grid; place-items: center; width: 44px; height: 44px; margin-left: -10px; font-size: 22px; }
+  .ob-head { position: relative; margin: -44px -24px 0; }
+  .ob-hero { height: 46vh; min-height: 250px; background: var(--crimson) center / cover no-repeat; }
+  .ob-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .35) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, .2) 60%, var(--bg) 100%); }
+  .ob-hello { position: absolute; z-index: 1; left: 24px; right: 24px; bottom: 6px; font-family: var(--display); font-weight: 300; font-size: clamp(40px, 12vw, 52px); line-height: 1; overflow-wrap: anywhere; }
+  .ob-form { display: grid; gap: 20px; margin-top: 22px; }
+  .ob-field { display: block; }
+  .ob-label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--crimson-hi); }
+  .ob-line { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255, 255, 255, .25); transition: border-color .2s; }
+  .ob-line:focus-within { border-bottom-color: var(--crimson-hi); }
+  .ob-input { flex: 1; padding: 8px 0 10px; font-size: 18px; }
+  .ob-tick { display: grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 5px; background: var(--crimson); font-size: 12px; line-height: 1; }
+  .ob-nav { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 28px; }
   .ob-next { padding: 13px 22px; border-radius: 999px; background: var(--crimson); font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg); }
   .ob-next:active { background: var(--crimson-hi); }
+
+  /* cardio rows: minutes and km instead of kg x reps */
+  .row.cardio { grid-template-columns: 1.6em 3.6em 2.2em 3.4em 1.9em 1fr 2.2em; }
+  .row.cardio .kg, .row.cardio .km { text-align: right; padding-right: .3em; }
 
   @media (hover: hover) {
     .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover { color: var(--fg); }
@@ -470,6 +464,7 @@
         'Tap a preset above to start from it, or write your own. ',
         'Start each workout with the day you train it, e.g. “Monday Push”; it loads on that day, and other days are rest days. ',
         'List exercises as “- Squat 5x8” or with ranges, “- Bench 3-4x6-8”. ',
+        'Cardio takes time and distance: “- Running 30min” or “- Bike 20min 8km”. ',
         'Use / for alternates; they take turns each session. ',
         'Changes apply to days you haven’t started yet.',
       ],
@@ -480,27 +475,19 @@
       next: (name, day) => `Next: ${name}, ${day}`,
       program: 'Workout program',
       exerciseCount: n => `${n} exercise${n === 1 ? '' : 's'}`,
-      muscles: { all: 'All', chest: 'Chest', back: 'Back', legs: 'Legs', shoulders: 'Shoulders', arms: 'Arms', core: 'Core', other: 'Other' },
+      muscles: { all: 'All', cardio: 'Cardio', chest: 'Chest', back: 'Back', legs: 'Legs', shoulders: 'Shoulders', arms: 'Arms', core: 'Core', other: 'Other' },
       removeExerciseText: 'Remove exercise',
       yourName: 'Your name',
       levels: ['Gym beginner', 'Regular', 'Dedicated', 'Veteran'],
       backupDue: 'Backup due',
       ob: {
-        slides: [
-          ['Log every set.', 'Weight and reps in two taps. Last time’s numbers sit right next to them.'],
-          ['Follow your plan.', 'Your workout loads itself on the right day, with every target ready.'],
-          ['Beat last time.', 'Watch sets, volume and streaks climb, week after week.'],
-        ],
-        nameTitle: 'What’s your name?',
-        nameText: 'It goes at the top of your screen.',
-        goalTitle: 'What’s your goal?',
-        goalText: 'We’ll keep it in front of you.',
-        planTitle: 'Pick your plan.',
-        planText: 'You can change it any time on the Plan tab.',
-        ownPlan: 'I’ll write my own',
-        next: 'Next',
+        welcome: 'Welcome,',
+        name: 'Name',
+        age: 'Age',
+        height: 'Height (cm)',
+        weight: 'Weight (kg)',
         start: 'Start',
-        back: 'Back',
+        save: 'Save',
       },
       goals: { muscle: 'Build muscle', strength: 'Get stronger', fat: 'Lose fat', fit: 'Stay fit' },
     },
@@ -541,6 +528,7 @@
         'Pasirink paruoštą planą viršuje arba parašyk savo. ',
         'Kiekvieną treniruotę pradėk savaitės diena, pvz. „Pirmadienis A“: ji įsikels tą dieną, o kitos dienos bus poilsio. ',
         'Pratimus rašyk taip: „- Pritūpimai 5x8“ arba su intervalais „- Spaudimas 3-4x6-8“. ',
+        'Kardio – laikas ir atstumas: „- Bėgimas 30min“ arba „- Dviratis 20min 8km“. ',
         'Alternatyvas atskirk „/“ – jos keičiasi kas treniruotę. ',
         'Pakeitimai galioja dar nepradėtoms dienoms.',
       ],
@@ -551,27 +539,19 @@
       next: (name, day) => `Kita: ${name}, ${day}`,
       program: 'Treniruočių programa',
       exerciseCount: n => `${n} ${ltPlural(n, 'pratimas', 'pratimai', 'pratimų')}`,
-      muscles: { all: 'Visi', chest: 'Krūtinė', back: 'Nugara', legs: 'Kojos', shoulders: 'Pečiai', arms: 'Rankos', core: 'Pilvas', other: 'Kita' },
+      muscles: { all: 'Visi', cardio: 'Kardio', chest: 'Krūtinė', back: 'Nugara', legs: 'Kojos', shoulders: 'Pečiai', arms: 'Rankos', core: 'Pilvas', other: 'Kita' },
       removeExerciseText: 'Šalinti pratimą',
       yourName: 'Tavo vardas',
       levels: ['Pradedantysis', 'Reguliarus', 'Atsidavęs', 'Veteranas'],
       backupDue: 'Laikas atsarginei kopijai',
       ob: {
-        slides: [
-          ['Užrašyk kiekvieną seriją.', 'Svoris ir pakartojimai dviem paspaudimais. Praeito karto skaičiai – šalia.'],
-          ['Sek savo planą.', 'Treniruotė įsikelia pati tinkamą dieną, su visais tikslais.'],
-          ['Pagerink praeitą kartą.', 'Matyk, kaip auga serijos, tonažas ir tavo pažanga.'],
-        ],
-        nameTitle: 'Koks tavo vardas?',
-        nameText: 'Jis bus ekrano viršuje.',
-        goalTitle: 'Koks tavo tikslas?',
-        goalText: 'Jį visada matysi.',
-        planTitle: 'Pasirink planą.',
-        planText: 'Jį bet kada pakeisi skiltyje „Planas“.',
-        ownPlan: 'Parašysiu savo',
-        next: 'Toliau',
+        welcome: 'Sveiki,',
+        name: 'Vardas',
+        age: 'Amžius',
+        height: 'Ūgis (cm)',
+        weight: 'Svoris (kg)',
         start: 'Pradėti',
-        back: 'Atgal',
+        save: 'Išsaugoti',
       },
       goals: { muscle: 'Auginti raumenis', strength: 'Tapti stipresniu', fat: 'Numesti svorio', fit: 'Palaikyti formą' },
     },
@@ -601,7 +581,7 @@
   const norm = s => clean(s).toLowerCase();
   const round2 = n => Math.round(n * 100) / 100;
   const fmtKg = n => String(round2(n));
-  const setText = s => `${s.kg ? fmtKg(s.kg) : 'bw'} × ${s.reps}`;
+  const setText = s => (s.min !== undefined ? fmtCardio(s) : `${s.kg ? fmtKg(s.kg) : 'bw'} × ${s.reps}`);
 
   function parseKg(s) {
     const t = s.trim().replace(',', '.');
@@ -729,7 +709,7 @@ Penktadienis C
   const defaultPlan = () => presetPlan(PRESETS[0]);
   const PLAN_MAX = 10000;
 
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', goal: null, onboarded: false, days: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', age: null, height: null, weight: null, goal: null, onboarded: false, days: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -741,6 +721,18 @@ Penktadienis C
   const copyTarget = t => Object.assign({ sets: t.sets, reps: t.reps },
     t.setsTo && { setsTo: t.setsTo }, t.repsTo && { repsTo: t.repsTo });
   const fmtTarget = t => `${t.sets}${t.setsTo ? `–${t.setsTo}` : ''} × ${t.reps}${t.repsTo ? `–${t.repsTo}` : ''}`;
+
+  const inRange = (v, lo, hi) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+
+  // Cardio is logged as minutes and km instead of kg x reps.
+  // Rowing, walking lunges and farmer's walks stay strength work.
+  const isCardio = name => /\b(run|running|jog|jogging|sprints?|treadmill|bike|biking|cycling|spin|rower|rowing machine|erg|walk|walking|hike|hiking|swim|swimming|elliptical|stair ?master|jump rope|skipping|cardio|hiit)\b|bėg|dvirat|irklavimo treniruokl|ėjimas|plauk|takel|elipt|šokdyn|kardio/i.test(name)
+    && !/lunge|įtūpst|farmer|ūkinink|carry|neši/i.test(name);
+  // Logged sets decide; the name only decides for an empty exercise.
+  const cardioEx = ex => (ex.sets.length ? ex.sets[0].min !== undefined : isCardio(ex.name));
+  const fmtCardio = s => `${fmtKg(s.min)} min${s.km ? ` · ${fmtKg(s.km)} km` : ''}`;
+  const validAim = a => a && typeof a === 'object' && (inRange(a.min, 0.5, 1000) || inRange(a.km, 0.1, 1000));
+  const copyAim = a => Object.assign({}, inRange(a.min, 0.5, 1000) && { min: round2(a.min) }, inRange(a.km, 0.1, 1000) && { km: round2(a.km) });
 
   // Accepts anything (localStorage or an imported file) and returns clean data, or null.
   function sanitize(input) {
@@ -759,13 +751,22 @@ Penktadienis C
         if (Array.isArray(e.sets)) {
           for (const s of e.sets) {
             if (!s || typeof s !== 'object') continue;
+            if (s.min !== undefined) {   // a cardio entry
+              const min = Number(s.min);
+              const km = Number(s.km);
+              if (!inRange(min, 0.1, 1000)) continue;
+              sets.push({ min: round2(min), km: inRange(km, 0, 1000) ? round2(km) : 0 });
+              continue;
+            }
             const reps = Number(s.reps);
             const kg = Number(s.kg);
             if (!Number.isInteger(reps) || reps < 1 || reps > 999) continue;
             sets.push({ kg: Number.isFinite(kg) && kg >= 0 && kg <= 1000 ? round2(kg) : 0, reps });
           }
         }
-        exs.push(validTarget(e.target) ? { name, sets, target: copyTarget(e.target) } : { name, sets });
+        const ex = validTarget(e.target) ? { name, sets, target: copyTarget(e.target) } : { name, sets };
+        if (validAim(e.aim)) ex.aim = copyAim(e.aim);
+        exs.push(ex);
       }
       days[k] = exs; // an empty day is kept: it means "started, then cleared" (don't reload the plan)
     }
@@ -782,6 +783,9 @@ Penktadienis C
       lang: input.lang === 'lt' || input.lang === 'en' ? input.lang : null,
       name: typeof input.name === 'string' ? clean(input.name).slice(0, 40) : '',
       goal: ['muscle', 'strength', 'fat', 'fit'].includes(input.goal) ? input.goal : null,
+      age: inRange(input.age, 10, 100) ? Math.round(input.age) : null,
+      height: inRange(input.height, 100, 250) ? round2(input.height) : null,
+      weight: inRange(input.weight, 25, 300) ? round2(input.weight) : null,
       onboarded: input.onboarded === true,
       days,
     };
@@ -866,7 +870,10 @@ Penktadienis C
   // first set (with the planned reps, if the exercise came from the plan).
   function suggestion(key, ex) {
     if (ex.sets.length) return ex.sets[ex.sets.length - 1];
-    const prev = previous(key, ex.name);
+    const cardio = cardioEx(ex);
+    const found = previous(key, ex.name);
+    const prev = found && (found.sets[0].min !== undefined) === cardio ? found : null;   // same kind only
+    if (cardio) return prev ? prev.sets[0] : ex.aim ? { min: ex.aim.min || 0, km: ex.aim.km || 0 } : null;
     if (ex.target) return { kg: prev ? prev.sets[0].kg : 0, reps: ex.target.reps };
     return prev ? prev.sets[0] : null;
   }
@@ -945,9 +952,18 @@ Penktadienis C
         const read = readTarget(body);
         const target = read && read.target;
         if (read) body = body.slice(0, read.cut);
+        let aim = null;
+        const c = !read && body.match(/(?:^|[\s(])(\d{1,3}(?:[.,]\d+)?)\s*(min|km)\b(?:\s*[·,/]?\s*(\d{1,3}(?:[.,]\d+)?)\s*(min|km)\b)?\s*\)?\.?\s*$/i);
+        if (c) {
+          aim = {};
+          aim[c[2].toLowerCase()] = Number(c[1].replace(',', '.'));
+          if (c[3]) aim[c[4].toLowerCase()] = Number(c[3].replace(',', '.'));
+          if (validAim(aim) && isCardio(body.slice(0, c.index))) body = body.slice(0, c.index);
+          else aim = null;
+        }
         // "Squat: 5x8", "Squat - 5x8" and "Squat (5x8)" all mean "Squat".
         const names = body.split('/').map(s => clean(s.replace(/[\s:,·•–—(-]+$/, ''))).filter(Boolean);
-        if (names.length) cur.items.push({ names, target });
+        if (names.length) cur.items.push({ names, target, aim });
         continue;
       }
       const [first, ...rest] = line.split(/\s+/);
@@ -996,8 +1012,9 @@ Penktadienis C
     for (const e of db.days[key] || []) {
       stats.total++;
       stats.sets += e.sets.length;
-      stats.planned += e.target ? Math.max(e.target.sets, e.sets.length) : e.sets.length;
-      stats.volume += e.sets.reduce((v, s) => v + s.kg * s.reps, 0);
+      stats.planned += e.target ? Math.max(e.target.sets, e.sets.length)
+        : cardioEx(e) ? Math.max(1, e.sets.length) : e.sets.length;
+      stats.volume += e.sets.reduce((v, s) => v + (s.reps ? s.kg * s.reps : 0), 0);
       if (e.sets.length && e.sets.length >= (e.target ? e.target.sets : 1)) stats.done++;
     }
     return stats;
@@ -1034,6 +1051,7 @@ Penktadienis C
   }
 
   const MUSCLES = [
+    ['cardio', { test: isCardio }],
     ['core', /plank|lenta|crunch|\babs\b|core|hanging|kybant/],
     ['shoulders', /shoulder|pečių|lateral|šonin|į šalis|delt|upright|smakro|face ?pull|facepull|veido|rear|pec deck|atvedimas/],
     ['legs', /squat|pritūp|\bleg|kojų|lunge|įtūp|split|rdl|deadlift|mirties|calf|blauzd|glute|sėdmen/],
@@ -1146,7 +1164,9 @@ Penktadienis C
     for (const it of routine.items) {
       const name = canonical(it.names[turn % it.names.length]);
       if (day.some(e => same(e.name) === same(name))) continue;
-      day.push(it.target ? { name, sets: [], target: copyTarget(it.target) } : { name, sets: [] });
+      const ex = it.target ? { name, sets: [], target: copyTarget(it.target) } : { name, sets: [] };
+      if (it.aim) ex.aim = copyAim(it.aim);
+      day.push(ex);
     }
     db.filledFrom = { key, plan: db.plan };
     save();
@@ -1243,7 +1263,7 @@ Penktadienis C
     bell.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>';
     return el('div', null,
       el('header', { class: 'profile' },
-        el('a', { href: '#/', class: 'avatar', 'aria-label': 'Track.' }, mark()),
+        el('a', { href: '#/profile', class: 'avatar', 'aria-label': T().ob.name }, mark()),
         el('div', { class: 'who' }, nameField(),
           el('div', { class: 'who-level' }, db.goal ? `${level()} · ${T().goals[db.goal]}` : level())),
         bell),
@@ -1309,7 +1329,7 @@ Penktadienis C
     app.textContent = '';
     app.append(view);
     updateTabs();
-    document.body.classList.toggle('onboarding', current.view === 'onboarding');
+    document.body.classList.toggle('onboarding', current.view === 'onboarding' || current.view === 'profile');
     window.scrollTo(0, 0);
   }
 
@@ -1385,8 +1405,20 @@ Penktadienis C
       onpointercancel: () => { tapped = false; },
     }, '+');
 
-    const entry = el('form', { class: 'row entry', novalidate: true, onsubmit: addSet },
-      num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
+    // Cardio: the two fields are minutes and km.
+    const cardio = cardioEx(ex);
+    if (cardio) {
+      reps.className = 'km';
+      reps.setAttribute('inputmode', 'decimal');
+      reps.removeAttribute('pattern');
+      kg.setAttribute('aria-label', `${label}: min`);
+      reps.setAttribute('aria-label', `${label}: km`);
+    }
+    const entry = cardio
+      ? el('form', { class: 'row entry cardio', novalidate: true, onsubmit: addSet },
+        num, kg, el('span', { class: 'u' }, 'min'), reps, el('span', { class: 'u' }, 'km'), nextPrev, plus)
+      : el('form', { class: 'row entry', novalidate: true, onsubmit: addSet },
+        num, kg, el('span', { class: 'u' }, 'kg'), el('span', { class: 'u' }, '×'), reps, nextPrev, plus);
 
     const meta = el('span', { class: 'ex-meta' });
     const mini = ringEl(52, 'mini');
@@ -1394,6 +1426,7 @@ Penktadienis C
       el('span', { class: 'ex-info' },
         el('span', { class: 'ex-name' }, label),
         ex.target && el('span', { class: 'ex-sub' }, fmtTarget(ex.target)),
+        ex.aim && el('span', { class: 'ex-sub' }, fmtCardio({ min: ex.aim.min || 0, km: ex.aim.km || 0 }).replace(/^0 min · /, '')),
         meta),
       mini.node);
     card.style.backgroundImage = `url(${muscleArt(ex.name)})`;
@@ -1422,14 +1455,24 @@ Penktadienis C
       ex.sets.forEach((s, i) => sets.append(setRow(s, i, added && i === ex.sets.length - 1, ref[i])));
       const sug = suggestion(key, ex);
       num.textContent = ex.sets.length + 1;
-      kg.placeholder = sug && sug.kg ? fmtKg(sug.kg) : '0';
-      reps.placeholder = sug ? String(sug.reps) : '0';
       fillPrev(nextPrev, ref[ex.sets.length]);
-      const want = ex.target ? ex.target.sets : 0;
       const lastSet = ex.sets[ex.sets.length - 1];
-      meta.textContent = `${ex.sets.length}${want ? `/${want}` : ''} ${T().sets}` + (lastSet ? ` · ${setText(lastSet)}` : '');
-      mini.set(want ? ex.sets.length / want : ex.sets.length ? 1 : 0,
-        `${Math.min(100, Math.round(want ? (ex.sets.length / want) * 100 : ex.sets.length ? 100 : 0))}%`);
+      if (cardio) {
+        kg.placeholder = sug && sug.min ? fmtKg(sug.min) : '0';
+        reps.placeholder = sug && sug.km ? fmtKg(sug.km) : '0';
+        const mins = ex.sets.reduce((m, s) => m + (s.min || 0), 0);
+        const kms = ex.sets.reduce((m, s) => m + (s.km || 0), 0);
+        const part = ex.aim && ex.aim.min ? mins / ex.aim.min : ex.aim && ex.aim.km ? kms / ex.aim.km : ex.sets.length ? 1 : 0;
+        meta.textContent = ex.sets.length ? fmtCardio({ min: mins, km: kms }) : '0 min';
+        mini.set(part, `${Math.min(100, Math.round(part * 100))}%`);
+      } else {
+        kg.placeholder = sug && sug.kg ? fmtKg(sug.kg) : '0';
+        reps.placeholder = sug ? String(sug.reps) : '0';
+        const want = ex.target ? ex.target.sets : 0;
+        meta.textContent = `${ex.sets.length}${want ? `/${want}` : ''} ${T().sets}` + (lastSet ? ` · ${setText(lastSet)}` : '');
+        mini.set(want ? ex.sets.length / want : ex.sets.length ? 1 : 0,
+          `${Math.min(100, Math.round(want ? (ex.sets.length / want) * 100 : ex.sets.length ? 100 : 0))}%`);
+      }
       refreshCard(key);
     }
 
@@ -1450,6 +1493,19 @@ Penktadienis C
           paint(false);
         },
       }, T().remove);
+      if (s.min !== undefined) {
+        return el('div', {
+          class: 'row set cardio' + (fresh ? ' fresh' : ''), 'data-reveal': '',
+          onclick: e => { if (!e.target.closest('.remove')) reveal(rm); },
+        },
+          el('span', { class: 'n' }, i + 1),
+          el('span', { class: 'w' }, fmtKg(s.min)),
+          el('span', { class: 'u' }, 'min'),
+          el('span', { class: 'w' }, s.km ? fmtKg(s.km) : ''),
+          el('span', { class: 'u' }, s.km ? 'km' : ''),
+          rm,
+          then && fillPrev(el('span', { class: 'prev' }), then));
+      }
       return el('div', {
         class: 'row set' + (fresh ? ' fresh' : ''), 'data-reveal': '',
         onclick: e => { if (!e.target.closest('.remove')) reveal(rm); },
@@ -1476,11 +1532,19 @@ Penktadienis C
       const viaTap = tapped;
       tapped = false;
       const sug = suggestion(key, ex);
-      const w = kg.value.trim() ? parseKg(kg.value) : (sug ? sug.kg : 0);
-      const r = reps.value.trim() ? parseReps(reps.value) : (sug ? sug.reps : null);
-      if (w == null) return nudge(kg);
-      if (r == null) return nudge(reps);
-      ex.sets.push({ kg: w, reps: r });
+      if (cardio) {
+        const m = kg.value.trim() ? parseKg(kg.value) : (sug ? sug.min : null);
+        const d = reps.value.trim() ? parseKg(reps.value) : (sug ? sug.km || 0 : 0);
+        if (m == null || m < 0.1) return nudge(kg);
+        if (d == null) return nudge(reps);
+        ex.sets.push({ min: m, km: d });
+      } else {
+        const w = kg.value.trim() ? parseKg(kg.value) : (sug ? sug.kg : 0);
+        const r = reps.value.trim() ? parseReps(reps.value) : (sug ? sug.reps : null);
+        if (w == null) return nudge(kg);
+        if (r == null) return nudge(reps);
+        ex.sets.push({ kg: w, reps: r });
+      }
       save();
       if (ex.sets.length === 1) refreshNames();
       kg.value = '';
@@ -1779,99 +1843,84 @@ Penktadienis C
 
   /* ---------- routing ---------- */
 
-  // First launch: three slides, your name, your goal, your plan. Shown once.
-  function renderOnboarding(step = 0, picks = {}) {
-    current = { view: 'onboarding' };
+  // LT · EN, redrawing the current screen.
+  function langSwitch(redraw) {
+    return el('nav', { class: 'lang', 'aria-label': T().language },
+      ...['lt', 'en'].flatMap((l, i) => [
+        i ? el('span', { 'aria-hidden': 'true' }, '·') : null,
+        el('button', {
+          type: 'button', lang: l, 'aria-pressed': String(lang() === l),
+          onclick: () => { db.lang = l; save(); redraw(); },
+        }, l.toUpperCase()),
+      ]));
+  }
+
+  // First launch, and later from the avatar: name, age, height, weight. Stays on this phone.
+  function renderProfile(first, draft) {
+    current = { view: first ? 'onboarding' : 'profile' };
     const t = T();
-    const ob = t.ob;
-    const total = ob.slides.length + 3;
-    const go = n => renderOnboarding(n, picks);
-    const finish = () => {
-      if (picks.name !== undefined) db.name = clean(picks.name).slice(0, 40);
-      if (picks.goal) db.goal = picks.goal;
-      if (picks.plan === 'own') db.plan = '';
-      else if (picks.plan != null) db.plan = presetPlan(PRESETS[picks.plan]);
+    const start = draft || { name: db.name, age: db.age ?? '', height: db.height ?? '', weight: db.weight ?? '' };
+    const hello = el('span');
+    const number = (lo, hi) => v => { const n = parseKg(String(v)); return n != null && n >= lo && n <= hi; };
+    const field = (key, label, attrs, valid) => {
+      const input = el('input', Object.assign({ class: 'ob-input', value: String(start[key] ?? ''), autocomplete: 'off' }, attrs));
+      const tick = el('span', { class: 'ob-tick', 'aria-hidden': 'true' }, '✓');
+      const sync = () => {
+        tick.hidden = !valid(input.value);
+        if (key === 'name') hello.textContent = clean(input.value) || '…';
+      };
+      input.addEventListener('input', sync);
+      sync();
+      return { key, input, node: el('label', { class: 'ob-field' }, el('span', { class: 'ob-label' }, label), el('span', { class: 'ob-line' }, input, tick)) };
+    };
+    const fields = [
+      field('name', t.ob.name, { maxlength: '40', autocomplete: 'given-name', enterkeyhint: 'next', autocapitalize: 'words' }, v => !!clean(v)),
+      field('age', t.ob.age, { inputmode: 'numeric', enterkeyhint: 'next' }, number(10, 100)),
+      field('height', t.ob.height, { inputmode: 'decimal', enterkeyhint: 'next' }, number(100, 250)),
+      field('weight', t.ob.weight, { inputmode: 'decimal', enterkeyhint: 'done' }, number(25, 300)),
+    ];
+    const read = () => Object.fromEntries(fields.map(f => [f.key, f.input.value]));
+    const value = (v, lo, hi) => { const n = parseKg(String(v)); return n != null && n >= lo && n <= hi ? n : null; };
+    const done = () => {
+      const v = read();
+      const name = clean(v.name).slice(0, 40);
+      if (!name) {
+        const input = fields[0].input;
+        input.classList.remove('nope');
+        void input.offsetWidth;
+        input.classList.add('nope');
+        input.focus();
+        return;
+      }
+      db.name = name;
+      const age = value(v.age, 10, 100);
+      db.age = age == null ? null : Math.round(age);
+      db.height = value(v.height, 100, 250);
+      db.weight = value(v.weight, 25, 300);
       db.onboarded = true;
       save();
       location.hash = '#/';
       route();
     };
-    // Slides: the scribe, the war room, the summit. Name: the training hall. Goal: the climb.
-    let art = step === ob.slides.length ? 'art/day-5.jpg' : 'art/day-3.jpg';
-    let body;
-    let read = () => {};
-    if (step < ob.slides.length) {
-      art = `art/slide-${step + 1}.jpg`;
-      body = [el('h1', { class: 'title' }, ob.slides[step][0]), el('p', { class: 'ob-text' }, ob.slides[step][1])];
-    } else if (step === ob.slides.length) {
-      const input = el('input', {
-        class: 'ob-name', value: picks.name ?? db.name, placeholder: t.yourName, maxlength: '40',
-        autocomplete: 'given-name', enterkeyhint: 'next', 'aria-label': t.yourName,
-        onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); read(); go(step + 1); } },
-      });
-      read = () => { picks.name = input.value; };
-      body = [el('h1', { class: 'title' }, ob.nameTitle), el('p', { class: 'ob-text' }, ob.nameText), input];
-    } else if (step === ob.slides.length + 1) {
-      picks.goal = picks.goal || db.goal || 'muscle';
-      const list = el('div', { class: 'goals', role: 'radiogroup', 'aria-label': ob.goalTitle });
-      const draw = () => {
-        list.textContent = '';
-        for (const [k, label] of Object.entries(t.goals)) {
-          list.append(el('button', {
-            type: 'button', class: 'goal', role: 'radio', 'aria-checked': String(picks.goal === k),
-            onclick: () => { picks.goal = k; draw(); },
-          }, label));
-        }
-      };
-      draw();
-      body = [el('h1', { class: 'title' }, ob.goalTitle), el('p', { class: 'ob-text' }, ob.goalText), list];
-    } else {
-      if (picks.plan === undefined) picks.plan = 0;
-      const list = el('div', { class: 'ob-plans', role: 'radiogroup', 'aria-label': ob.planTitle });
-      const draw = () => {
-        list.textContent = '';
-        PRESETS.forEach((preset, i) => {
-          const b = el('button', {
-            type: 'button', class: 'ob-plan', role: 'radio', 'aria-checked': String(picks.plan === i),
-            onclick: () => { picks.plan = i; draw(); },
-          }, presetName(preset));
-          b.style.backgroundImage = `url(art/day-${i + 1}.jpg)`;
-          list.append(b);
-        });
-        list.append(el('button', {
-          type: 'button', class: 'ob-plan plain', role: 'radio', 'aria-checked': String(picks.plan === 'own'),
-          onclick: () => { picks.plan = 'own'; draw(); },
-        }, ob.ownPlan));
-      };
-      draw();
-      art = null;
-      body = [el('h1', { class: 'title' }, ob.planTitle), el('p', { class: 'ob-text' }, ob.planText), list];
-    }
-
-    const last = step === total - 1;
-    const artEl = art && el('div', { class: step < ob.slides.length ? 'ob-art' : 'ob-art small', 'aria-hidden': 'true' });
-    if (artEl) artEl.style.backgroundImage = `url(${art})`;
+    fields.forEach((f, i) => f.input.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (fields[i + 1]) fields[i + 1].input.focus();
+      else done();
+    }));
+    const hero = el('div', { class: 'ob-hero', 'aria-hidden': 'true' });
+    hero.style.backgroundImage = 'url(art/slide-3.jpg)';
     mount(el('div', { class: 'ob' },
       el('div', { class: 'ob-top' },
-        el('span', { class: 'ob-step' }, `${pad(step + 1)} / ${pad(total)}`),
-        el('nav', { class: 'lang', 'aria-label': t.language },
-          ...['lt', 'en'].flatMap((l, i) => [
-            i ? el('span', { 'aria-hidden': 'true' }, '·') : null,
-            el('button', {
-              type: 'button', lang: l, 'aria-pressed': String(lang() === l),
-              onclick: () => { read(); db.lang = l; save(); go(step); },
-            }, l.toUpperCase()),
-          ]))),
-      artEl,
-      el('div', { class: 'ob-body' }, ...body),
-      el('div', { class: 'ob-nav' },
-        step ? el('button', { type: 'button', class: 'ob-back', 'aria-label': ob.back, onclick: () => { read(); go(step - 1); } }, '←') : el('span'),
-        el('div', { class: 'ob-dots', 'aria-hidden': 'true' }, ...Array.from({ length: total }, (_, i) => el('i', { class: i === step ? 'on' : null }))),
-        el('button', { type: 'button', class: 'ob-next', onclick: () => { read(); if (last) finish(); else go(step + 1); } }, last ? ob.start : ob.next))));
+        first ? el('span') : el('a', { href: '#/', class: 'ob-close', 'aria-label': t.tabs.today }, '←'),
+        langSwitch(() => renderProfile(first, read()))),
+      el('div', { class: 'ob-head' }, hero, el('h1', { class: 'ob-hello' }, t.ob.welcome, el('br'), hello)),
+      el('div', { class: 'ob-form' }, ...fields.map(f => f.node)),
+      el('div', { class: 'ob-nav' }, el('button', { type: 'button', class: 'ob-next', onclick: done }, first ? t.ob.start : t.ob.save, ' ▸'))));
   }
 
   function route() {
-    if (!db.onboarded) return renderOnboarding();
+    if (!db.onboarded) return renderProfile(true);
     if (current.view === 'plan') flushPlan();
     let h = location.hash.replace(/^#\/?/, '');
     try { h = decodeURIComponent(h); } catch (_) { h = ''; }
@@ -1881,6 +1930,7 @@ Penktadienis C
       return renderHistory(hm[1] && mm >= 0 && mm <= 11 && Number(hm[1]) >= 1970 ? { y: Number(hm[1]), m: mm } : null);
     }
     if (h === 'plan') return renderPlan();
+    if (h === 'profile') return renderProfile(false);
     // Today's date (e.g. tapped in History) is home, so it rolls over at midnight like home does.
     if (h === todayKey()) { history.replaceState(null, '', '#/'); return renderDay(h, true); }
     if (isDayKey(h)) return renderDay(h, false);
