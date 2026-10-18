@@ -397,11 +397,24 @@
   .panel-head h2 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
   .chip { padding: 9px 14px; border-radius: 999px; background: var(--tile); font-size: 12px; color: var(--dim); white-space: nowrap; transition: color .2s; }
   .chip:active { color: var(--fg); }
-  .mcard { margin-top: 8px; padding: 12px 14px 14px; border-radius: 18px; background: var(--tile); }
+  .mcard { display: block; margin-top: 8px; padding: 12px 14px 14px; border-radius: 18px; background: var(--tile); transition: transform .15s var(--ease); }
+  .mcard:active { transform: scale(.985); }
   .mcard.flash { animation: flash 1.4s ease; }
   @keyframes flash { 25% { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .75); } }
-  .mcard-l { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
-  .mcard-l b { margin-right: .5em; color: var(--dim); }
+  .mcard-l { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+  .mcard-l b { margin-right: .5em; color: var(--faint); }
+  .mcard-c { color: var(--faint); }
+  /* level, coloured by its tier like a game rank */
+  .lv { flex: none; font-size: 12px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+  .tier-untrained { color: var(--faint); }
+  .tier-bronze { color: #d58a52; }
+  .tier-silver { color: #c9ced8; }
+  .tier-gold { color: var(--focus); }
+  .tier-platinum { color: #64e1d4; }
+  .tier-diamond { color: #8fb4ff; }
+  .tier-elite { color: #ff6b5e; }
+  .mcard-next { margin-top: 11px; font-size: 12px; line-height: 1.4; color: var(--dim); }
+  .mcard-next.none { color: var(--faint); }
   .mcard-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; margin-top: 8px; }
   .body.mini { width: 40px; height: 40px; overflow: hidden; }
   .zone { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
@@ -491,7 +504,7 @@
     background: #0c0c0c;
     background: radial-gradient(130% 70% at 50% 115%, color-mix(in srgb, var(--z) 30%, transparent), transparent 65%), #0c0c0c;
   }
-  .pcard .body.mini { width: 92px; height: 92px; }
+  .pcard .body.mini { width: 120px; height: 92px; }
   .pcard-n { margin-top: 8px; font-size: 16px; font-weight: 700; }
   .pcard .zone { justify-content: center; margin-top: 4px; font-size: 12.5px; font-weight: 400; color: var(--dim); }
   .dots { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; width: 100%; margin-top: auto; }
@@ -499,6 +512,31 @@
   .dots i.was { background: var(--z); opacity: .45; }
   .dots i.new { background: var(--z); box-shadow: 0 0 6px var(--z); }
   .dots-l { display: flex; justify-content: space-between; width: 100%; margin-top: 6px; font-size: 10.5px; color: var(--faint); }
+
+  /* one muscle, like a character sheet: level and XP, its numbers, the lifts that train it */
+  .mus-fig { display: flex; justify-content: center; margin-top: 18px; }
+  .mus-fig .body { height: clamp(240px, 40vh, 330px); width: auto; max-width: 100%; }
+  .lv-box { margin-top: 22px; }
+  .lv-n { display: flex; align-items: baseline; gap: 14px; font-size: 40px; font-weight: 700; line-height: 1; }
+  .lv-t { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+  .xp { height: 8px; margin-top: 14px; overflow: hidden; border-radius: 4px; background: var(--tile); }
+  .xp i { display: block; height: 100%; border-radius: 4px; background: currentColor; }
+  .xp-l { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--dim); }
+  .mus-sheet { margin-top: 26px; }
+  .sheet-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 12px 0; }
+  .mus-sheet dt { flex: none; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+  .mus-sheet dd { min-width: 0; font-size: 14px; text-align: right; color: var(--dim); overflow-wrap: anywhere; }
+  .mus-sheet dd b { font-size: 16px; color: var(--fg); }
+  .sheet-z { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; }
+  .sheet-c { font-size: 12px; color: var(--faint); }
+  .mus-h { margin-top: 34px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+  .lift { display: grid; gap: 3px; padding: 12px 0; }
+  .lift-n { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+  .lift-h { font-size: 12px; font-weight: 400; color: var(--faint); }
+  .lift-s { font-size: 12.5px; color: var(--dim); }
+  .lift-s.ready { color: var(--grow); }
+  .mus-try { margin-top: 18px; font-size: 13px; line-height: 1.5; color: var(--faint); }
+  .next-up { margin-top: 8px; text-align: left; }
 
   @media (hover: hover) {
     .tab:hover, footer button:hover, .act:hover, .presets button:hover, .lang button:hover, .months a:hover, a.cal-day:hover, .ex-foot a:hover, .ex-foot button:hover, a.session:hover .session-d, .sides button:hover, .chip:hover { color: var(--fg); }
@@ -656,16 +694,46 @@
         ['- Row / Pulldown 3x12', 'take turns'],
       ],
       tabs: { main: 'Main', history: 'History', today: 'Today', stats: 'Stats', plan: 'Plan' },
+      // [anatomical name, everyday name]
       muscles: {
-        chest: 'Chest', frontDelts: 'Front delts', sideDelts: 'Side delts', rearDelts: 'Rear delts',
-        biceps: 'Biceps', triceps: 'Triceps', forearms: 'Forearms', abs: 'Abs', obliques: 'Obliques',
-        traps: 'Traps', upperBack: 'Upper back', lats: 'Lats', lowerBack: 'Lower back', glutes: 'Glutes',
-        quads: 'Quads', hamstrings: 'Hamstrings', adductors: 'Adductors', calves: 'Calves',
+        pecs: ['Pectoralis major', 'Chest'], frontDelt: ['Anterior deltoid', 'Front delts'],
+        sideDelt: ['Lateral deltoid', 'Side delts'], rearDelt: ['Posterior deltoid', 'Rear delts'],
+        biceps: ['Biceps brachii', 'Biceps'], brachialis: ['Brachialis', 'Upper arm'], triceps: ['Triceps brachii', 'Triceps'],
+        brachioradialis: ['Brachioradialis', 'Forearm'], flexors: ['Forearm flexors', 'Grip'], extensors: ['Forearm extensors', 'Wrists'],
+        traps: ['Trapezius', 'Traps'], infraspinatus: ['Infraspinatus', 'Rotator cuff'], teres: ['Teres major', 'Upper back'],
+        lats: ['Latissimus dorsi', 'Lats'], serratus: ['Serratus anterior', 'Ribs'], abs: ['Rectus abdominis', 'Abs'],
+        obliques: ['External obliques', 'Obliques'], erectors: ['Erector spinae', 'Lower back'],
+        gluteMax: ['Gluteus maximus', 'Glutes'], gluteMed: ['Gluteus medius', 'Side glutes'], quads: ['Quadriceps', 'Quads'],
+        adductors: ['Adductors', 'Inner thighs'], hamstrings: ['Hamstrings', 'Back of thighs'],
+        gastrocnemius: ['Gastrocnemius', 'Calves'], soleus: ['Soleus', 'Lower calves'], tibialis: ['Tibialis anterior', 'Shins'],
       },
       sides: ['Front', 'Back'],
       figure: 'Body',
       yourProgress: 'Your progress',
-      periods: ['7 days', '4 weeks'],
+      sorts: ['By level', 'By week'],
+      totalLevel: 'Total level',
+      lv: 'LV',
+      tiers: { untrained: 'Untrained', bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum', diamond: 'Diamond', elite: 'Elite' },
+      xpLeft: (n, lv) => `${n} XP to LV ${lv}`,
+      rows: { week: 'This week', strength: 'Strength', sets: 'Total sets', volume: 'Volume', sessions: 'Sessions', last: 'Last trained' },
+      est1rm: 'est. max',
+      ago: n => (n === 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`),
+      recovered: 'recovered',
+      recovering: 'recovering',
+      rankOf: (r, n) => `#${r} of ${n} by level`,
+      lifts: 'Your lifts',
+      helps: 'helps',
+      noLifts: 'Not trained yet.',
+      trainWith: 'Train it with',
+      nextTime: 'Next time',
+      weighted: name => `Weighted ${name.charAt(0).toLowerCase()}${name.slice(1)}`,
+      step: {
+        up: kg => `Ready for ${kg} kg`,
+        harder: name => `Ready for ${name.charAt(0).toLowerCase()}${name.slice(1)}`,
+        reps: n => `+${n} rep${n === 1 ? '' : 's'}`,
+        sets: n => `+${n} set${n === 1 ? '' : 's'}`,
+        eta: n => (n <= 1 ? 'next workout' : `≈ ${n} workouts`),
+      },
       zones: ['Not trained', 'Maintaining', 'Growing', 'Focus zone', 'Done'],
       zoneNext: [
         n => `${n} sets to growth zone`,
@@ -680,7 +748,6 @@
       weeks: n => `${n} week${n === 1 ? '' : 's'}`,
       weeksWord: n => (n === 1 ? 'Week' : 'Weeks'),
       workoutStreak: 'Workout streak',
-      workoutsLabel: 'Workouts',
       setsWeek: 'Sets, 7 days',
       // "Push day", "workout A", "your workout"
       donePhrase: (title, generic) => (generic ? `your ${title.toLowerCase()}` : title.length <= 2 ? `workout ${title}` : /day$/i.test(title) ? title : `${title} day`),
@@ -773,16 +840,46 @@
         ['- Trauka / Lenkimas 3x12', 'keičiasi kas kartą'],
       ],
       tabs: { main: 'Pagrindinis meniu', history: 'Istorija', today: 'Šiandien', stats: 'Statistika', plan: 'Planas' },
+      // [anatominis pavadinimas, kasdienis]
       muscles: {
-        chest: 'Krūtinė', frontDelts: 'Priekiniai deltiniai', sideDelts: 'Šoniniai deltiniai', rearDelts: 'Galiniai deltiniai',
-        biceps: 'Bicepsai', triceps: 'Tricepsai', forearms: 'Dilbiai', abs: 'Pilvo presas', obliques: 'Įstrižiniai',
-        traps: 'Trapeciniai', upperBack: 'Viršutinė nugara', lats: 'Plačiausieji', lowerBack: 'Apatinė nugara', glutes: 'Sėdmenys',
-        quads: 'Keturgalviai', hamstrings: 'Šlaunų dvigalviai', adductors: 'Pritraukiamieji', calves: 'Blauzdos',
+        pecs: ['Didysis krūtinės', 'Krūtinė'], frontDelt: ['Deltinio priekis', 'Priekiniai pečiai'],
+        sideDelt: ['Deltinio šonas', 'Šoniniai pečiai'], rearDelt: ['Deltinio galas', 'Galiniai pečiai'],
+        biceps: ['Dvigalvis žasto', 'Bicepsas'], brachialis: ['Žastinis', 'Žastas'], triceps: ['Trigalvis žasto', 'Tricepsas'],
+        brachioradialis: ['Žastinis stipininis', 'Dilbis'], flexors: ['Dilbio lenkiamieji', 'Gniaužtis'], extensors: ['Dilbio tiesiamieji', 'Riešai'],
+        traps: ['Trapecinis', 'Trapecija'], infraspinatus: ['Poduobinis', 'Rotatorių manžetė'], teres: ['Didysis apvalusis', 'Viršutinė nugara'],
+        lats: ['Plačiausiasis nugaros', 'Nugaros plotis'], serratus: ['Priekinis dantytasis', 'Šonkauliai'], abs: ['Tiesusis pilvo', 'Presas'],
+        obliques: ['Išorinis įstrižinis', 'Pilvo šonai'], erectors: ['Nugaros tiesiamasis', 'Apatinė nugara'],
+        gluteMax: ['Didysis sėdmens', 'Sėdmenys'], gluteMed: ['Vidurinis sėdmens', 'Klubų šonai'], quads: ['Keturgalvis šlaunies', 'Šlaunies priekis'],
+        adductors: ['Pritraukiamieji', 'Vidinė šlaunis'], hamstrings: ['Užpakaliniai šlaunies', 'Šlaunies galas'],
+        gastrocnemius: ['Dvilypis blauzdos', 'Blauzdos'], soleus: ['Plekšninis', 'Apatinė blauzda'], tibialis: ['Priekinis blauzdinis', 'Blauzdikaulis'],
       },
       sides: ['Priekis', 'Nugara'],
       figure: 'Kūnas',
       yourProgress: 'Tavo progresas',
-      periods: ['7 dienos', '4 savaitės'],
+      sorts: ['Pagal lygį', 'Pagal savaitę'],
+      totalLevel: 'Bendras lygis',
+      lv: 'LV',
+      tiers: { untrained: 'Netreniruota', bronze: 'Bronza', silver: 'Sidabras', gold: 'Auksas', platinum: 'Platina', diamond: 'Deimantas', elite: 'Elitas' },
+      xpLeft: (n, lv) => `${n} XP iki LV ${lv}`,
+      rows: { week: 'Šią savaitę', strength: 'Jėga', sets: 'Iš viso serijų', volume: 'Apimtis', sessions: 'Treniruotės', last: 'Paskutinį kartą' },
+      est1rm: 'apskaič. maks.',
+      ago: n => (n === 0 ? 'šiandien' : n === 1 ? 'vakar' : `prieš ${n} d.`),
+      recovered: 'atsigavęs',
+      recovering: 'atsigauna',
+      rankOf: (r, n) => `#${r} iš ${n} pagal lygį`,
+      lifts: 'Tavo pratimai',
+      helps: 'padeda',
+      noLifts: 'Dar netreniruota.',
+      trainWith: 'Treniruok su',
+      nextTime: 'Kitą kartą',
+      weighted: name => `${name} su svoriu`,
+      step: {
+        up: kg => `Gali kelti ${kg} kg`,
+        harder: name => `Pereik prie: ${name}`,
+        reps: n => `+${n} ${ltPlural(n, 'kartas', 'kartai', 'kartų')}`,
+        sets: n => `+${n} ${ltPlural(n, 'serija', 'serijos', 'serijų')}`,
+        eta: n => (n <= 1 ? 'kitą treniruotę' : `≈ ${n} ${ltPlural(n, 'treniruotė', 'treniruotės', 'treniruočių')}`),
+      },
       zones: ['Netreniruota', 'Palaikymas', 'Auga', 'Fokuso zona', 'Atlikta'],
       zoneNext: [
         n => `${n} ${ltPlural(n, 'serija', 'serijos', 'serijų')} iki augimo zonos`,
@@ -797,7 +894,6 @@
       weeks: n => `${n} ${ltPlural(n, 'savaitė', 'savaitės', 'savaičių')}`,
       weeksWord: n => cap(ltPlural(n, 'savaitė', 'savaitės', 'savaičių')),
       workoutStreak: 'Treniruojiesi iš eilės',
-      workoutsLabel: 'Treniruotės',
       setsWeek: 'Serijos, 7 d.',
       // "treniruotė „Stūmimas“", "treniruotė"
       donePhrase: (title, generic) => (generic ? (title === 'Kardio' ? 'kardio treniruotė' : 'treniruotė') : `treniruotė „${title}“`),
@@ -1716,7 +1812,7 @@ Penktadienis C
   function updateTabs() {
     const pastDay = current.view === 'day' && !current.isToday;
     const active = current.view === 'history' || current.view === 'exercise' || pastDay ? 'history'
-      : current.view === 'plan' || current.view === 'stats' ? current.view : 'today';
+      : current.view === 'stats' || current.view === 'muscle' ? 'stats' : current.view === 'plan' ? 'plan' : 'today';
     for (const [name, tab] of Object.entries(tabs)) {
       if (name === active) tab.setAttribute('aria-current', 'page');
       else tab.removeAttribute('aria-current');
@@ -2597,44 +2693,63 @@ Penktadienis C
 
   /* ---------- stats: muscles, the body, and the screens after a workout ---------- */
 
-  // Every muscle the stats know, in body order (a tie in the ranking keeps this order).
-  const MUSCLES = ['chest', 'frontDelts', 'sideDelts', 'rearDelts', 'biceps', 'triceps', 'forearms', 'abs', 'obliques',
-    'traps', 'upperBack', 'lats', 'lowerBack', 'glutes', 'quads', 'hamstrings', 'adductors', 'calves'];
+  // Every muscle on the figure: real ones you can see and train, in body order (a tie in the
+  // ranking keeps this order), with the side and the crop the small figures show it from.
+  const MUSCLE_VIEW = {
+    pecs: ['front', 'chest'], frontDelt: ['front', 'shoulders'], sideDelt: ['front', 'shoulders'], rearDelt: ['back', 'shoulders'],
+    biceps: ['front', 'arm'], brachialis: ['front', 'arm'], triceps: ['back', 'arm'], brachioradialis: ['front', 'forearm'],
+    flexors: ['front', 'forearm'], extensors: ['back', 'forearm'], traps: ['back', 'upper'], infraspinatus: ['back', 'upper'],
+    teres: ['back', 'upper'], lats: ['back', 'trunk'], serratus: ['front', 'chest'], abs: ['front', 'trunk'],
+    obliques: ['front', 'trunk'], erectors: ['back', 'trunk'], gluteMax: ['back', 'hips'], gluteMed: ['back', 'hips'],
+    quads: ['front', 'thighs'], adductors: ['front', 'thighs'], hamstrings: ['back', 'thighs'], gastrocnemius: ['back', 'shins'],
+    soleus: ['back', 'shins'], tibialis: ['front', 'shins'],
+  };
+  const MUSCLES = Object.keys(MUSCLE_VIEW);
 
   // What a lift works, from its name in either language: [pattern, main muscles, helpers].
   // The first match wins, so the specific ones come first ("leg curl" before "curl").
   const MOVES = [
-    [/rear delt|reverse (pec|fly|flye)|face ?pull|galin|atvedim|prie veido/, ['rearDelts'], ['upperBack', 'traps']],
-    [/upright row|prie smakro/, ['sideDelts', 'traps'], ['frontDelts']],
-    [/lateral|side raise|šonini|į šalis|i šalis/, ['sideDelts'], []],
-    [/front raise|į priekį/, ['frontDelts'], []],
-    [/back extension|hyperext|good morning|nugaros.*tiesim|sėdmenų tiesim/, ['lowerBack'], ['glutes', 'hamstrings']],
-    [/leg curl|hamstring curl|nordic|kojų lenkim/, ['hamstrings'], []],
+    [/rear delt|reverse (pec|fly|flye)|galin|atvedim/, ['rearDelt'], ['infraspinatus', 'traps', 'teres']],
+    [/face ?pull|prie veido/, ['rearDelt', 'infraspinatus'], ['traps']],
+    [/external rotation|išorin\S* rotacij/, ['infraspinatus'], ['rearDelt']],
+    [/upright row|prie smakro/, ['sideDelt', 'traps'], ['frontDelt', 'biceps']],
+    [/lateral|side raise|šonini|į šalis|i šalis/, ['sideDelt'], ['traps']],
+    [/front raise|į priekį/, ['frontDelt'], ['pecs']],
+    [/back extension|hyperext|good morning|nugaros.*tiesim|sėdmenų tiesim/, ['erectors'], ['gluteMax', 'hamstrings']],
+    [/leg curl|hamstring curl|nordic|kojų lenkim/, ['hamstrings'], ['gastrocnemius']],
     [/leg extension|kojų tiesim/, ['quads'], []],
-    [/calf|calves|blauzd/, ['calves'], []],
-    [/glute|hip thrust|bridge|abduct|klubų|sėdmen/, ['glutes'], ['hamstrings']],
+    [/seated calf|sėdint.*blauzd|blauzd.*sėdint/, ['soleus'], ['gastrocnemius']],
+    [/calf|calves|blauzd/, ['gastrocnemius'], ['soleus']],
+    [/tibialis|tib raise/, ['tibialis'], []],
+    [/abduct|atitraukim|clamshell/, ['gluteMed'], []],
+    [/glute|hip thrust|bridge|klubų|sėdmen/, ['gluteMax'], ['hamstrings', 'gluteMed']],
     [/tricep|push-?down|skull|kickback|french press|close.?grip (bench|press)/, ['triceps'], []],
-    [/wrist|forearm|farmer|carry|dilb|riešo|ūkinink/, ['forearms'], ['traps']],
-    [/hammer|plaktuk/, ['biceps', 'forearms'], []],
-    [/curl|bicep|lenkim/, ['biceps'], ['forearms']],
-    [/romanian|rdl|stiff|rumuniš/, ['hamstrings', 'glutes'], ['lowerBack']],
-    [/trap ?bar/, ['quads', 'glutes'], ['hamstrings', 'lowerBack', 'traps']],
-    [/deadlift|mirties/, ['glutes', 'hamstrings', 'lowerBack'], ['quads', 'traps', 'forearms']],
-    [/shrug|gūžč|trapec/, ['traps'], []],
+    [/reverse curl|reverse wrist|wrist extension|atbulin/, ['extensors', 'brachioradialis'], ['biceps']],
+    [/wrist|forearm|farmer|carry|gripper|grip trainer|dilb|riešo|ūkinink/, ['flexors'], ['traps', 'brachioradialis']],
+    [/hammer|plaktuk/, ['brachialis', 'brachioradialis'], ['biceps']],
+    [/curl|bicep|lenkim/, ['biceps'], ['brachialis', 'brachioradialis', 'flexors']],
+    [/romanian|rdl|stiff|rumuniš/, ['hamstrings', 'gluteMax'], ['erectors', 'flexors']],
+    [/trap ?bar/, ['quads', 'gluteMax'], ['hamstrings', 'erectors', 'traps', 'flexors']],
+    [/sumo/, ['gluteMax', 'adductors', 'hamstrings'], ['quads', 'erectors', 'traps', 'flexors']],
+    [/deadlift|mirties/, ['gluteMax', 'hamstrings', 'erectors'], ['quads', 'traps', 'flexors', 'lats']],
+    [/shrug|gūžč|trapec/, ['traps'], ['flexors']],
     [/adduct|pritraukim/, ['adductors'], []],
-    [/lunge|split|bulgar|step.?up|įtūpst|žingsn/, ['quads', 'glutes'], ['adductors', 'hamstrings']],
-    [/leg press|hack|kojų spaudim/, ['quads'], ['glutes', 'adductors']],
-    [/squat|pritūp/, ['quads', 'glutes'], ['adductors', 'lowerBack']],
-    [/pull-?down|pull-?ups?|chin-?ups?|\blats?\b|viršutinio bloko|prisitrauk/, ['lats'], ['biceps', 'upperBack']],
-    [/pullover/, ['lats'], ['chest']],
-    [/row|trauk|irklav/, ['lats', 'upperBack'], ['biceps', 'rearDelts']],
-    [/shoulder press|overhead press|military|\bohp\b|arnold|pečių spaud|virš galvos/, ['frontDelts'], ['sideDelts', 'triceps']],
-    [/incline|pasvir|kampu/, ['chest', 'frontDelts'], ['triceps']],
-    [/\bdips?\b|lygiagret/, ['chest', 'triceps'], ['frontDelts']],
-    [/\bfly|flye|pec deck|crossover|skrydž|peteliš|drugel/, ['chest'], ['frontDelts']],
-    [/bench|chest|push-?ups?|press-?ups?|dumbbell press|\bdb press|floor press|krūtin|atsispaud|gulint/, ['chest'], ['triceps', 'frontDelts']],
+    [/lunge|split|bulgar|step.?up|įtūpst|žingsn/, ['quads', 'gluteMax'], ['adductors', 'gluteMed', 'hamstrings']],
+    [/leg press|hack|kojų spaudim/, ['quads'], ['gluteMax', 'adductors']],
+    [/squat|pritūp/, ['quads', 'gluteMax'], ['adductors', 'erectors']],
+    [/chin-?ups?|atvirkštiniu suėmimu/, ['lats', 'biceps', 'teres'], ['brachialis', 'rearDelt']],
+    [/pull-?down|pull-?ups?|\blats?\b|viršutinio bloko|prisitrauk/, ['lats', 'teres'], ['biceps', 'brachialis', 'rearDelt', 'traps']],
+    [/pullover/, ['lats'], ['pecs', 'serratus', 'teres', 'triceps']],
+    [/row|trauk|irklav/, ['lats', 'traps'], ['teres', 'rearDelt', 'infraspinatus', 'biceps', 'brachialis']],
+    [/shoulder press|overhead press|military|\bohp\b|arnold|pečių spaud|virš galvos/, ['frontDelt'], ['sideDelt', 'triceps', 'traps', 'serratus']],
+    [/incline|pasvir|kampu/, ['pecs', 'frontDelt'], ['triceps', 'serratus']],
+    [/\bdips?\b|lygiagret/, ['pecs', 'triceps'], ['frontDelt']],
+    [/\bfly|flye|pec deck|crossover|skrydž|peteliš|drugel/, ['pecs'], ['frontDelt']],
+    [/scapular push|push-?up plus|serratus|landmine press|mentių atsispaud/, ['serratus'], ['pecs', 'frontDelt']],
+    [/push-?ups?|press-?ups?|atsispaud/, ['pecs'], ['triceps', 'frontDelt', 'serratus', 'abs']],
+    [/bench|chest|dumbbell press|\bdb press|floor press|krūtin|gulint/, ['pecs'], ['triceps', 'frontDelt']],
     [/oblique|twist|woodchop|side plank|įstriž|pasuk|šoninė lenta/, ['obliques'], ['abs']],
-    [/crunch|sit-?ups?|plank|leg raise|knee raise|ab wheel|rollout|hollow|\babs?\b|\bcore\b|pilv|presas|lenta|kojų kėlim|kelių kėlim/, ['abs'], ['obliques']],
+    [/crunch|sit-?ups?|plank|leg raise|knee raise|ab wheel|rollout|hollow|toes to bar|\babs?\b|\bcore\b|pilv|presas|lenta|kojų kėlim|kelių kėlim|iki skersinio/, ['abs'], ['obliques']],
   ];
   const workedCache = new Map();
   function worked(name) {
@@ -2646,6 +2761,37 @@ Penktadienis C
     workedCache.set(name, w);
     return w;
   }
+
+  // Two ways to train each muscle, for one you haven't trained yet. Each one maps to that
+  // muscle in the list above.
+  const TRAIN_WITH = {
+    pecs: [['Bench press', 'Štangos spaudimas gulint'], ['Dips', 'Lygiagretės']],
+    frontDelt: [['Shoulder press', 'Pečių spaudimas'], ['Front raise', 'Kėlimas į priekį']],
+    sideDelt: [['Lateral raise', 'Šoniniai kėlimai'], ['Upright row', 'Trauka prie smakro']],
+    rearDelt: [['Reverse pec deck', 'Galinės deltinių dalies atvedimas'], ['Facepull', 'Lyno trauka prie veido']],
+    biceps: [['Barbell curl', 'Bicepso lenkimas su štanga'], ['Chin-ups', 'Prisitraukimai atvirkštiniu suėmimu']],
+    brachialis: [['Hammer curl', 'Plaktuko lenkimas']],
+    brachioradialis: [['Hammer curl', 'Plaktuko lenkimas'], ['Reverse curl', 'Atbulinis lenkimas']],
+    flexors: [['Wrist curl', 'Riešo lenkimas'], ['Farmer walk', 'Ūkininko nešimas']],
+    extensors: [['Reverse wrist curl', 'Atbulinis riešo lenkimas'], ['Reverse curl', 'Atbulinis lenkimas']],
+    triceps: [['Tricep pushdown', 'Tricepso tiesimas prie bloko'], ['Dips', 'Lygiagretės']],
+    traps: [['Shrugs', 'Pečių gūžčiojimas'], ['Row', 'Horizontali trauka']],
+    infraspinatus: [['Facepull', 'Lyno trauka prie veido'], ['External rotation', 'Išorinė rotacija']],
+    teres: [['Lat pulldown', 'Viršutinio bloko trauka'], ['Pull-ups', 'Prisitraukimai']],
+    lats: [['Pull-ups', 'Prisitraukimai'], ['Lat pulldown', 'Viršutinio bloko trauka']],
+    serratus: [['Scapular push-ups', 'Mentių atsispaudimai'], ['Landmine press', 'Landmine press']],
+    abs: [['Hanging leg raise', 'Kojų kėlimas kybant'], ['Cable crunch', 'Pilvo presas su lynu']],
+    obliques: [['Side plank', 'Šoninė lenta'], ['Russian twist', 'Rusiškas pasukimas']],
+    erectors: [['Back extension', 'Nugaros tiesimas'], ['Deadlift', 'Mirties trauka']],
+    gluteMax: [['Hip thrust', 'Klubų kėlimas su štanga'], ['Squat', 'Pritūpimai']],
+    gluteMed: [['Hip abduction', 'Kojų atitraukimas'], ['Clamshell', 'Kriauklė (clamshell)']],
+    quads: [['Squat', 'Pritūpimai'], ['Leg extension', 'Kojų tiesimas']],
+    adductors: [['Adductor machine', 'Kojų pritraukimas'], ['Sumo deadlift', 'Sumo mirties trauka']],
+    hamstrings: [['RDL', 'Rumuniška mirties trauka'], ['Leg curl', 'Kojų lenkimas']],
+    gastrocnemius: [['Calf raise', 'Blauzdų kėlimas']],
+    soleus: [['Seated calf raise', 'Blauzdų kėlimas sėdint']],
+    tibialis: [['Tibialis raise', 'Tibialis kėlimas']],
+  };
 
   // Sets per muscle over the days from..to: a lift's main muscles get the whole set, the ones
   // that help get half. Cardio, and lifts the list above doesn't know, don't count.
@@ -2671,6 +2817,69 @@ Penktadienis C
   const ZONE_NEXT = [6, 6, 12, GOAL];   // where the next zone starts
   const ZONE_COLOR = ['var(--ghost)', 'var(--maintain)', 'var(--grow)', 'var(--focus)', 'var(--focus)'];
 
+  // Levels, as in a game: every set is experience for the muscles it works, 10 XP for a main
+  // muscle and 5 for a helper, and a record is worth 20 more. Level n starts at 30·(n−1)² XP,
+  // so the first levels come in a session or two and the high ones take years.
+  const XP_MAIN = 10;
+  const XP_HELP = 5;
+  const XP_PR = 20;
+  const levelOf = xp => (xp > 0 ? Math.floor(Math.sqrt(xp / 30)) + 1 : 0);
+  const xpAt = lv => 30 * (lv - 1) ** 2;
+  const TIERS = [[50, 'elite'], [35, 'diamond'], [20, 'platinum'], [10, 'gold'], [5, 'silver'], [1, 'bronze'], [0, 'untrained']];
+  const tierOf = lv => TIERS.find(([from]) => lv >= from)[1];
+
+  // Everything the stats know about each muscle, from the whole log up to `upTo`: experience,
+  // sets, volume, the days it was trained, and the lifts that train it.
+  function muscleBook(upTo) {
+    const book = {};
+    for (const m of MUSCLES) book[m] = { xp: 0, sets: 0, volume: 0, days: 0, last: null, lifts: new Map() };
+    const bestSoFar = new Map();   // lift -> best estimated max, for records
+    for (const k of sortedKeys()) {
+      if (k > upTo) break;
+      const hit = new Set();
+      for (const e of db.days[k]) {
+        const sets = e.sets.filter(s => s.min === undefined);
+        const w = sets.length && worked(e.name);
+        if (!w) continue;
+        const id = same(e.name);
+        const before = bestSoFar.get(id) || 0;
+        let top = before;
+        let prs = 0;
+        for (const s of sets) {
+          const v = e1rm(s);
+          if (before && v > top + 1e-9) prs++;   // the first time a lift is logged nothing is a record
+          top = Math.max(top, v);
+        }
+        bestSoFar.set(id, top);
+        const volume = sets.reduce((n, s) => n + s.kg * s.reps, 0);
+        for (const [list, main] of [[w.main, true], [w.help, false]]) {
+          for (const m of list) {
+            const b = book[m];
+            b.xp += sets.length * (main ? XP_MAIN : XP_HELP) + (main ? prs * XP_PR : 0);
+            b.sets += main ? sets.length : sets.length / 2;
+            if (main) b.volume += volume;
+            b.last = k;
+            hit.add(m);
+            const lift = b.lifts.get(id) || { name: e.name, main: false, last: k, best: 0 };
+            lift.name = e.name;
+            lift.main = lift.main || main;
+            lift.last = k;
+            lift.best = Math.max(lift.best, ...sets.map(e1rm));
+            b.lifts.set(id, lift);
+          }
+        }
+      }
+      for (const m of hit) book[m].days++;
+    }
+    for (const m of MUSCLES) {
+      const b = book[m];
+      b.level = levelOf(b.xp);
+      b.liftList = [...b.lifts.values()].sort((x, y) => (y.main - x.main) || (y.last > x.last ? 1 : y.last < x.last ? -1 : 0));
+      b.str = b.liftList.filter(l => l.main).reduce((best, l) => (l.best > (best ? best.best : 0) ? l : best), null);
+    }
+    return book;
+  }
+
   // Weeks in a row (Monday to Sunday) with a workout, up to the week of `key`. The week you're
   // in only counts once you've trained, and doesn't break the streak before it's over.
   function weekStreak(key) {
@@ -2682,58 +2891,140 @@ Penktadienis C
     return n;
   }
 
-  // The figure. Only its right half is drawn here; the left is the mirror image.
-  // [muscle, path]: null is a part that's never coloured, '~' a dark line drawn on top.
-  const FOREARM = [
-    ['forearms', 'M156.5 156.8C159.5 155.5 161.8 153.6 163.4 151.4C168 159 171.5 169.5 172.6 181C173.2 189 173.6 196 174 202L170 202.3C168.6 191 165 179 160.5 169C159 164.5 157.8 160.5 156.5 156.8Z'],
-    ['forearms', 'M149.5 158.3C152 158.3 154.3 157.8 156.5 156.8C157.8 160.5 159 164.5 160.5 169C165 179 168.6 191 170 202.3L174 202C174.3 204.6 174.6 206.8 174.8 208.8C170.3 210 165.6 210 161.3 208.8C158 197.5 153.5 185.5 150.8 173.5C150 168 149.6 163 149.5 158.3Z'],
-    ['~', 'M166.6 241.5L167.2 251.5M170.6 243L171.2 254M174.6 241.5L175.3 251M161.5 228.8C162.8 229.6 163.6 231 163.9 232.6'],
+  // How a lift moves up, from its sessions up to `upTo`: the reps and sets still missing at your
+  // working weight before the next 2.5 kg. A planned lift goes by its plan (sets × the top of the
+  // rep range, the rule Today's prefill follows); one you added yourself is ready once every
+  // working set matches your best one. A bodyweight lift at the top moves to a harder version.
+  // The pace is your own: the reps a session you've been adding at this weight, so the estimate
+  // needs two sessions at it.
+  function nextStep(name, upTo) {
+    const id = same(name);
+    const runs = [];   // this lift's sessions, newest first
+    const keys = sortedKeys();
+    for (let i = keys.length - 1; i >= 0 && runs.length < 8; i--) {
+      if (keys[i] > upTo) continue;
+      const e = db.days[keys[i]].find(x => same(x.name) === id && x.sets.length);
+      if (e) runs.push(e);
+    }
+    if (!runs.length || cardioEx(runs[0])) return null;
+    let target = runs[0].target;
+    if (!target) {
+      const kg = Math.max(...runs[0].sets.map(s => s.kg || 0));
+      const working = runs[0].sets.filter(s => (s.kg || 0) === kg);
+      target = { sets: working.length, reps: Math.max(...working.map(s => s.reps)) };
+    }
+    const top = target.repsTo || target.reps;
+    const score = e => {
+      const kg = Math.max(...e.sets.map(s => s.kg || 0));
+      const reps = e.sets.filter(s => (s.kg || 0) === kg).map(s => s.reps).sort((a, b) => b - a).slice(0, target.sets);
+      return { kg, reps, done: reps.reduce((n, r) => n + Math.min(r, top), 0) };
+    };
+    const now = score(runs[0]);
+    const step = {
+      kg: now.kg,
+      short: now.reps.reduce((n, r) => n + Math.max(0, top - r), 0),
+      missing: target.sets - now.reps.length,
+      sessions: 0,
+    };
+    step.ready = !step.short && !step.missing;
+    if (now.kg) step.next = round2(now.kg + BUMP);
+    else step.harder = harderOf(name);
+    const streak = [now];
+    for (const e of runs.slice(1)) {
+      const s = score(e);
+      if (s.kg !== now.kg) break;
+      streak.push(s);
+    }
+    const gain = streak.length > 1 ? (now.done - streak[streak.length - 1].done) / (streak.length - 1) : 0;
+    if (!step.ready && gain > 0) step.sessions = Math.ceil((target.sets * top - now.done) / gain);
+    return step;
+  }
+
+  // The harder version of a bodyweight lift.
+  const HARDER = [
+    [/knee push|nuo kelių/, 'Push-ups', 'Atsispaudimai'],
+    [/push-?ups?|press-?ups?|atsispaud/, 'Decline push-ups', 'Atsispaudimai pakeltomis kojomis'],
+    [/inverted row|australian/, 'Pull-ups', 'Prisitraukimai'],
+    [/side plank|šoninė lenta/, 'Side plank with a raised leg', 'Šoninė lenta pakėlus koją'],
+    [/plank|lenta/, 'Ab wheel rollout', 'Pilvo ratukas'],
+    [/knee raise|kelių kėlim/, 'Hanging leg raise', 'Kojų kėlimas kybant'],
+    [/leg raise|kojų kėlim/, 'Toes to bar', 'Kojos iki skersinio'],
+    [/crunch|sit-?ups?|pilvo presas/, 'Cable crunch', 'Pilvo presas su lynu'],
+    [/lunge|split|bulgar|įtūpst/, 'Dumbbell lunges', 'Įtūpstai su hanteliais'],
+    [/squat|pritūp/, 'Goblet squat', 'Pritūpimai su hanteliu'],
+    [/bridge|tiltas/, 'Hip thrust', 'Klubų kėlimas su štanga'],
+    [/calf|blauzd/, 'Single-leg calf raise', 'Blauzdų kėlimas ant vienos kojos'],
   ];
+  function harderOf(name) {
+    const text = `${same(name)} ${norm(name)}`;
+    const h = HARDER.find(([re]) => re.test(text));
+    return h ? h[lang() === 'lt' ? 2 : 1] : T().weighted(name);
+  }
+
+  // "+3 reps → 47.5 kg · ≈ 2 workouts", "Ready for 47.5 kg"
+  function stepText(st) {
+    const s = T().step;
+    if (st.ready) return st.next ? s.up(fmtKg(st.next)) : s.harder(st.harder);
+    const parts = [st.missing > 0 && s.sets(st.missing), st.short > 0 && s.reps(st.short)].filter(Boolean).join(' ');
+    return `${parts} → ${st.next ? `${fmtKg(st.next)} kg` : st.harder}${st.sessions ? ` · ${s.eta(st.sessions)}` : ''}`;
+  }
+
   const BODY = {
-    outline: 'M99 10C110.5 10 117 17.5 117 29C117 37 115.5 44 112.5 49C111.5 52 111 55 111.5 60C112 63 114 65 118 67C126 70 134 72.5 141 74.5C151 76 158.5 83.5 160.5 94C162 103 161.5 112 159.5 121C160.5 131 162 142 163.5 151C168 159 172 170 173 182C174 193 174.5 202 175 209.5C178.3 215 180.3 222 180.6 230C180.9 238 179 246 175.5 251.5C173 255 168.5 255 166 252C163.8 248.5 163 243.5 162.8 238C162.6 234 162.2 231 161.4 228.5C159.8 227.5 157.6 225 156.6 221.5C155.8 218 157 215 159.5 213.5C160.2 211.5 160.6 210 161 208.5C157.5 197 153 185 150.5 173C149.5 167 149 162 149 157.5C146 147 143 135 141.5 124C140.5 117 139.5 112 137.5 107.5C137.5 116 137.3 124 136.3 132C134.8 147 131 162 128.5 176C128.5 184 130 192 132 199C136.5 209 140.5 222 141 238C141.5 257 137.5 278 130 295C128.8 301 128.8 307 130.3 313C134 326 134.5 341 130.8 355C127.8 366 123.4 376 120.5 387C121.8 392 124.2 396.5 124.6 401C124.6 405 120 407 114 407L104 407C102 406 101.5 403 102.5 399C103.5 394 105.5 390 106 386C104.7 374 102.4 362 102 348C101.6 334 103.3 320 105.3 310C105.8 302 105.6 296 105.2 289C104.2 270 103.2 250 102.2 231C101.6 226 100.6 223 99 222Z',
+    outline: 'M100 10C101.7 10 103.3 10.1 105 10.7C106.7 11.2 108.6 12.2 110.2 13.3C111.8 14.5 113.4 16.1 114.6 17.6C115.8 19.2 116.8 20.8 117.6 22.6C118.4 24.4 119 26.6 119.4 28.4C119.8 30.2 119.4 32.4 119.8 33.6C120.2 34.8 121.1 34.8 121.6 35.8C122.1 36.8 122.6 38.2 122.6 39.4C122.6 40.6 122.1 41.9 121.6 43.2C121.1 44.5 120.5 46 119.8 47.4C119.1 48.8 117.9 50 117.2 51.4C116.5 52.8 116.1 53.8 115.8 55.6C115.5 57.4 115.3 60 115.4 62C115.5 64 115.7 65.9 116.4 67.4C117.1 68.9 118.2 70 119.8 71.2C121.4 72.4 123.4 73.4 126.2 74.4C129 75.4 133.1 76.3 136.6 77.3C140.1 78.3 144.3 79.3 147.4 80.3C150.5 81.3 153 82 155 83.2C157 84.4 158.3 85.7 159.6 87.3C160.9 88.9 162 90.8 162.8 92.8C163.6 94.8 164.1 96.8 164.4 99C164.7 101.2 164.6 103.7 164.8 106C165 108.3 165.2 110.8 165.6 113C166 115.2 166.7 117.4 167.4 119.5C168.1 121.6 169 123.4 170 125.5C171 127.6 172.3 129.6 173.4 132C174.5 134.4 175.4 137.3 176.4 140C177.4 142.7 178.5 145.4 179.6 148C180.7 150.6 181.9 153 183 155.5C184.1 158 185.4 160.6 186.2 163C187 165.4 187.5 167.6 188 170C188.5 172.4 188.8 175.3 189.2 177.6C189.6 179.9 189.9 181.8 190.4 184C190.9 186.2 191.5 188.3 192.2 190.5C192.9 192.7 193.7 194.8 194.4 197C195.1 199.2 195.7 201.9 196.6 203.4C197.5 204.9 198.5 205.3 199.8 206.2C201.1 207.1 203 207.9 204.6 208.8C206.2 209.7 208 210.8 209.6 211.8C211.2 212.8 212.8 213.7 214 214.6C215.2 215.5 216.4 216.5 216.6 217.4C216.8 218.3 215.8 219 215.4 219.8C214.1 219.7 212.7 219.6 211.6 219.6C210.5 219.6 209.7 219.7 208.8 219.8C209.2 221.4 209.5 222.8 210 224.6C210.5 226.4 211.2 228.4 211.6 230.5C212 232.6 212.5 234.9 212.6 237C212.7 239.1 212.6 241.3 212.2 243C211.8 244.7 211.2 246.2 210.2 247.4C209.2 248.6 207.7 249.4 206.4 250C205.1 250.6 203.8 251.1 202.6 251.2C201.4 251.3 200.2 251.1 199.2 250.6C198.2 250.1 197.4 249.4 196.6 248.4C195.8 247.4 195.2 245.9 194.2 244.8C193.2 243.7 191.6 243.1 190.6 242C189.6 240.9 188.9 239.7 188.4 238C187.9 236.3 187.9 234 187.6 232C187.3 230 187.1 227.9 186.8 226C186.5 224.1 186 222.4 185.6 220.6C185.2 218.8 185 216.8 184.6 215C184.2 213.2 183.9 211.2 183.4 209.6C182.9 208 182.3 206.8 181.6 205.4C180.9 204 180.1 202.7 179.2 201.4C178.3 200.1 177.4 198.7 176.4 197.4C175.4 196.1 174.4 194.9 173.4 193.6C172.4 192.3 171.3 191 170.2 189.6C169.1 188.2 167.7 186.8 166.6 185.4C165.5 184 164.4 182.6 163.4 181C162.4 179.4 161.6 177.4 160.8 175.6C160 173.8 159.4 171.8 158.8 170C158.2 168.2 157.8 166.3 157.4 164.6C157 162.8 156.7 161.3 156.2 159.5C155.7 157.7 155.2 155.8 154.6 154C154 152.2 153.2 150.3 152.4 148.6C151.6 146.9 150.9 145.3 150 143.6C149.1 141.9 147.9 139.9 147 138.6C146.1 137.3 145.4 136.7 144.6 135.8C143.9 136.7 143.3 137.6 142.6 138.6C141.9 139.6 141.1 140.7 140.4 142C139.7 143.3 139.2 144.8 138.6 146.6C138 148.4 137.3 150.5 136.8 152.6C136.3 154.7 135.8 156.8 135.6 159C135.4 161.2 135.3 163.6 135.4 166C135.5 168.4 135.8 171.1 136 173.5C136.2 175.9 136.6 178.1 136.9 180.5C137.2 182.9 137.3 185.6 137.6 188C137.9 190.4 138.2 192.7 138.6 195C139 197.3 139.5 199.5 140 202C140.5 204.5 141.1 207.2 141.6 210C142.1 212.8 142.7 215.7 143.2 218.5C143.7 221.3 144.1 224.1 144.4 227C144.7 229.9 144.9 233 145 236C145.1 239 145.1 242 145 245C144.9 248 144.8 251 144.6 254C144.4 257 144.2 260 144 263C143.8 266 143.6 269.1 143.2 272C142.8 274.9 142.3 277.9 141.8 280.5C141.3 283.1 140.7 285.4 140.2 287.4C139.7 289.4 139 290.9 138.6 292.6C138.2 294.3 138 295.8 138 297.6C138 299.4 138.3 301.3 138.4 303.4C138.5 305.5 138.6 307.7 138.6 310C138.6 312.3 138.3 314.7 138.4 317C138.5 319.3 138.7 321.6 139 324C139.3 326.4 139.7 329 140 331.4C140.3 333.8 140.6 336.1 140.6 338.6C140.6 341.1 140.5 343.7 140.2 346.4C139.9 349.1 139.4 352.1 138.8 355C138.2 357.9 137.2 361 136.4 364C135.6 367 134.6 370.2 133.8 373C133 375.8 132.1 378.5 131.6 381C131.1 383.5 130.5 386 130.6 388C130.7 390 131.4 391.5 132.2 393.2C133 394.9 134.6 396.8 135.6 398.4C136.6 400 138 401.4 138.4 402.8C138.8 404.2 138.9 405.6 138.2 406.6C137.5 407.6 136.2 408.3 134.2 408.8C132.2 409.3 129 409.4 126.4 409.4C123.8 409.4 120.5 409.3 118.4 408.8C116.3 408.3 114.9 407.7 114 406.6C113.1 405.5 112.9 403.8 112.8 402C112.7 400.2 113.3 398 113.6 396C113.9 394 114.2 392.3 114.4 390C114.6 387.7 114.5 385 114.6 382C114.7 379 114.7 375.5 114.8 372C114.9 368.5 115.1 364.5 115.2 361C115.3 357.5 115.5 354 115.6 351C115.7 348 115.7 345.7 115.8 343C115.9 340.3 115.9 337.5 116 335C116.1 332.5 116.3 330.2 116.2 328C116.1 325.8 115.8 323.8 115.4 322C115 320.2 114.5 318.8 114 317C113.5 315.2 113 313.3 112.6 311.4C112.2 309.5 111.8 307.5 111.4 305.6C111 303.7 110.7 302.1 110.4 300C110.1 297.9 109.7 295.3 109.4 293C109.1 290.7 108.8 288.5 108.4 286.4C108 284.3 107.6 282.5 107.2 280.5C106.8 278.5 106.4 276.6 106 274.6C105.6 272.6 105.2 270.7 104.8 268.7C104.4 266.7 104.1 264.9 103.8 262.8C103.5 260.7 103.1 258.2 102.8 256C102.5 253.8 102.2 251.5 101.9 249.6C101.6 247.7 101.5 245.8 101.2 244.6C100.9 243.4 100.4 243.1 100 242.4C99.6 243.1 99.1 243.4 98.8 244.6C98.5 245.8 98.4 247.7 98.1 249.6C97.8 251.5 97.5 253.8 97.2 256C96.9 258.2 96.5 260.7 96.2 262.8C95.9 264.9 95.6 266.7 95.2 268.7C94.8 270.7 94.4 272.6 94 274.6C93.6 276.6 93.2 278.5 92.8 280.5C92.4 282.5 92 284.3 91.6 286.4C91.2 288.5 90.9 290.7 90.6 293C90.3 295.3 89.9 297.9 89.6 300C89.3 302.1 89 303.7 88.6 305.6C88.2 307.5 87.8 309.5 87.4 311.4C87 313.3 86.5 315.2 86 317C85.5 318.8 85 320.2 84.6 322C84.2 323.8 83.9 325.8 83.8 328C83.7 330.2 83.9 332.5 84 335C84.1 337.5 84.1 340.3 84.2 343C84.3 345.7 84.3 348 84.4 351C84.5 354 84.7 357.5 84.8 361C84.9 364.5 85.1 368.5 85.2 372C85.3 375.5 85.3 379 85.4 382C85.5 385 85.4 387.7 85.6 390C85.8 392.3 86.1 394 86.4 396C86.7 398 87.3 400.2 87.2 402C87.1 403.8 86.9 405.5 86 406.6C85.1 407.7 83.7 408.3 81.6 408.8C79.5 409.3 76.2 409.4 73.6 409.4C71 409.4 67.8 409.3 65.8 408.8C63.8 408.3 62.5 407.6 61.8 406.6C61.1 405.6 61.2 404.2 61.6 402.8C62 401.4 63.4 400 64.4 398.4C65.4 396.8 67 394.9 67.8 393.2C68.6 391.5 69.3 390 69.4 388C69.5 386 68.9 383.5 68.4 381C67.9 378.5 67 375.8 66.2 373C65.4 370.2 64.4 367 63.6 364C62.8 361 61.8 357.9 61.2 355C60.6 352.1 60.1 349.1 59.8 346.4C59.5 343.7 59.4 341.1 59.4 338.6C59.4 336.1 59.7 333.8 60 331.4C60.3 329 60.7 326.4 61 324C61.3 321.6 61.5 319.3 61.6 317C61.7 314.7 61.4 312.3 61.4 310C61.4 307.7 61.5 305.5 61.6 303.4C61.7 301.3 62 299.4 62 297.6C62 295.8 61.8 294.3 61.4 292.6C61 290.9 60.3 289.4 59.8 287.4C59.3 285.4 58.7 283.1 58.2 280.5C57.7 277.9 57.2 274.9 56.8 272C56.4 269.1 56.2 266 56 263C55.8 260 55.6 257 55.4 254C55.2 251 55.1 248 55 245C54.9 242 54.9 239 55 236C55.1 233 55.3 229.9 55.6 227C55.9 224.1 56.3 221.3 56.8 218.5C57.3 215.7 57.9 212.8 58.4 210C58.9 207.2 59.5 204.5 60 202C60.5 199.5 61 197.3 61.4 195C61.8 192.7 62.1 190.4 62.4 188C62.7 185.6 62.8 182.9 63.1 180.5C63.4 178.1 63.8 175.9 64 173.5C64.2 171.1 64.5 168.4 64.6 166C64.7 163.6 64.6 161.2 64.4 159C64.2 156.8 63.7 154.7 63.2 152.6C62.7 150.5 62 148.4 61.4 146.6C60.8 144.8 60.3 143.3 59.6 142C58.9 140.7 58.1 139.6 57.4 138.6C56.7 137.6 56.1 136.7 55.4 135.8C54.6 136.7 53.9 137.3 53 138.6C52.1 139.9 50.9 141.9 50 143.6C49.1 145.3 48.4 146.9 47.6 148.6C46.8 150.3 46 152.2 45.4 154C44.8 155.8 44.3 157.7 43.8 159.5C43.3 161.3 43 162.8 42.6 164.6C42.2 166.3 41.8 168.2 41.2 170C40.6 171.8 40 173.8 39.2 175.6C38.4 177.4 37.6 179.4 36.6 181C35.6 182.6 34.5 184 33.4 185.4C32.3 186.8 30.9 188.2 29.8 189.6C28.7 191 27.6 192.3 26.6 193.6C25.6 194.9 24.6 196.1 23.6 197.4C22.6 198.7 21.7 200.1 20.8 201.4C19.9 202.7 19.1 204 18.4 205.4C17.7 206.8 17.1 208 16.6 209.6C16.1 211.2 15.8 213.2 15.4 215C15 216.8 14.8 218.8 14.4 220.6C14 222.4 13.5 224.1 13.2 226C12.9 227.9 12.7 230 12.4 232C12.1 234 12.1 236.3 11.6 238C11.1 239.7 10.4 240.9 9.4 242C8.4 243.1 6.8 243.7 5.8 244.8C4.8 245.9 4.2 247.4 3.4 248.4C2.6 249.4 1.8 250.1 0.8 250.6C-0.2 251.1 -1.4 251.3 -2.6 251.2C-3.8 251.1 -5.1 250.6 -6.4 250C-7.7 249.4 -9.2 248.6 -10.2 247.4C-11.2 246.2 -11.8 244.7 -12.2 243C-12.6 241.3 -12.7 239.1 -12.6 237C-12.5 234.9 -12 232.6 -11.6 230.5C-11.2 228.4 -10.5 226.4 -10 224.6C-9.5 222.8 -9.2 221.4 -8.8 219.8C-9.7 219.7 -10.5 219.6 -11.6 219.6C-12.7 219.6 -14.1 219.7 -15.4 219.8C-15.8 219 -16.8 218.3 -16.6 217.4C-16.4 216.5 -15.2 215.5 -14 214.6C-12.8 213.7 -11.2 212.8 -9.6 211.8C-8 210.8 -6.2 209.7 -4.6 208.8C-3 207.9 -1.1 207.1 0.2 206.2C1.5 205.3 2.5 204.9 3.4 203.4C4.3 201.9 4.9 199.2 5.6 197C6.3 194.8 7.1 192.7 7.8 190.5C8.5 188.3 9.1 186.2 9.6 184C10.1 181.8 10.4 179.9 10.8 177.6C11.2 175.3 11.5 172.4 12 170C12.5 167.6 13 165.4 13.8 163C14.6 160.6 15.9 158 17 155.5C18.1 153 19.3 150.6 20.4 148C21.5 145.4 22.6 142.7 23.6 140C24.6 137.3 25.5 134.4 26.6 132C27.7 129.6 29 127.6 30 125.5C31 123.4 31.9 121.6 32.6 119.5C33.3 117.4 34 115.2 34.4 113C34.8 110.8 35 108.3 35.2 106C35.4 103.7 35.3 101.2 35.6 99C35.9 96.8 36.4 94.8 37.2 92.8C38 90.8 39.1 88.9 40.4 87.3C41.7 85.7 43 84.4 45 83.2C47 82 49.5 81.3 52.6 80.3C55.7 79.3 59.9 78.3 63.4 77.3C66.9 76.3 71 75.4 73.8 74.4C76.6 73.4 78.6 72.4 80.2 71.2C81.8 70 82.9 68.9 83.6 67.4C84.3 65.9 84.5 64 84.6 62C84.7 60 84.5 57.4 84.2 55.6C83.9 53.8 83.5 52.8 82.8 51.4C82.1 50 80.9 48.8 80.2 47.4C79.5 46 78.9 44.5 78.4 43.2C77.9 41.9 77.4 40.6 77.4 39.4C77.4 38.2 77.9 36.8 78.4 35.8C78.9 34.8 79.8 34.8 80.2 33.6C80.6 32.4 80.2 30.2 80.6 28.4C81 26.6 81.6 24.4 82.4 22.6C83.2 20.8 84.2 19.2 85.4 17.6C86.6 16.1 88.2 14.5 89.8 13.3C91.4 12.2 93.3 11.2 95 10.7C96.7 10.1 98.3 10 100 10Z',
     front: [
-      ['traps', 'M111.6 59C112 63 114 65 118 67C126 70 134 72.4 140.5 74.4C134 75.3 127.5 74.8 121 73C116 71.5 113 69 111.6 66Z'],
-      ['chest', 'M101 78.5C108 77 116.5 76.3 124 76.5C126.5 76.6 128.8 76.7 131 77C134.6 84.5 137.5 94 140 103.2C137.5 109.5 132 115.5 125 119.3C118.5 122.6 111 123.6 105 122.3C102.8 121.7 101.5 120.8 101 119.8Z'],
-      ['frontDelts', 'M131 76.5C135.5 75.3 140 74.8 144 75C147.5 88 150 104 152 123C148 117.5 144 110.5 140 103.5C137.5 95 134.5 84 131 76.5Z'],
-      ['sideDelts', 'M144 75C152 76.5 158.5 83.5 160.5 94C162 103 161.5 112 159.5 121C158.3 124.5 156.8 126.5 155 127C154 125.5 153 124.3 152 123C150 104 147.5 88 144 75Z'],
-      ['biceps', 'M143 113.5C146.5 115 149.5 118 152 121.5C153.2 123.3 154 125.2 154.6 127.5C157 133 158 140 157.6 146.5C157.2 151 155.3 154.5 152.3 156.2C151.5 156.4 151 156.3 150.6 156C148.5 146 145.7 135 144.2 125C143.6 121 143.2 117 143 113.5Z'],
-      ['biceps', 'M155.3 127.8C157 126.5 158.5 124.5 159.6 121.5C160.6 131 162 142 163.3 150.5C161.6 152.6 159.6 154.6 157.2 156C158.3 152.5 158.6 149.5 158.6 146.5C158.8 139.5 157.8 133 155.3 127.8Z'],
-      ['triceps', 'M138 108.2C140 110.5 141.8 113 143 113.5C143.2 117 143.6 121 144.2 125C145.7 135 148.5 146 150.6 156L149.2 157.4C147.5 152 145 144 143.3 135C142.5 131 141.9 127.5 141.5 124C140.6 117 139.5 112 138 108.2Z'],
-      ...FOREARM,
-      ['abs', 'M101 124.5C106 123.8 111 123.6 115.5 124.5C116.5 130 116.5 135.5 116 141C111 142 106 142.5 101 142.5Z'],
-      ['abs', 'M101 145C106 145 111 144.5 116.3 144C116.8 150 116.8 156 116.5 162C111 163 106 163.5 101 163.5Z'],
-      ['abs', 'M101 166C106 166 111 165.5 116.6 165C117 171 117 177 116.6 183C111 184 106 184.5 101 184.5Z'],
-      ['abs', 'M101 187.5C106 187.5 111.5 187 116.5 186.5C116.5 196 113.5 205 108 212C105.5 215 103 216.5 101 217Z'],
-      [null, 'M131 115C134 113 136.3 112 137.3 112.5C137.3 116 137.2 118.5 136.9 120.5C134.3 121 131.5 120 129.5 119Z'],
-      [null, 'M127.5 122C131 121.5 134.2 122 136.7 123C136.5 126 136.2 128.5 135.8 130.5C132.5 130 129 128.5 126.5 126.5Z'],
-      [null, 'M125 130C128.5 130.5 132 131.5 135.4 133C135 135.5 134.6 137.5 134.2 139.5C130.5 138.5 127 137 124.5 135Z'],
-      ['obliques', 'M118 125C120.5 131 122.5 134 124 136.5C127 138.5 131 140.5 134.3 141.5C132.5 152 130 164 128.3 176C128.3 184 129.5 191 131.5 198C126 201.5 121 205.5 117 210.5C117.8 202 118.5 194 118.3 186C118.5 165 118.4 145 118 125Z'],
-      ['quads', 'M133 203C137.5 213 140.3 225 140.4 238C140.5 256 137 276 130.2 293.2C127.8 296.5 125.5 298.5 122.5 299C119.5 299.5 116.5 299 114 298C111 299.8 108.5 299.6 106.8 297.5C105.6 291 105.5 283 106.3 275C107.8 268 110.3 262 113 257.5C113.5 240 117.8 224 124.5 210C127 206.5 129.8 204.2 133 203Z'],
-      ['~', 'M129.5 208.5C125 225 122.8 245 122.8 262C122.8 276 123.3 288 124.2 298.6M113.4 258C113.1 272 113.8 286 115.3 298.4'],
-      ['adductors', 'M123.5 210.5C117.2 224 113.3 240 112.6 256.8C110 261.3 107.6 267.3 106 274C104.9 260 103.9 245 103.2 232C102.9 228 102.3 225 101 223C108.3 216.8 115.8 212.8 123.5 210.5Z'],
-      [null, 'M110.5 300.5C114.5 299.3 120.5 299.5 124.5 301.5C125.5 306 124.5 310.5 121.5 313C118 314 114 314 111 312.5C109 309 109 304 110.5 300.5Z'],
-      ['calves', 'M122 313.5C126 312.5 128.2 311 129.4 312.6C133.6 326 134 341 130.4 355C127.6 366 123.8 375 120.8 385C119.5 372 118.6 358 118.7 344C118.9 333 119.8 322 122 313.5Z'],
-      ['~', 'M127 316C129.5 328 129.9 341 127.8 352'],
-      ['calves', 'M108 312.5C104.4 321 102.5 333 102.8 346.5C103.2 359 104.9 371 106.8 382C110 371 113.4 357.5 115 344C116.2 332 114.4 320 110.3 313Z'],
+      ['traps', 'M116.4 66.4C117.5 68 118.2 69.9 119.8 71.2C121.4 72.5 123.4 73.4 126.2 74.4C129 75.4 133.3 76.3 136.6 77.3C139.9 78.3 142.9 79.2 146 80.2C143.9 80.6 142.1 81.3 139.6 81.4C137.1 81.5 133.8 81.1 131 80.6C128.2 80.1 124.8 79.5 122.6 78.6C120.4 77.7 118.8 77.4 117.8 75.4C116.8 73.4 116.9 69.4 116.4 66.4Z'],
+      ['pecs', 'M101 84.6C102.7 84.2 104 83.6 106 83.4C108 83.2 110.5 83.3 113 83.4C115.5 83.5 118.4 83.7 121 84C123.6 84.3 126.3 84.6 128.6 85C130.9 85.4 132.6 85.9 134.6 86.4C135.9 88.1 137.2 89.6 138.4 91.4C139.6 93.2 140.7 95.2 141.6 97.4C142.5 99.6 143.3 102.1 143.8 104.4C144.3 106.7 144.3 108.8 144.6 111C143.9 112.9 143.7 114.9 142.6 116.6C141.5 118.3 139.8 119.8 138 121.2C136.2 122.6 134 123.9 131.6 125C129.2 126.1 126.3 127.2 123.6 127.8C120.9 128.4 118.1 128.6 115.6 128.6C113.1 128.6 110.4 128.2 108.4 127.6C106.4 127 104.8 126.1 103.6 125.2C102.4 124.3 101.9 123.2 101 122.2C101 109.7 101 97.1 101 84.6Z'],
+      ['frontDelt', 'M134.8 86.2C136.2 85.1 137.5 83.7 139 82.8C140.5 81.9 142.3 81.3 144 81C145.7 80.7 147.3 80.9 149 80.8C149.9 83.2 150.7 85.3 151.6 88C152.5 90.7 153.4 93.8 154.2 97C155 100.2 155.9 103.8 156.6 107C157.3 110.2 157.9 113.6 158.6 116.5C159.3 119.4 160.2 122.1 160.8 124.6C161.4 127.1 161.9 129.1 162.4 131.4C160.8 129.7 159.2 128.2 157.6 126.2C156 124.2 154.1 121.8 152.6 119.6C151.1 117.4 149.7 115.3 148.4 113C147.1 110.7 146.1 108.3 145 106C144.5 103.7 144.1 101.1 143.4 99C142.7 96.9 141.9 95.2 141 93.6C140.1 92 139 90.4 138 89.2C137 88 135.9 87.2 134.8 86.2Z'],
+      ['sideDelt', 'M149 80.8C150.9 81.4 153.1 81.6 154.8 82.6C156.5 83.6 158.1 85 159.4 86.6C160.7 88.2 161.8 90.3 162.6 92.4C163.4 94.5 163.9 96.7 164.2 99C164.5 101.3 164.4 103.7 164.6 106C164.8 108.3 165 110.8 165.4 113C165.8 115.2 166.4 117.5 167 119.4C167.6 121.3 168.5 122.9 169.2 124.6C168.1 125.9 167.1 127.5 166 128.6C164.9 129.7 163.6 130.5 162.4 131.4C161.9 129.1 161.4 127.1 160.8 124.6C160.2 122.1 159.3 119.4 158.6 116.5C157.9 113.6 157.3 110.2 156.6 107C155.9 103.8 155 100.2 154.2 97C153.4 93.8 152.5 90.7 151.6 88C150.7 85.3 149.9 83.2 149 80.8Z'],
+      ['biceps', 'M145.4 108.4C146.4 110.1 147.2 111.5 148.4 113.4C149.6 115.3 151 117.6 152.4 119.8C153.8 122 155.4 124.4 156.6 126.4C157.8 128.4 158.9 129.9 159.6 131.8C160.3 133.7 160.5 135.8 160.8 138C161.1 140.2 161.2 142.7 161.2 145C161.2 147.3 161.1 149.5 160.8 151.6C160.5 153.7 160 155.8 159.4 157.6C158.8 159.4 157.8 160.8 157 162.4C156.3 161.1 155.6 160.1 155 158.6C154.4 157.1 154 155.2 153.4 153.4C152.8 151.6 152.1 149.8 151.4 148C150.7 146.2 149.9 144.4 149.2 142.6C148.5 140.8 147.7 139.3 147.2 137.4C146.7 135.5 146.3 133.4 146 131C145.7 128.6 145.5 125.7 145.4 123C145.3 120.3 145.2 117.4 145.2 115C145.2 112.6 145.3 110.6 145.4 108.4Z'],
+      ['brachialis', 'M161.8 133.6C162.7 134.9 163.6 135.9 164.4 137.6C165.2 139.3 165.9 141.5 166.6 143.6C167.3 145.7 167.9 147.9 168.4 150C168.9 152.1 169.5 154.3 169.8 156.4C170.1 158.5 170.2 160.4 170.4 162.4C169 163.1 167.8 164.1 166.2 164.6C164.6 165.1 162.7 165 161 165.2C160.5 164.5 159.5 164.2 159.4 163C159.3 161.8 160.2 160 160.6 158.2C161 156.4 161.7 154.3 162 152.2C162.3 150.1 162.5 147.6 162.6 145.4C162.7 143.2 162.7 141 162.6 139C162.5 137 162.1 135.4 161.8 133.6Z'],
+      ['triceps', 'M163.8 131.6C164.7 130.9 165.6 130.3 166.6 129.4C167.6 128.5 168.6 127.3 169.6 126.2C170.5 127.8 171.3 129.2 172.2 131C173.1 132.8 173.9 134.9 174.8 137C175.7 139.1 176.7 141.4 177.6 143.6C178.5 145.8 179.5 148.2 180.4 150.4C181.3 152.6 182.2 154.9 183 157C183.8 159.1 184.5 161.1 185.2 163.2C183.9 163.6 182.6 164.2 181.2 164.4C179.8 164.6 178.3 164.4 176.8 164.2C175.3 164 173.7 163.7 172.2 163.4C172 161.3 172 159.2 171.6 157C171.2 154.8 170.6 152.4 170 150.2C169.4 148 168.6 145.7 167.8 143.6C167 141.5 166.1 139.4 165.4 137.4C164.7 135.4 164.3 133.5 163.8 131.6Z'],
+      ['brachioradialis', 'M178.6 165.8C180.3 164.9 181.9 164.1 183.6 163.2C184.6 164.7 185.8 165.8 186.6 167.6C187.4 169.4 188 171.8 188.6 174C189.2 176.2 189.5 178.7 190 181C190.5 183.3 191 185.7 191.6 188C192.2 190.3 192.8 192.7 193.4 195C194 197.3 194.7 199.7 195.4 202C194.5 202.2 193.7 202.4 192.8 202.6C191.9 200.6 191.2 198.8 190.2 196.6C189.2 194.4 188.1 192 187 189.6C185.9 187.2 184.7 184.6 183.6 182.2C182.5 179.8 181.4 177.9 180.6 175.2C179.8 172.5 179.3 168.9 178.6 165.8Z'],
+      ['flexors', 'M157.6 166.4C159.4 166.5 161.1 166.6 163 166.6C164.9 166.6 167 166.6 169 166.6C171 166.6 173.4 166.5 175 166.4C176.6 166.3 177.4 166 178.6 165.8C179.3 168.9 179.8 172.5 180.6 175.2C181.4 177.9 182.5 179.8 183.6 182.2C184.7 184.6 185.9 187.2 187 189.6C188.1 192 189.2 194.4 190.2 196.6C191.2 198.8 191.9 200.6 192.8 202.6C191.4 203.3 190.1 204.2 188.6 204.6C187.1 205 185.5 205 184 205.2C182.9 203.9 181.9 202.6 180.8 201.2C179.7 199.8 178.6 198.4 177.4 197C176.2 195.6 174.9 194.1 173.6 192.6C172.3 191.1 170.9 189.6 169.6 188C168.3 186.4 166.8 184.9 165.6 183.2C164.4 181.5 163.2 179.8 162.2 178C161.2 176.2 160.4 174.3 159.6 172.4C158.8 170.5 158.3 168.4 157.6 166.4Z'],
+      ['~', 'M166.4 170.6C167.3 172.1 170 176.4 172 179.4C174 182.4 176.3 185.4 178.6 188.6C180.9 191.8 184.4 196.9 185.6 198.6'],
+      ['~', 'M203.2 236.6C203.2 237.7 203.5 240.7 203.4 243C203.3 245.3 202.9 249.3 202.8 250.6M199.4 237.2C199.4 238.3 199.3 241.5 199.2 243.6C199.1 245.7 198.7 248.8 198.6 249.8M206.8 235.6C206.8 236.7 207.1 239.7 207 242C206.9 244.3 206.5 248.3 206.4 249.6M208.8 219.8C208.3 220.4 206.3 222.1 205.6 223.4C204.9 224.7 204.6 226.9 204.4 227.6'],
+      ['abs', 'M101.2 129.6C102.8 129.1 104.2 128.3 106 128C107.8 127.7 110.1 127.7 112 127.8C113.9 127.9 116.2 128.1 117.6 128.8C119 129.5 119.8 130.7 120.4 131.8C121 132.9 121 134.3 121 135.6C121 136.9 120.6 138.4 120.4 139.8C118.1 140.1 115.8 140.4 113.6 140.6C111.4 140.8 109.1 141 107 141.2C104.9 141.4 103.1 141.5 101.2 141.6C101.2 137.6 101.2 133.6 101.2 129.6Z'],
+      ['abs', 'M101.2 143.8C103.5 143.7 105.7 143.6 108 143.4C110.3 143.2 112.9 143 115 142.8C117.1 142.6 118.7 142.5 120.6 142.4C120.9 144.1 121.3 145.9 121.4 147.6C121.5 149.3 121.5 151 121.4 152.6C121.3 154.2 121 155.7 120.8 157.2C118.5 157.4 116.2 157.6 114 157.8C111.8 158 109.5 158.1 107.4 158.2C105.3 158.3 103.3 158.5 101.2 158.6C101.2 153.7 101.2 148.7 101.2 143.8Z'],
+      ['abs', 'M101.2 160.8C103.5 160.7 105.7 160.5 108 160.4C110.3 160.3 112.8 160.1 115 160C117.2 159.9 119 159.7 121 159.6C121.2 161.3 121.5 162.9 121.6 164.6C121.7 166.3 121.7 168.1 121.6 169.6C121.5 171.1 121.2 172.4 121 173.8C118.7 174 116.2 174.2 114 174.4C111.8 174.6 109.7 174.7 107.6 174.8C105.5 174.9 103.3 174.9 101.2 175C101.2 170.3 101.2 165.5 101.2 160.8Z'],
+      ['abs', 'M100 177.2C102.7 177.1 105.5 177.1 108 177C110.5 176.9 112.9 176.7 115 176.6C117.1 176.5 118.9 176.3 120.8 176.2C120.8 179.5 121 182.6 120.8 186C120.6 189.4 120.2 193.1 119.6 196.6C119 200.1 118.3 203.7 117.2 207C116.1 210.3 114.8 213.7 113.2 216.6C111.6 219.5 109.8 222.1 107.6 224.6C105.4 227.1 102.5 229.1 100 231.4C97.5 229.1 94.6 227.1 92.4 224.6C90.2 222.1 88.4 219.5 86.8 216.6C85.2 213.7 83.9 210.3 82.8 207C81.7 203.7 81 200.1 80.4 196.6C79.8 193.1 79.4 189.4 79.2 186C79 182.6 79.2 179.5 79.2 176.2C81.1 176.3 82.9 176.5 85 176.6C87.1 176.7 89.5 176.9 92 177C94.5 177.1 97.3 177.1 100 177.2Z', 1],
+      ['serratus', 'M131.6 126.8C133.3 125.7 135 124.6 136.6 123.6C138.2 122.6 139.9 121.4 141.2 120.6C142.5 119.8 143.2 119.4 144.2 118.8C144.3 120.7 145 123 144.6 124.4C144.2 125.8 142.9 126.4 141.6 127.2C140.3 128 138.5 128.8 137 129.4C135.5 130 134.1 130.2 132.6 130.6C132.3 129.3 131.9 128.1 131.6 126.8Z'],
+      ['serratus', 'M130.2 133.6C131.7 132.9 133.1 132.3 134.6 131.6C136.1 130.9 137.8 130.1 139.4 129.4C141 128.7 142.7 128.2 144.4 127.6C144.3 129.5 144.8 132 144 133.4C143.2 134.8 141.3 135.1 139.8 135.8C138.3 136.5 136.6 137.1 135 137.4C133.4 137.7 131.9 137.7 130.4 137.8C130.3 136.4 130.3 135 130.2 133.6Z'],
+      ['serratus', 'M129.8 140.6C131.1 140.3 132.4 139.9 133.8 139.6C135.2 139.3 136.7 138.8 138 138.6C139.3 138.4 140.4 138.6 141.6 138.6C140.9 139.9 140.6 141.6 139.6 142.4C138.6 143.2 137 143.3 135.6 143.4C134.2 143.5 132.5 143.3 131 143.2C130.6 142.3 130.2 141.5 129.8 140.6Z'],
+      ['obliques', 'M122.8 145.8C124.2 145.6 125.6 145.3 127 145.2C128.4 145.1 129.8 145.2 131.4 145.2C133 145.2 134.7 145.3 136.4 145.4C136.5 147.3 136.8 148.7 136.8 151C136.8 153.3 136.4 156.3 136.2 159C136 161.7 135.8 164.3 135.8 167C135.8 169.7 136.2 172.3 136.4 175C136.6 177.7 136.9 180.3 137.2 183C137.5 185.7 137.8 188.3 138.2 191C138.6 193.7 139 196.4 139.4 199C139.8 201.6 140.2 204.1 140.6 206.6C138.1 208.5 135.6 210.3 133 212.2C130.4 214.1 127.6 216 125 217.8C122.4 219.6 119.9 221.4 117.6 222.8C115.3 224.2 113.5 225.2 111.4 226.4C112.7 223.5 114 220.7 115.2 217.6C116.4 214.5 117.5 211.3 118.4 208C119.3 204.7 120 201.3 120.6 198C121.2 194.7 121.5 191.3 121.8 188C122.1 184.7 122.3 181.3 122.4 178C122.5 174.7 122.6 171.7 122.6 168C122.6 164.3 122.6 159.7 122.6 156C122.6 152.3 122.7 149.2 122.8 145.8Z'],
+      ['quads', 'M141.6 212.4C142.3 215.6 143.1 218.4 143.6 222C144.1 225.6 144.4 230 144.6 234C144.8 238 144.7 242 144.6 246C144.5 250 144.3 254 144 258C143.7 262 143.3 266.2 142.8 270C142.3 273.8 141.5 277.7 140.8 281C140.1 284.3 139.3 287.4 138.4 290C137.5 292.6 136.4 294.4 135.4 296.6C134.3 295.5 133.1 295.3 132.2 293.4C131.3 291.5 130.7 288.2 130.2 285C129.7 281.8 129.5 277.8 129.4 274C129.3 270.2 129.4 266 129.6 262C129.8 258 130.1 254 130.4 250C130.7 246 131.1 242 131.6 238C132.1 234 132.7 229.6 133.6 226C134.5 222.4 135.9 218.9 137.2 216.6C138.5 214.3 140.1 213.8 141.6 212.4Z'],
+      ['quads', 'M138.2 210.8C137.1 213.4 136 215.6 135 218.6C134 221.6 133 225 132.2 228.6C131.4 232.2 130.6 236.1 130 240C129.4 243.9 128.8 248 128.4 252C128 256 127.9 260 127.8 264C127.7 268 127.8 272.2 128 276C128.2 279.8 128.5 283.7 129 287C129.5 290.3 130.3 293 131 296C129.7 296.8 128.4 298 127 298.4C125.6 298.8 124.1 298.5 122.6 298.6C121.8 295.7 120.8 293.1 120.2 290C119.6 286.9 119.1 283.7 118.8 280C118.5 276.3 118.4 272 118.4 268C118.4 264 118.6 260 119 256C119.4 252 119.9 247.9 120.6 244C121.3 240.1 122.2 236.3 123.4 232.6C124.6 228.9 125.9 224.8 127.6 221.6C129.3 218.4 131.6 215.2 133.4 213.4C135.2 211.6 136.6 211.7 138.2 210.8Z'],
+      ['quads', 'M118.6 262C118.7 266 118.6 270.2 118.8 274C119 277.8 119.4 281.7 119.8 285C120.2 288.3 120.8 291.3 121.2 293.6C121.6 295.9 121.9 296.9 122.2 298.6C120.6 298.9 118.9 299.7 117.4 299.6C115.9 299.5 114.3 298.8 113.2 297.8C112.1 296.8 111.3 295.4 110.8 293.6C110.3 291.8 110 289.3 110 287C110 284.7 110.4 282.2 111 279.6C111.6 277 112.7 273.7 113.6 271.4C114.5 269.1 115.4 267.2 116.2 265.6C117 264 117.8 263.2 118.6 262Z'],
+      ['adductors', 'M101.8 246C102.7 244.1 103.3 242.2 104.4 240.4C105.5 238.6 106.9 236.8 108.4 235.2C109.9 233.6 111.7 232.1 113.4 230.8C115.1 229.5 116.9 228.4 118.6 227.6C120.3 226.8 121.8 226.4 123.4 225.8C122.7 228.5 122.2 230.8 121.4 234C120.6 237.2 119.3 241.3 118.6 245C117.9 248.7 117.6 252.7 117 256C116.4 259.3 115.8 262.2 115 265C114.2 267.8 112.9 270 112 272.6C111.1 275.2 110.3 277.9 109.4 280.6C108.7 279.1 108 278 107.4 276C106.8 274 106.3 271.1 105.8 268.4C105.3 265.7 104.7 262.7 104.2 260C103.7 257.3 103.2 254.3 102.8 252C102.4 249.7 102.1 248 101.8 246Z'],
+      [null, 'M116.8 300.6C118.2 300.2 119.5 299.5 121 299.4C122.5 299.3 124.6 299.4 126 299.8C127.4 300.2 128.9 300.9 129.6 302C130.3 303.1 130.6 305 130.4 306.6C130.2 308.2 129.6 310.2 128.6 311.4C127.6 312.6 126.1 313.4 124.6 313.8C123.1 314.2 121 314.1 119.6 313.6C118.2 313.1 116.9 312 116.2 310.6C115.5 309.2 115.5 306.9 115.6 305.2C115.7 303.5 116.4 302.1 116.8 300.6Z'],
+      ['tibialis', 'M130.8 315.4C131.9 316.5 133.2 317 134.2 318.8C135.2 320.6 136.1 323.3 136.6 326C137.1 328.7 137.4 331.8 137.4 335C137.4 338.2 137.2 341.7 136.8 345C136.4 348.3 135.6 351.7 134.8 355C134 358.3 132.9 361.8 132 365C131.1 368.2 130.1 371.2 129.4 374C128.7 376.8 128.2 379.3 127.6 382C127.2 379.3 126.6 377.3 126.4 374C126.2 370.7 126.2 366 126.2 362C126.2 358 126.4 354 126.6 350C126.8 346 127 342 127.2 338C127.4 334 127.4 329.8 128 326C128.6 322.2 129.9 318.9 130.8 315.4Z'],
+      ['gastrocnemius', 'M117.4 316.6C118.5 318 119.8 318.6 120.6 320.8C121.4 323 122.1 326.6 122.4 330C122.7 333.4 122.6 337.5 122.4 341C122.2 344.5 121.6 347.9 121 351C120.4 354.1 119.5 356.7 118.8 359.6C118.2 357.1 117.4 354.9 117 352C116.6 349.1 116.6 345.3 116.6 342C116.6 338.7 116.8 335.2 116.8 332C116.8 328.8 116.7 325.6 116.8 323C116.9 320.4 117.2 318.7 117.4 316.6Z'],
+      ['soleus', 'M119.2 363C119.9 360.7 120.7 358.2 121.4 356C122.1 353.8 122.9 349.1 123.4 349.6C123.9 350.1 124.4 355.6 124.4 359C124.4 362.4 124.1 366.6 123.6 370C123.1 373.4 122.3 376.9 121.6 379.6C120.9 382.3 120.1 383.9 119.4 386C118.7 383.3 117.8 380.7 117.4 378C117 375.3 116.7 372.5 117 370C117.3 367.5 118.5 365.3 119.2 363Z'],
+      ['soleus', 'M138 348.4C138.4 349.9 139.2 351 139.2 353C139.2 355 138.5 357.8 137.8 360.4C137.1 363 136.1 365.7 135.2 368.4C134.3 371.1 133.3 374 132.6 376.4C131.9 378.8 131.4 380.8 130.8 383C130.7 380.7 130.1 378.8 130.4 376C130.7 373.2 131.8 369.3 132.6 366C133.4 362.7 134.3 359.3 135.2 356.4C136.1 353.5 137.1 351.1 138 348.4Z'],
+      ['~', 'M119.4 44C118.5 45.5 115.9 50 114.2 53C112.5 56 110.6 59.2 109 62C107.4 64.8 105.2 68.7 104.4 70'],
+      ['~', 'M132.6 216.4C131.6 218.1 128.5 222.9 126.6 226.6C124.7 230.3 122.7 234.7 121.4 238.6C120.1 242.5 119.4 246.3 118.6 250C117.8 253.7 117.1 258.8 116.8 260.6'],
     ],
     back: [
-      ['traps', 'M100.6 47C104.5 50 108.5 53 111 57.5C112 63 114 65.5 118 67.2C126 70 134 72.5 140.8 74.6C135.5 79.5 129.5 84 123.5 88.5C116.5 94 112.5 101 109.5 109C106 119 103 129 100.6 139Z'],
-      ['rearDelts', 'M141 75C143.5 79 145.5 84.5 147 90C149 100 151 111 152 123C146.5 117 141 108.5 136.5 98.5C134.5 93.5 133.5 89 133.5 85C135.8 81.5 138.5 78 141 75Z'],
-      ['sideDelts', 'M142.2 74.6C151.5 76.5 158.5 83.5 160.5 94C162 103 161.5 112 159.5 121C158.3 124.5 156.8 126.5 155 127C154 125.5 153 124.3 152 123C151 111 149 100 147 90C145.6 84.4 144 79 142.2 74.6Z'],
-      ['upperBack', 'M125 90.5C128.5 88 131 86.5 133 86C133.5 91 135 96 137.5 101.5C134 106.5 128.5 110.5 121.5 112.5C117.5 113 114 112.5 112 111C114.5 103 119 96 125 90.5Z'],
-      ['upperBack', 'M121 115C127.5 113.5 133.5 110 138.5 104.5C139.8 107 140.5 109 140.8 111C136 116.5 130 119.8 123 120C121.5 118.5 121 117 121 115Z'],
-      ['lats', 'M111 113C115 115.5 118.5 118 121.5 121C128.5 122.5 134.5 120.5 138 117C137.6 122.5 137.2 127.5 136.4 132C134.8 147 131.4 162 129 175.5C124 177.5 118.5 181 114.5 186C112.5 180 111 172 110.3 164C109.5 154 109.2 143 109.3 132C109.6 124 110.2 118 111 113Z'],
-      ['lowerBack', 'M101 141C103.5 139 105.5 137 107.5 135.5C107.8 147 108 160 108.8 171C109.8 180 111.5 188 113.3 195C110 199 105.5 201.5 101 202Z'],
-      ['glutes', 'M114.5 189C119.5 185 125 181 129.3 178.5C129.5 186 131 193 132.5 199.5C127 197 120.5 196.5 114 198C113.5 195 113.8 192 114.5 189Z'],
-      ['glutes', 'M101 204.5C108.5 200.8 117.5 199 125.5 200C132 201.2 137 206.5 139 214C140.3 222 139.2 230.5 135.2 236.8C128 242.5 114.5 244.5 101 241.5Z'],
-      ['hamstrings', 'M121.5 244.5C128 244 133.5 242 137.4 238.6C140.2 251 139.4 266 135.6 280C133.3 287.5 129.4 293.5 125.5 297.5C122.4 286 121.2 272 121.2 259C121.2 253 121.3 248.5 121.5 244.5Z'],
-      ['hamstrings', 'M103.3 243.8C109.5 244.8 114.5 245 119.5 244.8C119 258.5 119.2 272.5 120.6 286.5C121 290.5 122 294.5 122.6 297.6C117.5 300 112.3 299 108.8 295C106.3 286 104.8 273.5 104.1 262C103.8 256 103.5 249.5 103.3 243.8Z'],
-      ['triceps', 'M139 111C143.5 114.5 148 119 151.5 123.5C153 126 154 128.5 154.6 131.5C155.6 138 157.5 145 160.2 151C158.6 154.5 154.5 157.3 149.8 157.6C146 147 143 135.5 141.6 124.5C140.8 119.5 140 115 139 111Z'],
-      ['triceps', 'M155.2 127.8C157 126.5 158.5 124.5 159.6 121.5C160.6 131 162 142 163.3 150.5C162.5 151.3 161.6 152 160.6 152.6C158.2 146.5 156.4 139.5 155.7 133C155.5 131.3 155.4 129.5 155.2 127.8Z'],
-      ...FOREARM,
-      ['calves', 'M117.2 305.5C125 306 131 313.5 132.7 326.5C133.5 338 130.5 347.5 124.3 354.5C121.2 353.5 119.4 351.5 118.2 348.5C116.8 334 116.7 319 117.2 305.5Z'],
-      ['calves', 'M115 305.5C108.4 306.5 103.6 317 102.7 330.5C102.3 342.5 105.3 352.5 112.3 358C114.3 355.5 115.4 352 115.8 348.5C116.3 334 116 319 115 305.5Z'],
-      ['calves', 'M107.4 358.5C111.6 362 118 361 124.6 356C123 367 120.8 377 119.2 386C115 387 110.8 387 107.2 386C106.6 376 106.6 367 107.4 358.5Z'],
+      ['traps', 'M100.8 47.6C101.9 49.1 102.7 50.3 104 52C105.3 53.7 107.2 55.7 108.6 57.6C110 59.5 111.3 61.8 112.6 63.6C113.9 65.4 115 67.2 116.4 68.6C117.8 70 119.1 70.9 121 72C122.9 73.1 125.4 74.1 128 75C130.6 75.9 133.7 76.7 136.6 77.6C139.5 78.5 143.3 79.4 145.6 80.2C147.9 81 148.8 81.7 150.4 82.4C148.9 83.7 147.6 85.2 145.8 86.4C144 87.6 141.7 88.4 139.6 89.4C137.5 90.4 135.2 91 133 92.2C130.8 93.4 128.5 94.8 126.4 96.4C124.3 98 122.3 99.8 120.6 101.8C118.9 103.8 117.5 106.1 116.2 108.6C114.9 111.1 113.7 113.9 112.6 117C111.5 120.1 110.5 123.6 109.4 127C108.3 130.4 107.2 133.9 106.2 137.6C105.2 141.3 104.1 145.3 103.2 149C102.3 152.7 101.6 156.3 100.8 160C100.8 122.5 100.8 85.1 100.8 47.6Z'],
+      ['rearDelt', 'M140.4 89.8C142 88.7 143.5 87.7 145.2 86.6C146.9 85.5 148.7 84.2 150.4 83C151.7 84.7 153.1 85.8 154.2 88C155.3 90.2 156.1 93.2 156.8 96C157.5 98.8 158 101.9 158.6 105C159.2 108.1 159.7 111.4 160.2 114.6C160.7 117.8 161.4 121.2 161.8 124C162.2 126.8 162.3 128.9 162.6 131.4C160.9 129.5 159.3 127.8 157.6 125.6C155.9 123.4 154.1 120.9 152.4 118.4C150.7 115.9 149.1 113.1 147.6 110.4C146.1 107.7 144.7 104.6 143.6 102C142.5 99.4 141.5 97 141 95C140.5 93 140.6 91.5 140.4 89.8Z'],
+      ['sideDelt', 'M150.4 83C151.9 82.9 153.5 82.2 155 82.8C156.5 83.4 158.1 85 159.4 86.6C160.7 88.2 161.8 90.3 162.6 92.4C163.4 94.5 163.9 96.7 164.2 99C164.5 101.3 164.4 103.7 164.6 106C164.8 108.3 165 110.8 165.4 113C165.8 115.2 166.4 117.5 167 119.4C167.6 121.3 168.5 122.9 169.2 124.6C168.1 125.9 167.1 127.5 166 128.6C164.9 129.7 163.7 130.5 162.6 131.4C162.3 128.9 162.2 126.8 161.8 124C161.4 121.2 160.7 117.8 160.2 114.6C159.7 111.4 159.2 108.1 158.6 105C158 101.9 157.5 98.8 156.8 96C156.1 93.2 155.3 90.2 154.2 88C153.1 85.8 151.7 84.7 150.4 83Z'],
+      ['infraspinatus', 'M120.4 104.6C122.2 102.9 123.9 101.1 125.8 99.6C127.7 98.1 129.8 96.8 131.8 95.6C133.8 94.4 136.1 92.6 137.6 92.6C139.1 92.6 139.8 94 140.8 95.6C141.8 97.2 142.5 100.2 143.4 102.4C144.3 104.6 145.7 107.1 146 109C146.3 110.9 145.5 112.3 145.2 114C143.3 114.9 141.6 116 139.6 116.6C137.6 117.2 135.2 117.6 133 117.6C130.8 117.6 128.5 117.3 126.6 116.6C124.7 115.9 122.8 114.9 121.6 113.6C120.4 112.3 119.8 110.5 119.6 109C119.4 107.5 120.1 106.1 120.4 104.6Z'],
+      ['teres', 'M122.6 118.8C124.6 119.3 126.5 120.1 128.6 120.4C130.7 120.7 132.9 120.9 135 120.6C137.1 120.3 139.3 119.5 141 118.8C142.7 118.1 143.9 117.3 145.4 116.6C145.7 118.2 146.2 119.8 146.2 121.4C146.2 123 145.7 124.7 145.4 126.4C143.5 126.8 141.7 127.4 139.6 127.6C137.5 127.8 135.1 127.8 133 127.4C130.9 127 128.6 126.3 127 125.4C125.4 124.5 124.1 123.1 123.4 122C122.7 120.9 122.9 119.9 122.6 118.8Z'],
+      ['lats', 'M106.4 141.4C107.4 137.7 108.3 133.9 109.4 130.4C110.5 126.9 111.8 123.3 113 120.2C114.2 117.1 115.5 114.6 116.8 111.8C117.7 113 118.5 114 119.4 115.4C120.3 116.8 121.1 118.7 122.4 120.4C123.7 122.1 125.2 124.4 127 125.6C128.8 126.8 130.9 127.4 133 127.8C135.1 128.2 137.7 128.1 139.6 128C141.5 127.9 142.9 127.3 144.6 127C144.4 129.2 144.4 131.7 144 133.6C143.6 135.5 143 137.2 142.4 138.6C141.8 140 140.9 140.7 140.2 142C139.5 143.3 139 144.8 138.4 146.6C137.8 148.4 137.1 150.5 136.6 152.6C136.1 154.7 135.6 156.8 135.4 159C135.2 161.2 135.1 163.6 135.2 166C135.3 168.4 135.6 171.1 135.8 173.5C136 175.9 136.3 178.1 136.6 180.5C136.9 182.9 137.1 185.5 137.4 188C135.8 189.5 134.4 191.1 132.6 192.4C130.8 193.7 128.4 194.9 126.4 196C124.4 197.1 122.3 198.1 120.4 199C118.5 199.9 116.7 200.7 114.8 201.6C114.1 198.4 113.4 195.6 112.8 192C112.2 188.4 111.7 184 111.2 180C110.7 176 110.3 171.8 109.8 168C109.3 164.2 108.8 160.2 108.4 157C108 153.8 107.7 151.6 107.4 149C107.1 146.4 106.7 143.9 106.4 141.4Z'],
+      ['erectors', 'M101.2 161C101.9 158.5 102.7 156 103.4 153.4C104.1 150.8 104.9 148.1 105.6 145.4C106.1 149.3 106.7 153.2 107.2 157C107.7 160.8 108 164.2 108.4 168C108.8 171.8 109.3 176 109.8 180C110.3 184 110.9 188.2 111.4 192C111.9 195.8 112.8 199.6 113 203C113.2 206.4 112.9 209.4 112.8 212.6C111.3 214 109.9 215.7 108.4 216.8C106.9 217.9 105.2 218.9 104 219.4C102.8 219.9 102.1 219.8 101.2 220C101.2 200.3 101.2 180.7 101.2 161Z'],
+      ['obliques', 'M138 191.4C138.3 193.6 138.6 195.7 139 198C139.4 200.3 139.8 202.7 140.2 205C140.6 207.3 140.9 209.4 141.2 211.6C139 211.3 136.9 211.3 134.6 210.8C132.3 210.3 129.9 209.5 127.6 208.8C125.3 208.1 123.1 207.3 120.8 206.6C122.7 204.9 124.6 203.1 126.6 201.4C128.6 199.7 130.9 198.3 132.8 196.6C134.7 194.9 136.3 193.1 138 191.4Z'],
+      ['gluteMed', 'M116.2 212.6C118.3 211.9 120.4 210.8 122.6 210.6C124.8 210.4 127.4 211.1 129.6 211.6C131.8 212.1 134 213 136 213.6C138 214.2 139.9 214.5 141.8 215C142.3 217.2 143.1 219.3 143.4 221.6C143.7 223.9 143.7 226.3 143.8 228.6C141.7 227.6 139.8 226.6 137.6 225.6C135.4 224.6 132.9 223.5 130.6 222.8C128.3 222.1 125.7 221.5 123.6 221.2C121.5 220.9 119.2 222.2 118 220.8C116.8 219.4 116.8 215.3 116.2 212.6Z'],
+      ['gluteMax', 'M101.2 222.6C103 222.3 104.6 221.8 106.6 221.6C108.6 221.4 110.8 221.4 113 221.6C115.2 221.8 117.6 222.1 120 222.6C122.4 223.1 125.1 223.7 127.6 224.6C130.1 225.5 132.6 226.6 134.8 227.8C137 229 139.4 230.2 141 231.8C142.6 233.4 143.8 235.1 144.4 237.2C145 239.3 145 241.9 144.8 244.2C144.6 246.5 144.3 249 143.4 251C142.5 253 141.2 255 139.4 256.4C137.6 257.8 135.2 258.7 132.6 259.4C130 260.1 126.6 260.4 123.6 260.4C120.6 260.4 117.3 260.1 114.6 259.6C111.9 259.1 109.4 258.4 107.4 257.6C105.4 256.8 104.3 255.6 102.8 254.6C102.5 252.5 102.1 250.4 101.8 248.4C101.5 246.4 101.3 244.8 101.2 242.6C101.1 240.4 101 238.3 101 235C101 231.7 101.1 226.7 101.2 222.6Z'],
+      ['hamstrings', 'M124.2 262.4C126.3 262.3 128.5 262.4 130.6 262.2C132.7 262 134.8 261.6 136.6 261C138.4 260.4 139.9 259.4 141.6 258.6C141.9 261.1 142.6 263.1 142.6 266C142.6 268.9 142.3 272.8 141.8 276C141.3 279.2 140.5 282.2 139.6 285C138.7 287.8 137.4 290.6 136.2 293C135 295.4 133.8 297.4 132.6 299.6C131.6 297.7 130.5 296.3 129.6 294C128.7 291.7 128.1 288.8 127.4 286C126.7 283.2 126.1 279.9 125.6 277C125.1 274.1 124.8 271 124.6 268.6C124.4 266.2 124.3 264.5 124.2 262.4Z'],
+      ['hamstrings', 'M104.2 262C106.1 262.2 108 262.5 110 262.6C112 262.7 114.3 262.8 116.4 262.8C118.5 262.8 120.5 262.7 122.6 262.6C122.9 265.1 123.1 267.3 123.4 270C123.7 272.7 124 276 124.4 279C124.8 282 125.3 285.2 126 288C126.7 290.8 127.8 293.8 128.4 296C129 298.2 129.2 299.3 129.6 301C127.9 301.5 126.2 302.4 124.4 302.4C122.6 302.4 120.6 301.8 119 301C117.4 300.2 116.1 298.7 114.6 297.6C113.6 295.7 112.6 294.3 111.6 292C110.6 289.7 109.5 286.7 108.6 284C107.7 281.3 107 278.7 106.4 276C105.8 273.3 105.4 270.3 105 268C104.6 265.7 104.5 264 104.2 262Z'],
+      ['triceps', 'M146.6 121.6C147.9 122.6 149.2 123.5 150.6 124.6C152 125.7 153.7 127.1 155 128.4C156.3 129.7 157.3 130.8 158.2 132.6C159.1 134.4 159.9 136.7 160.6 139C161.3 141.3 161.9 144 162.6 146.6C163.3 149.2 164.2 152.1 165 154.6C165.8 157.1 166.6 159.8 167.4 161.6C168.2 163.4 169 164 169.8 165.2C167.7 165.5 165.5 166.2 163.6 166.2C161.7 166.2 160.3 165.7 158.6 165.4C157.9 163.7 157.3 162.2 156.6 160.4C155.9 158.6 155.3 156.3 154.6 154.4C153.9 152.5 153.2 150.6 152.4 148.8C151.6 147 150.7 145.3 149.8 143.6C148.9 141.9 147.8 140.4 147.2 138.6C146.6 136.8 146.2 134.9 146 133C145.8 131.1 145.7 128.9 145.8 127C145.9 125.1 146.3 123.4 146.6 121.6Z'],
+      ['triceps', 'M162.6 131.4C163.7 130.5 164.9 129.7 166 128.6C167.1 127.5 168.1 125.9 169.2 124.6C170.1 126.3 171.1 127.8 172 129.6C172.9 131.4 173.7 133.5 174.6 135.6C175.5 137.7 176.5 139.8 177.4 142C178.3 144.2 179.2 146.3 180.2 148.6C181.2 150.9 182.2 153.3 183.2 155.6C184.2 157.9 185.1 160.3 186 162.6C184.5 163.2 183.2 163.9 181.6 164.4C180 164.9 178.3 165.3 176.6 165.4C174.9 165.5 173.1 165.3 171.4 165.2C170.4 163.8 169.3 162.7 168.4 161C167.5 159.3 166.9 157.1 166.2 154.8C165.5 152.5 164.7 149.5 164 147C163.3 144.5 162.6 142 162.2 140C161.8 138 161.3 136.4 161.4 135C161.5 133.6 162.2 132.6 162.6 131.4Z'],
+      ['brachioradialis', 'M178.6 165.8C180.3 164.9 181.9 164.1 183.6 163.2C184.6 164.7 185.8 165.8 186.6 167.6C187.4 169.4 188 171.8 188.6 174C189.2 176.2 189.5 178.7 190 181C190.5 183.3 191 185.7 191.6 188C192.2 190.3 192.8 192.7 193.4 195C194 197.3 194.7 199.7 195.4 202C194.5 202.2 193.7 202.4 192.8 202.6C191.9 200.6 191.2 198.8 190.2 196.6C189.2 194.4 188.1 192 187 189.6C185.9 187.2 184.7 184.6 183.6 182.2C182.5 179.8 181.4 177.9 180.6 175.2C179.8 172.5 179.3 168.9 178.6 165.8Z'],
+      ['extensors', 'M157.6 166.4C159.4 166.5 161.1 166.6 163 166.6C164.9 166.6 167 166.6 169 166.6C171 166.6 173.4 166.5 175 166.4C176.6 166.3 177.4 166 178.6 165.8C179.3 168.9 179.8 172.5 180.6 175.2C181.4 177.9 182.5 179.8 183.6 182.2C184.7 184.6 185.9 187.2 187 189.6C188.1 192 189.2 194.4 190.2 196.6C191.2 198.8 191.9 200.6 192.8 202.6C191.4 203.3 190.1 204.2 188.6 204.6C187.1 205 185.5 205 184 205.2C182.9 203.9 181.9 202.6 180.8 201.2C179.7 199.8 178.6 198.4 177.4 197C176.2 195.6 174.9 194.1 173.6 192.6C172.3 191.1 170.9 189.6 169.6 188C168.3 186.4 166.8 184.9 165.6 183.2C164.4 181.5 163.2 179.8 162.2 178C161.2 176.2 160.4 174.3 159.6 172.4C158.8 170.5 158.3 168.4 157.6 166.4Z'],
+      ['~', 'M166.4 170.6C167.3 172.1 170 176.4 172 179.4C174 182.4 176.3 185.4 178.6 188.6C180.9 191.8 184.4 196.9 185.6 198.6'],
+      ['~', 'M203.2 236.6C203.2 237.7 203.5 240.7 203.4 243C203.3 245.3 202.9 249.3 202.8 250.6M199.4 237.2C199.4 238.3 199.3 241.5 199.2 243.6C199.1 245.7 198.7 248.8 198.6 249.8M206.8 235.6C206.8 236.7 207.1 239.7 207 242C206.9 244.3 206.5 248.3 206.4 249.6M208.8 219.8C208.3 220.4 206.3 222.1 205.6 223.4C204.9 224.7 204.6 226.9 204.4 227.6'],
+      ['gastrocnemius', 'M126.6 304.6C128.3 304.7 130.1 304.3 131.6 305C133.1 305.7 134.5 307.1 135.6 309C136.7 310.9 137.6 313.8 138.2 316.6C138.8 319.4 139.2 322.8 139.4 326C139.6 329.2 139.7 332.8 139.4 336C139.1 339.2 138.5 342.3 137.6 345C136.7 347.7 135.3 349.9 134.2 352.4C132.9 351.8 131.4 352.2 130.4 350.6C129.4 349 128.8 345.9 128.2 343C127.6 340.1 127.3 336.5 127 333C126.7 329.5 126.5 325.5 126.4 322C126.3 318.5 126.2 314.9 126.2 312C126.2 309.1 126.5 307.1 126.6 304.6Z'],
+      ['gastrocnemius', 'M124.4 304.6C124.5 307.7 124.5 310.6 124.6 314C124.7 317.4 124.8 321.3 125 325C125.2 328.7 125.5 332.3 125.6 336C125.7 339.7 125.9 343.6 125.8 347C125.7 350.4 125.4 354.1 124.8 356.6C124.2 359.1 123.2 360.2 122.4 362C121.2 360.3 119.7 359.3 118.8 357C117.9 354.7 117.2 351.2 116.8 348C116.4 344.8 116.3 341.5 116.2 338C116.1 334.5 116.3 330.5 116.4 327C116.5 323.5 116.5 319.9 116.8 317C117.1 314.1 117.7 311.4 118.4 309.6C119.1 307.8 120 306.8 121 306C122 305.2 123.3 305.1 124.4 304.6Z'],
+      ['soleus', 'M117 352.6C117.9 355.6 118.5 359.6 119.8 361.6C121.1 363.6 122.9 365.1 124.6 364.6C126.3 364.1 128.1 360.5 129.8 358.8C131.5 357.1 133 355.7 134.6 354.2C135.2 356.1 136.5 357.7 136.4 360C136.3 362.3 135 365.3 134.2 368C133.4 370.7 132.3 373.5 131.6 376C130.9 378.5 130.4 380.7 129.8 383C128.1 382.9 126.3 382.5 124.6 382.6C122.9 382.7 121.3 383.5 119.8 383.6C118.3 383.7 117.1 383.2 115.8 383C115.7 380 115.4 377.3 115.4 374C115.4 370.7 115.3 366.6 115.6 363C115.9 359.4 116.5 356.1 117 352.6Z'],
     ],
   };
   const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -2744,39 +3035,35 @@ Penktadienis C
     return p;
   }
 
-  // paint: muscle -> CSS colour; the rest stays grey.
+  // The figure, front or back. Its parts are stored for the right half and mirrored, except the
+  // outline and the parts that cross the middle. paint: muscle -> CSS colour; the rest is grey.
   function bodySvg(side, paint, view) {
     const svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('viewBox', view || '0 0 200 412');
+    svg.setAttribute('viewBox', view || '-20 4 240 410');
     svg.setAttribute('class', 'body');
     svg.setAttribute('aria-hidden', 'true');
-    const add = (d, m, cls) => {
-      for (const flip of [false, true]) {
-        const p = svgPath(d, cls);
+    svg.append(svgPath(BODY.outline, 'sil'));
+    for (const [m, d, middle] of BODY[side]) {
+      for (const flip of middle ? [false] : [false, true]) {
+        const p = svgPath(d, m === '~' ? 'ln' : m ? 'mu' : 'mu x');
         if (flip) p.setAttribute('transform', 'matrix(-1 0 0 1 200 0)');
-        if (m) {
+        if (m && m !== '~') {
           p.setAttribute('data-m', m);
           if (paint[m]) p.style.fill = paint[m];
         }
         svg.append(p);
       }
-    };
-    add(BODY.outline, null, 'sil');
-    for (const [m, d] of BODY[side]) add(d, m === '~' ? null : m, m === '~' ? 'ln' : m ? 'mu' : 'mu x');
+    }
     return svg;
   }
 
-  // A small crop of the figure with one muscle lit, for the lists.
-  const CROPS = { upper: '34 46 132 118', core: '56 100 88 124', hips: '52 150 96 110', thighs: '52 194 96 120', shins: '60 288 80 112', arms: '14 96 172 170' };
-  const MUSCLE_CROP = {
-    chest: ['front', 'upper'], frontDelts: ['front', 'upper'], sideDelts: ['front', 'upper'], rearDelts: ['back', 'upper'],
-    biceps: ['front', 'upper'], triceps: ['back', 'upper'], forearms: ['front', 'arms'], abs: ['front', 'core'],
-    obliques: ['front', 'core'], traps: ['back', 'upper'], upperBack: ['back', 'upper'], lats: ['back', 'core'],
-    lowerBack: ['back', 'core'], glutes: ['back', 'hips'], quads: ['front', 'thighs'], hamstrings: ['back', 'thighs'],
-    adductors: ['front', 'thighs'], calves: ['back', 'shins'],
+  // A small crop of the figure with one muscle lit.
+  const CROPS = {
+    chest: '40 62 120 100', shoulders: '24 60 152 104', arm: '128 78 76 100', forearm: '138 140 84 120',
+    upper: '30 42 140 110', trunk: '56 104 88 136', hips: '52 186 96 92', thighs: '54 200 92 112', shins: '56 292 88 110',
   };
   function mini(m, color) {
-    const [side, crop] = MUSCLE_CROP[m];
+    const [side, crop] = MUSCLE_VIEW[m];
     const svg = bodySvg(side, { [m]: color }, CROPS[crop]);
     svg.classList.add('mini');
     return svg;
@@ -2803,11 +3090,11 @@ Penktadienis C
   const dot = color => el('i', { class: 'zdot', style: `background:${color}` });
   const strengthSets = (from, to) => Object.keys(db.days).filter(k => k >= from && k <= to)
     .reduce((n, k) => n + db.days[k].reduce((m, e) => m + e.sets.filter(s => s.min === undefined).length, 0), 0);
+  const trainWith = m => TRAIN_WITH[m].map(p => p[lang() === 'lt' ? 1 : 0]);
+  const levelTag = lv => el('span', { class: `lv tier-${tierOf(lv)}` }, `${T().lv} ${lv}`);
 
-  // One muscle in the ranking: its zone, how far to the next one, and a bar of 16 weekly sets.
-  function muscleCard(m, rank, v) {
-    const t = T();
-    const z = zoneOf(v);
+  // A muscle's 16 weekly sets: the zones' colours faint, the sets done bright, where you are tall.
+  function weekBar(v) {
     const bar = el('div', { class: 'bar', 'aria-hidden': 'true' });
     for (let s = 1; s <= GOAL; s++) {
       bar.append(el('i', {
@@ -2815,34 +3102,55 @@ Penktadienis C
         style: `background:${ZONE_COLOR[Math.min(3, zoneOf(s))]}`,
       }));
     }
+    return bar;
+  }
+
+  // The lift to move up next for a muscle: the one that trains it most recently, as a main muscle.
+  function muscleNext(b, upTo) {
+    const lift = b.liftList.find(l => l.main) || b.liftList[0];
+    const st = lift && nextStep(lift.name, upTo);
+    return st ? `${lift.name} · ${stepText(st)}` : null;
+  }
+
+  // One muscle in the ranking: its level, this week's zone and sets, and how to move it up.
+  function muscleCard(m, rank, v, b, today) {
+    const t = T();
+    const z = zoneOf(v);
     const [n, of] = t.setsOf(v, GOAL);
-    const next = z === 4 ? t.goalMet : t.zoneNext[z](ZONE_NEXT[z] - v);
-    return el('article', { class: 'mcard', 'data-m': m },
-      el('p', { class: 'mcard-l' }, el('b', null, `#${rank}`), t.muscles[m]),
+    const next = muscleNext(b, today);
+    return el('a', { class: 'mcard', href: `#/muscle/${m}`, 'data-m': m, onclick: () => { statsY = window.scrollY; } },
+      el('p', { class: 'mcard-l' },
+        el('span', null, el('b', null, `#${rank}`), t.muscles[m][0], el('span', { class: 'mcard-c' }, ` · ${t.muscles[m][1]}`)),
+        levelTag(b.level)),
       el('div', { class: 'mcard-row' },
         mini(m, z ? ZONE_COLOR[z] : 'rgba(255, 255, 255, .5)'),
         el('div', null,
           el('p', { class: 'zone' }, dot(ZONE_COLOR[z]), t.zones[z]),
-          el('p', { class: 'zone-sub' }, next)),
+          el('p', { class: 'zone-sub' }, z === 4 ? t.goalMet : t.zoneNext[z](ZONE_NEXT[z] - v))),
         el('p', { class: 'mcard-n' }, el('b', null, n), of)),
-      bar);
+      weekBar(v),
+      el('p', { class: `mcard-next${next ? '' : ' none'}` }, next || `${t.trainWith}: ${trainWith(m)[0]}`));
   }
 
-  let statsSide = 'front';   // which way the figure faces
-  let statsSpan = 0;         // 0: the last 7 days, 1: a week's average over the last 4 weeks
+  let statsSide = 'front';      // which way the figure faces
+  let statsSort = 'level';      // the ranking: by level, or by this week's sets
+  let statsY = null;            // where the list was when a muscle was opened, to come back to
 
-  // Stats: the body in the colours of this week's training, a few numbers, every muscle ranked.
+  // Stats: the body in this week's colours, a few numbers, and every muscle ranked with its level.
   function renderStats() {
     current = { view: 'stats' };
     const t = T();
     const today = todayKey();
-    const raw = muscleSets(shiftDays(today, statsSpan ? -27 : -6), today);
-    const weekly = m => Math.round(statsSpan ? raw[m] / 4 : raw[m]);
-    const ranked = MUSCLES.slice().sort((a, b) => raw[b] - raw[a]);
+    const week = muscleSets(shiftDays(today, -6), today);
+    const book = muscleBook(today);
+    const weekly = m => Math.round(week[m]);
+    const byWeek = (a, b) => week[b] - week[a];
+    const byLevel = (a, b) => (book[b].xp - book[a].xp) || byWeek(a, b);
+    const ranked = MUSCLES.slice().sort(statsSort === 'week' ? (a, b) => byWeek(a, b) || (book[b].xp - book[a].xp) : byLevel);
     const paint = {};
     for (const m of MUSCLES) if (weekly(m)) paint[m] = ZONE_COLOR[zoneOf(weekly(m))];
 
-    const list = el('div', null, ...ranked.map((m, i) => muscleCard(m, i + 1, weekly(m))));
+    const list = el('div', null, ...ranked.map((m, i) => muscleCard(m, i + 1, weekly(m), book[m], today)));
     const fig = el('div', { class: 'figure' });
     const sideButtons = ['front', 'back'].map((s, i) => el('button', {
       type: 'button', onclick: () => { statsSide = s; draw(); },
@@ -2879,7 +3187,7 @@ Penktadienis C
         ...[1, 2, 3].map(z => el('span', null, dot(ZONE_COLOR[z]), t.zones[z]))),
       el('div', { class: 'stats' },
         stat(weekStreak(today), t.wk, t.streak),
-        stat(workoutKeys(db.days).filter(k => k <= today).length, null, t.workoutsLabel),
+        stat(MUSCLES.reduce((n, m) => n + book[m].level, 0), null, t.totalLevel),
         stat(strengthSets(shiftDays(today, -6), today), null, t.setsWeek)),
       el('section', { class: 'panel', 'aria-label': t.yourProgress },
         el('div', { class: 'panel-head' },
@@ -2888,13 +3196,61 @@ Penktadienis C
             type: 'button', class: 'chip',
             onclick: () => {
               const y = window.scrollY;
-              statsSpan = 1 - statsSpan;
+              statsSort = statsSort === 'level' ? 'week' : 'level';
               renderStats();
               window.scrollTo(0, y);
               app.querySelector('.chip').focus({ preventScroll: true });
             },
-          }, t.periods[statsSpan], el('span', { 'aria-hidden': 'true' }, ' ▾'))),
+          }, t.sorts[statsSort === 'level' ? 0 : 1], el('span', { 'aria-hidden': 'true' }, ' ▾'))),
         list)));
+    if (statsY != null) { window.scrollTo(0, statsY); statsY = null; }
+  }
+
+  // One muscle, like a character sheet: its level and XP, its numbers, and the lifts that train it.
+  function renderMuscle(m, back) {
+    current = { view: 'muscle', m };
+    const t = T();
+    const today = todayKey();
+    const book = muscleBook(today);
+    const b = book[m];
+    const v = Math.round(muscleSets(shiftDays(today, -6), today)[m]);
+    const z = zoneOf(v);
+    const rank = MUSCLES.slice().sort((x, y) => book[y].xp - book[x].xp).indexOf(m) + 1;
+    const lv = b.level;
+    const from = lv ? xpAt(lv) : 0;
+    const to = xpAt(lv + 1);
+    const share = lv ? Math.min(1, (b.xp - from) / (to - from)) : 0;
+    const days = b.last ? Math.round((dateOf(today) - dateOf(b.last)) / 86400000) : null;
+    const row = (label, ...value) => el('div', { class: 'sheet-row' }, el('dt', null, label), el('dd', null, ...value));
+    const lifts = b.liftList.map(l => {
+      const st = nextStep(l.name, today);
+      return el('a', { class: 'lift', href: `#/ex/${encodeURIComponent(l.name)}` },
+        el('span', { class: 'lift-n' }, l.name, !l.main && el('span', { class: 'lift-h' }, ` · ${t.helps}`)),
+        st && el('span', { class: `lift-s${st.ready ? ' ready' : ''}` }, stepText(st)));
+    });
+    const untried = trainWith(m).filter(n => !b.liftList.some(l => same(l.name) === same(n)));
+
+    mount(el('div', { class: 'view hist mus' },
+      el('a', { href: back, class: 'back', 'aria-label': t.back }, '←'),
+      el('h1', { class: 'title' }, t.muscles[m][0]),
+      el('p', { class: 'sub' }, `${t.muscles[m][1]} · ${t.rankOf(rank, MUSCLES.length)}`),
+      el('div', { class: 'mus-fig' }, bodySvg(MUSCLE_VIEW[m][0], { [m]: z ? ZONE_COLOR[z] : 'rgba(255, 255, 255, .55)' })),
+      el('div', { class: `lv-box tier-${tierOf(lv)}` },
+        el('p', { class: 'lv-n' }, `${t.lv} ${lv}`, el('span', { class: 'lv-t' }, t.tiers[tierOf(lv)])),
+        el('div', { class: 'xp', role: 'img', 'aria-label': `${bigNumber(b.xp)} XP` }, el('i', { style: `width:${Math.round(share * 100)}%` })),
+        el('p', { class: 'xp-l' }, el('span', null, `${bigNumber(b.xp)} XP`), lv > 0 && el('span', null, t.xpLeft(bigNumber(to - b.xp), lv + 1)))),
+      el('dl', { class: 'mus-sheet' },
+        row(t.rows.week, el('b', null, `${v}`), ` / ${GOAL}`, el('span', { class: 'sheet-z' }, dot(ZONE_COLOR[z]), t.zones[z])),
+        row(t.rows.strength, b.str ? el('b', null, `${fmtKg(Math.round(b.str.best * 2) / 2)} kg`) : '—',
+          b.str && el('span', { class: 'sheet-c' }, ` ${t.est1rm} · ${b.str.name}`)),
+        row(t.rows.sets, el('b', null, bigNumber(b.sets))),
+        row(t.rows.volume, el('b', null, bigNumber(b.volume)), ' kg'),
+        row(t.rows.sessions, el('b', null, String(b.days))),
+        row(t.rows.last, days == null ? '—' : el('b', null, t.ago(days)),
+          days != null && el('span', { class: 'sheet-c' }, ` · ${days >= 2 ? t.recovered : t.recovering}`))),
+      el('h2', { class: 'mus-h' }, t.lifts),
+      lifts.length ? el('div', { class: 'lifts' }, ...lifts) : el('p', { class: 'empty-note' }, t.noLifts),
+      untried.length > 0 && el('p', { class: 'mus-try' }, `${t.trainWith}: ${untried.join(' · ')}`)));
   }
 
   // "Push day", "workout A": what the screens after a workout call it.
@@ -2907,9 +3263,11 @@ Penktadienis C
   const clockTime = ms => new Date(ms).toLocaleTimeString(lang() === 'lt' ? 'lt-LT' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
   const bigNumber = n => Math.round(n).toLocaleString(lang() === 'lt' ? 'lt-LT' : 'en-GB');
 
-  // After Finish: the streak counts up, then each muscle the workout hit and where its week stands.
+  // After Finish: the streak counts up, each muscle the workout hit and where its week stands,
+  // and what each lift needs next time to go up.
   function renderProgress(key) {
-    if (!(db.days[key] || []).some(e => e.sets.length)) { location.hash = '#/'; return; }
+    const exs = (db.days[key] || []).filter(e => e.sets.length);
+    if (!exs.length) { location.hash = '#/'; return; }
     current = { view: 'progress', key };
     const t = T();
     const streak = weekStreak(key);
@@ -2934,18 +3292,32 @@ Penktadienis C
       const dots = el('div', { class: 'dots', 'aria-hidden': 'true' });
       for (let s = 1; s <= GOAL; s++) dots.append(el('i', { class: s <= v - d ? 'was' : s <= v ? 'new' : null }));
       const [n, of] = t.setsOf(v, GOAL);
-      return el('div', { class: 'pcard', style: `--z:${ZONE_COLOR[z]}`, role: 'group', 'aria-label': `${t.muscles[m]}: ${t.zones[z]}, ${n}${of}` },
+      return el('a', { class: 'pcard', href: `#/muscle/${m}`, style: `--z:${ZONE_COLOR[z]}`, 'aria-label': `${t.muscles[m][0]}: ${t.zones[z]}, ${n}${of}` },
         mini(m, ZONE_COLOR[z]),
-        el('p', { class: 'pcard-n' }, t.muscles[m]),
+        el('p', { class: 'pcard-n' }, t.muscles[m][0]),
         el('p', { class: 'zone' }, dot(ZONE_COLOR[z]), t.zones[z]),
         dots,
         el('p', { class: 'dots-l', 'aria-hidden': 'true' }, el('span', null, '0'), el('span', null, `+${d}`), el('span', null, String(GOAL))));
     });
 
+    // Each lift once, in the order you did them.
+    const seen = new Set();
+    const steps = [];
+    for (const e of exs) {
+      if (cardioEx(e) || seen.has(same(e.name))) continue;
+      seen.add(same(e.name));
+      const st = nextStep(e.name, key);
+      if (st) steps.push(el('a', { class: 'lift', href: `#/ex/${encodeURIComponent(e.name)}` },
+        el('span', { class: 'lift-n' }, e.name),
+        el('span', { class: `lift-s${st.ready ? ' ready' : ''}` }, stepText(st))));
+    }
+
     mount(el('div', { class: 'view pg' },
       el('h1', { class: 'pg-title' }, t.todaysProgress),
       el('p', { class: 'pg-sub' }, t.congrats(donePhrase(key))),
       el('div', { class: 'carousel' }, streakCard, ...cards),
+      steps.length > 0 && el('section', { class: 'next-up', 'aria-label': t.nextTime },
+        el('h2', { class: 'mus-h' }, t.nextTime), ...steps),
       el('div', { class: 'dock' }, el('a', { class: 'pill', href: `#/done/${key}` }, t.continueLabel))));
     // This workout grew the streak: last week's number is laid out first, then rolls over.
     if (roll) {
@@ -3038,8 +3410,10 @@ Penktadienis C
       el('div', { class: 'dock' }, el('a', { class: 'pill', href: home }, t.finishWorkout), more)));
   }
 
-  // Where a lift's history goes back to: the screen it was opened from.
+  // Where a lift's history goes back to: the screen it was opened from. A muscle goes back the
+  // same way (to Stats, or to today's progress after a workout).
   let backTo = '#/';
+  let muscleBack = '#/stats';
 
   function route() {
     settleTimers();
@@ -3050,6 +3424,9 @@ Penktadienis C
     let h = location.hash.replace(/^#\/?/, '');
     try { h = decodeURIComponent(h); } catch (_) { h = ''; }
     if (h.startsWith('ex/') && clean(h.slice(3))) return renderExercise(clean(h.slice(3)), backTo);
+    const muscle = h.startsWith('muscle/') && Object.prototype.hasOwnProperty.call(MUSCLE_VIEW, h.slice(7)) && h.slice(7);
+    if (!muscle) muscleBack = `#/${h === todayKey() ? '' : h}`;
+    if (!muscle && h !== 'stats') statsY = null;
     backTo = `#/${h === todayKey() ? '' : h}`;
     const hm = h.match(/^history(?:\/(\d{4})-(\d{2}))?$/);
     if (hm) {
@@ -3058,6 +3435,7 @@ Penktadienis C
     }
     if (h === 'plan') return renderPlan();
     if (h === 'stats') return renderStats();
+    if (muscle) return renderMuscle(muscle, muscleBack);
     if (h === 'profile') return renderProfile(false);
     const after = h.match(/^(progress|done)\/(.+)$/);
     if (after && isDayKey(after[2])) return after[1] === 'progress' ? renderProgress(after[2]) : renderDone(after[2]);
