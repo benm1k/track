@@ -111,7 +111,7 @@
   .label b { color: var(--fg); font-weight: 700; }
 
   /* profile header: the mark, your name and level; the whole row opens the profile */
-  .profile { display: flex; align-items: center; gap: 12px; min-height: 52px; transition: opacity .2s; -webkit-touch-callout: none; }
+  .profile { display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 52px; transition: opacity .2s; -webkit-touch-callout: none; }
   .profile:active { opacity: .6; }
   .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; color: var(--fg); margin-left: -12px; }
   .avatar .mark { width: 20px; height: 20px; }
@@ -222,6 +222,10 @@
   .lang { display: flex; align-items: center; gap: 0; align-self: flex-start; margin: -14px -14px 0 0; font-family: var(--mono); font-size: 13px; color: var(--ghost); }
   .lang button { min-width: 46px; padding: 14px 14px; text-align: center; color: var(--dim); transition: color .2s; }
   .lang button[aria-pressed="true"] { color: var(--fg); }
+  /* On Today, across from your name: smaller and dimmer than in the profile. */
+  header .lang { flex: none; align-self: center; margin: 0 -14px 0 0; font-size: 12px; }
+  header .lang button { color: var(--ghost); }
+  header .lang button[aria-pressed="true"] { color: var(--dim); }
   .presets { display: flex; flex-wrap: wrap; gap: 2px 24px; margin-top: 36px; }
   .presets button { padding: 14px 0; font-family: var(--mono); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); transition: color .2s; }
   .presets button[aria-pressed="true"] { color: var(--fg); }
@@ -1458,14 +1462,16 @@ Penktadienis C
   }
 
   // The mark, your name and level. Tap it for the profile (name and language).
-  function header() {
+  // Given a redraw (Today), a quiet LT · EN sits on the right too.
+  function header(redraw) {
     return el('div', null,
       el('header', null,
         el('a', { href: '#/profile', class: 'profile' },
           el('span', { class: 'avatar' }, mark()),
           el('span', { class: 'who' },
             el('span', { class: `who-name${db.name ? '' : ' empty'}` }, db.name || T().yourName),
-            el('span', { class: 'who-level' }, level())))),
+            el('span', { class: 'who-level' }, level()))),
+        redraw && langSwitch(redraw)),
       el('p', { class: 'warn', hidden: storageOk }, T().cantSave));
   }
 
@@ -1550,7 +1556,7 @@ Penktadienis C
       if (first) blocks.get(first).toggle(true, true);
     }
     mount(el('div', { class: 'view' },
-      header(),
+      header(isToday && (() => renderDay(key, isToday))),
       dayCard(key, isToday),
       list,
       addExerciseForm(key, list)));
