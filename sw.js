@@ -3,7 +3,7 @@
 // in the background. When the page that comes in is newer than the one served, the app is told,
 // and it switches over at a quiet moment (see "updates" in index.html).
 
-const CACHE = 'track-v14';
+const CACHE = 'track-v15';
 const INDEX = './'; // some hosts redirect /index.html to /, and redirected responses can't serve a page
 const SHELL = [
   INDEX,
