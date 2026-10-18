@@ -535,6 +535,7 @@
   .lift-h { font-size: 12px; font-weight: 400; color: var(--faint); }
   .lift-s { font-size: 12.5px; color: var(--dim); }
   .lift-s.ready { color: var(--grow); }
+  .lift-s.stall { color: #ff9f0a; }
   .mus-try { margin-top: 18px; font-size: 13px; line-height: 1.5; color: var(--faint); }
   .next-up { margin-top: 8px; text-align: left; }
 
@@ -697,17 +698,23 @@
       tabs: { main: 'Main', history: 'History', today: 'Today', stats: 'Stats', plan: 'Plan' },
       // [anatomical name, everyday name]
       muscles: {
-        upperChest: ['Clavicular pectoral', 'Upper chest'], midChest: ['Sternal pectoral', 'Middle chest'],
-        lowerChest: ['Abdominal pectoral', 'Lower chest'], frontDelt: ['Anterior deltoid', 'Front delts'],
+        scm: ['Sternocleidomastoid', 'Neck'], upperTraps: ['Upper trapezius', 'Upper traps'],
+        midTraps: ['Middle trapezius', 'Mid traps'], lowerTraps: ['Lower trapezius', 'Lower traps'],
+        upperChest: ['Clavicular pectoral', 'Upper chest'], midChest: ['Sternocostal pectoral', 'Middle chest'],
+        lowerChest: ['Lower sternocostal pectoral', 'Lower chest'], frontDelt: ['Anterior deltoid', 'Front delts'],
         sideDelt: ['Lateral deltoid', 'Side delts'], rearDelt: ['Posterior deltoid', 'Rear delts'],
-        biceps: ['Biceps brachii', 'Biceps'], brachialis: ['Brachialis', 'Upper arm'], triceps: ['Triceps brachii', 'Triceps'],
-        brachioradialis: ['Brachioradialis', 'Forearm'], flexors: ['Forearm flexors', 'Grip'], extensors: ['Forearm extensors', 'Wrists'],
-        traps: ['Trapezius', 'Traps'], infraspinatus: ['Infraspinatus', 'Rotator cuff'], teres: ['Teres major', 'Upper back'],
-        lats: ['Latissimus dorsi', 'Lats'], serratus: ['Serratus anterior', 'Ribs'], abs: ['Rectus abdominis', 'Abs'],
-        obliques: ['External obliques', 'Obliques'], erectors: ['Erector spinae', 'Lower back'],
-        gluteMax: ['Gluteus maximus', 'Glutes'], gluteMed: ['Gluteus medius', 'Side glutes'], quads: ['Quadriceps', 'Quads'],
-        adductors: ['Adductors', 'Inner thighs'], hamstrings: ['Hamstrings', 'Back of thighs'],
+        bicepsLong: ['Biceps, long head', 'Outer biceps'], bicepsShort: ['Biceps, short head', 'Inner biceps'],
+        brachialis: ['Brachialis', 'Upper arm'], tricepsLong: ['Triceps, long head', 'Back of arm'],
+        tricepsLateral: ['Triceps, lateral head', 'Outer triceps'], brachioradialis: ['Brachioradialis', 'Forearm'],
+        flexors: ['Forearm flexors', 'Grip'], extensors: ['Forearm extensors', 'Wrists'],
+        infraspinatus: ['Infraspinatus', 'Rotator cuff'], teresMinor: ['Teres minor', 'Rotator cuff'],
+        teres: ['Teres major', 'Upper back'], lats: ['Latissimus dorsi', 'Lats'], serratus: ['Serratus anterior', 'Ribs'],
+        abs: ['Rectus abdominis', 'Abs'], obliques: ['External obliques', 'Obliques'], erectors: ['Erector spinae', 'Lower back'],
+        gluteMax: ['Gluteus maximus', 'Glutes'], gluteMed: ['Gluteus medius', 'Side glutes'],
+        tfl: ['Tensor fasciae latae', 'Outer hip'], quads: ['Quadriceps', 'Quads'], sartorius: ['Sartorius', 'Tailor’s muscle'],
+        adductors: ['Adductors', 'Groin'], gracilis: ['Gracilis', 'Inner thigh'], hamstrings: ['Hamstrings', 'Back of thighs'],
         gastrocnemius: ['Gastrocnemius', 'Calves'], soleus: ['Soleus', 'Lower calves'], tibialis: ['Tibialis anterior', 'Shins'],
+        peroneals: ['Fibularis', 'Outer shin'],
       },
       sides: ['Front', 'Back'],
       figure: 'Body',
@@ -729,12 +736,15 @@
       trainWith: 'Train it with',
       nextTime: 'Next time',
       weighted: name => `Weighted ${name.charAt(0).toLowerCase()}${name.slice(1)}`,
+      moreWeight: 'more weight',
       step: {
-        up: kg => `Ready for ${kg} kg`,
+        up: (kg, reps) => `Ready for ${kg} kg × ${reps}`,
         harder: name => `Ready for ${name.charAt(0).toLowerCase()}${name.slice(1)}`,
         reps: n => `+${n} rep${n === 1 ? '' : 's'}`,
         sets: n => `+${n} set${n === 1 ? '' : 's'}`,
-        eta: n => (n <= 1 ? 'next workout' : `≈ ${n} workouts`),
+        secs: n => `+${n} s`,
+        eta: (a, b) => (b <= 1 ? 'next workout' : a === b ? `≈ ${a} workouts` : `≈ ${a}–${b} workouts`),
+        stall: (kg, to) => `Stuck at ${kg} kg: drop to ${to} kg and build back`,
       },
       zones: ['Not trained', 'Maintaining', 'Growing', 'Focus zone', 'Done'],
       zoneNext: [
@@ -844,17 +854,24 @@
       tabs: { main: 'Pagrindinis meniu', history: 'Istorija', today: 'Šiandien', stats: 'Statistika', plan: 'Planas' },
       // [anatominis pavadinimas, kasdienis]
       muscles: {
+        scm: ['Krūtinkaulinis raktikaulinis speninis', 'Kaklas'], upperTraps: ['Trapecinio viršutinė dalis', 'Viršutinė trapecija'],
+        midTraps: ['Trapecinio vidurinė dalis', 'Vidurinė trapecija'], lowerTraps: ['Trapecinio apatinė dalis', 'Apatinė trapecija'],
         upperChest: ['Krūtinės raktikaulinė dalis', 'Viršutinė krūtinė'], midChest: ['Krūtinės krūtinkaulinė dalis', 'Vidurinė krūtinė'],
-        lowerChest: ['Krūtinės pilvinė dalis', 'Apatinė krūtinė'], frontDelt: ['Deltinio priekis', 'Priekiniai pečiai'],
+        lowerChest: ['Krūtinės apatinė krūtinkaulinė dalis', 'Apatinė krūtinė'], frontDelt: ['Deltinio priekis', 'Priekiniai pečiai'],
         sideDelt: ['Deltinio šonas', 'Šoniniai pečiai'], rearDelt: ['Deltinio galas', 'Galiniai pečiai'],
-        biceps: ['Dvigalvis žasto', 'Bicepsas'], brachialis: ['Žastinis', 'Žastas'], triceps: ['Trigalvis žasto', 'Tricepsas'],
-        brachioradialis: ['Žastinis stipininis', 'Dilbis'], flexors: ['Dilbio lenkiamieji', 'Gniaužtis'], extensors: ['Dilbio tiesiamieji', 'Riešai'],
-        traps: ['Trapecinis', 'Trapecija'], infraspinatus: ['Poduobinis', 'Rotatorių manžetė'], teres: ['Didysis apvalusis', 'Viršutinė nugara'],
-        lats: ['Plačiausiasis nugaros', 'Nugaros plotis'], serratus: ['Priekinis dantytasis', 'Šonkauliai'], abs: ['Tiesusis pilvo', 'Presas'],
-        obliques: ['Išorinis įstrižinis', 'Pilvo šonai'], erectors: ['Nugaros tiesiamasis', 'Apatinė nugara'],
-        gluteMax: ['Didysis sėdmens', 'Sėdmenys'], gluteMed: ['Vidurinis sėdmens', 'Klubų šonai'], quads: ['Keturgalvis šlaunies', 'Šlaunies priekis'],
-        adductors: ['Pritraukiamieji', 'Vidinė šlaunis'], hamstrings: ['Užpakaliniai šlaunies', 'Šlaunies galas'],
-        gastrocnemius: ['Dvilypis blauzdos', 'Blauzdos'], soleus: ['Plekšninis', 'Apatinė blauzda'], tibialis: ['Priekinis blauzdinis', 'Blauzdikaulis'],
+        bicepsLong: ['Bicepso ilgoji galva', 'Išorinis bicepsas'], bicepsShort: ['Bicepso trumpoji galva', 'Vidinis bicepsas'],
+        brachialis: ['Žastinis', 'Žastas'], tricepsLong: ['Tricepso ilgoji galva', 'Rankos galas'],
+        tricepsLateral: ['Tricepso šoninė galva', 'Išorinis tricepsas'], brachioradialis: ['Žastinis stipininis', 'Dilbis'],
+        flexors: ['Dilbio lenkiamieji', 'Gniaužtis'], extensors: ['Dilbio tiesiamieji', 'Riešai'],
+        infraspinatus: ['Poduobinis', 'Rotatorių manžetė'], teresMinor: ['Mažasis apvalusis', 'Rotatorių manžetė'],
+        teres: ['Didysis apvalusis', 'Viršutinė nugara'], lats: ['Plačiausiasis nugaros', 'Nugaros plotis'],
+        serratus: ['Priekinis dantytasis', 'Šonkauliai'], abs: ['Tiesusis pilvo', 'Presas'], obliques: ['Išorinis įstrižinis', 'Pilvo šonai'],
+        erectors: ['Nugaros tiesiamasis', 'Apatinė nugara'], gluteMax: ['Didysis sėdmens', 'Sėdmenys'],
+        gluteMed: ['Vidurinis sėdmens', 'Klubų šonai'], tfl: ['Plačiosios fascijos įtempiamasis', 'Klubo išorė'],
+        quads: ['Keturgalvis šlaunies', 'Šlaunies priekis'], sartorius: ['Siuvėjo raumuo', 'Šlaunies juosta'],
+        adductors: ['Pritraukiamieji', 'Kirkšnis'], gracilis: ['Grakštusis', 'Vidinė šlaunis'],
+        hamstrings: ['Užpakaliniai šlaunies', 'Šlaunies galas'], gastrocnemius: ['Dvilypis blauzdos', 'Blauzdos'],
+        soleus: ['Plekšninis', 'Apatinė blauzda'], tibialis: ['Priekinis blauzdinis', 'Blauzdikaulis'], peroneals: ['Šeiviniai', 'Blauzdos šonas'],
       },
       sides: ['Priekis', 'Nugara'],
       figure: 'Kūnas',
@@ -876,12 +893,15 @@
       trainWith: 'Treniruok su',
       nextTime: 'Kitą kartą',
       weighted: name => `${name} su svoriu`,
+      moreWeight: 'daugiau svorio',
       step: {
-        up: kg => `Gali kelti ${kg} kg`,
+        up: (kg, reps) => `Gali kelti ${kg} kg × ${reps}`,
         harder: name => `Pereik prie: ${name}`,
         reps: n => `+${n} ${ltPlural(n, 'kartas', 'kartai', 'kartų')}`,
         sets: n => `+${n} ${ltPlural(n, 'serija', 'serijos', 'serijų')}`,
-        eta: n => (n <= 1 ? 'kitą treniruotę' : `≈ ${n} ${ltPlural(n, 'treniruotė', 'treniruotės', 'treniruočių')}`),
+        secs: n => `+${n} s`,
+        eta: (a, b) => (b <= 1 ? 'kitą treniruotę' : `≈ ${a === b ? a : `${a}–${b}`} ${ltPlural(b, 'treniruotė', 'treniruotės', 'treniruočių')}`),
+        stall: (kg, to) => `Stringa ties ${kg} kg: sumažink iki ${to} kg ir kilk vėl`,
       },
       zones: ['Netreniruota', 'Palaikymas', 'Auga', 'Fokuso zona', 'Atlikta'],
       zoneNext: [
@@ -1282,7 +1302,9 @@ Penktadienis C
   }
 
   // What tapping "+" with empty fields would log: today's last set, else last session's
-  // first set (with the planned reps, if the exercise came from the plan).
+  // first set (with the planned reps, if the exercise came from the plan). Once every planned
+  // set reached the top of the range, the weight goes up a step and the reps are what your
+  // best set predicts at the new weight.
   function suggestion(key, ex) {
     if (ex.sets.length) return ex.sets[ex.sets.length - 1];
     const cardio = cardioEx(ex);
@@ -1292,14 +1314,36 @@ Penktadienis C
     if (ex.target) {
       if (!prev) return { kg: 0, reps: ex.target.reps };
       const up = bumpFrom(prev.sets, ex.target);
-      return { kg: up ? round2(up + BUMP) : prev.sets[0].kg, reps: ex.target.reps };
+      if (!up) return { kg: prev.sets[0].kg, reps: ex.target.reps };
+      const next = round2(up + bumpFor(ex.name, up));
+      return { kg: next, reps: repsAt(prev.sets, up, next, ex.target.repsTo || ex.target.reps) };
     }
     return prev ? prev.sets[0] : null;
   }
 
+  // The next weight up: about 2.5% of the load, in steps a gym actually has. Leg lifts go up
+  // 2.5 kg (5 kg from 140 kg), dumbbells 1 kg under 10 kg and 2 kg after, and everything else
+  // 1 kg under 15 kg (a lateral raise, a cable fly) and 2.5 kg after.
+  const LEG_LIFT = /squat|deadlift|leg press|hip thrust|hack|lunge|split|bulgar|rdl|romanian|step.?up|pritūp|mirties|kojų spaudim|įtūpst|klubų/;
+  const DUMBBELL = /dumbbell|\bdb\b|goblet|hantel|kettlebell|svarst/;
+  function bumpFor(name, kg) {
+    const text = `${same(name)} ${norm(name)}`;
+    if (DUMBBELL.test(text)) return kg >= 10 ? 2 : 1;   // dumbbell lifts move in dumbbell steps, leg lifts too
+    if (LEG_LIFT.test(text)) return kg >= 140 ? 5 : 2.5;
+    return kg >= 15 ? 2.5 : 1;
+  }
+
+  // The reps to expect at a heavier weight: what your best set at the old one predicts (Epley),
+  // one held back to be safe, never more than the top of the range. Epley undershoots at high
+  // reps and on light lifts, where one step is a big jump, so it never asks for fewer than 60%
+  // of the top (12 → 8).
+  function repsAt(sets, kg, next, top) {
+    const best = Math.max(...sets.filter(s => (s.kg || 0) === kg).map(e1rm));
+    return Math.min(top, Math.max(Math.ceil(top * 0.6), Math.floor(30 * (best / next - 1)) - 1));
+  }
+
   // Every planned set reached the top of the rep range at your working (heaviest) weight: time
   // to go up from it. Returns that weight, or 0. Lighter warm-up sets don't count either way.
-  const BUMP = 2.5;
   function bumpFrom(sets, target) {
     const kg = Math.max(...sets.map(s => s.kg || 0));
     const top = target.repsTo || target.reps;
@@ -2699,64 +2743,80 @@ Penktadienis C
   // Every muscle on the figure: real ones you can see and train, in body order (a tie in the
   // ranking keeps this order), with the side and the crop the small figures show it from.
   const MUSCLE_VIEW = {
-    upperChest: ['front', 'chest'], midChest: ['front', 'chest'], lowerChest: ['front', 'chest'], frontDelt: ['front', 'shoulders'], sideDelt: ['front', 'shoulders'], rearDelt: ['back', 'shoulders'],
-    biceps: ['front', 'arm'], brachialis: ['front', 'arm'], triceps: ['back', 'arm'], brachioradialis: ['front', 'forearm'],
-    flexors: ['front', 'forearm'], extensors: ['back', 'forearm'], traps: ['back', 'traps'], infraspinatus: ['back', 'upper'],
+    scm: ['front', 'neck'], upperTraps: ['back', 'traps'], midTraps: ['back', 'traps'], lowerTraps: ['back', 'traps'],
+    upperChest: ['front', 'chest'], midChest: ['front', 'chest'], lowerChest: ['front', 'chest'],
+    frontDelt: ['front', 'shoulders'], sideDelt: ['front', 'shoulders'], rearDelt: ['back', 'shoulders'],
+    bicepsLong: ['front', 'arm'], bicepsShort: ['front', 'arm'], brachialis: ['front', 'arm'],
+    tricepsLong: ['back', 'arm'], tricepsLateral: ['back', 'arm'], brachioradialis: ['front', 'forearm'],
+    flexors: ['front', 'forearm'], extensors: ['back', 'forearm'], infraspinatus: ['back', 'upper'], teresMinor: ['back', 'upper'],
     teres: ['back', 'upper'], lats: ['back', 'trunk'], serratus: ['front', 'chest'], abs: ['front', 'trunk'],
     obliques: ['front', 'trunk'], erectors: ['back', 'trunk'], gluteMax: ['back', 'hips'], gluteMed: ['back', 'hips'],
-    quads: ['front', 'thighs'], adductors: ['front', 'thighs'], hamstrings: ['back', 'thighs'], gastrocnemius: ['back', 'shins'],
-    soleus: ['back', 'shins'], tibialis: ['front', 'shins'],
+    tfl: ['front', 'hips'], quads: ['front', 'thighs'], sartorius: ['front', 'thighs'], adductors: ['front', 'thighs'],
+    gracilis: ['front', 'thighs'], hamstrings: ['back', 'thighs'], gastrocnemius: ['back', 'shins'], soleus: ['back', 'shins'],
+    tibialis: ['front', 'shins'], peroneals: ['front', 'shins'],
   };
   const MUSCLES = Object.keys(MUSCLE_VIEW);
 
   // What a lift works, from its name in either language: [pattern, main muscles, helpers].
   // The first match wins, so the specific ones come first ("leg curl" before "curl").
   const MOVES = [
-    [/rear delt|reverse (pec|fly|flye)|galin|atvedim/, ['rearDelt'], ['infraspinatus', 'traps', 'teres']],
-    [/face ?pull|prie veido/, ['rearDelt', 'infraspinatus'], ['traps']],
-    [/external rotation|išorin\S* rotacij/, ['infraspinatus'], ['rearDelt']],
-    [/upright row|prie smakro/, ['sideDelt', 'traps'], ['frontDelt', 'biceps']],
-    [/lateral|side raise|šonini|į šalis|i šalis/, ['sideDelt'], ['traps']],
+    [/neck (curl|flexion|extension|raise|harness)|4.?way neck|kaklo (lenkim|tiesim)/, ['scm'], ['upperTraps']],
+    [/\by.?raise|prone y|lower trap|y kėlim/, ['lowerTraps'], ['midTraps', 'rearDelt']],
+    [/rear delt|reverse (pec|fly|flye)|galin|atvedim/, ['rearDelt'], ['midTraps', 'infraspinatus', 'teresMinor']],
+    [/face ?pull|prie veido/, ['rearDelt', 'infraspinatus'], ['midTraps', 'lowerTraps', 'teresMinor']],
+    [/external rotation|išorin\S* rotacij/, ['infraspinatus', 'teresMinor'], ['rearDelt']],
+    [/upright row|prie smakro/, ['sideDelt', 'upperTraps'], ['frontDelt', 'bicepsLong']],
+    [/lateral|side raise|šonini|į šalis|i šalis/, ['sideDelt'], ['upperTraps']],
     [/front raise|į priekį/, ['frontDelt'], ['upperChest']],
     [/back extension|hyperext|good morning|nugaros.*tiesim|sėdmenų tiesim/, ['erectors'], ['gluteMax', 'hamstrings']],
-    [/leg curl|hamstring curl|nordic|kojų lenkim/, ['hamstrings'], ['gastrocnemius']],
+    [/leg curl|hamstring curl|nordic|kojų lenkim/, ['hamstrings'], ['gastrocnemius', 'sartorius', 'gracilis']],
     [/leg extension|kojų tiesim/, ['quads'], []],
     [/seated calf|sėdint.*blauzd|blauzd.*sėdint/, ['soleus'], ['gastrocnemius']],
-    [/calf|calves|blauzd/, ['gastrocnemius'], ['soleus']],
+    [/calf|calves|blauzd/, ['gastrocnemius'], ['soleus', 'peroneals']],
     [/tibialis|tib raise/, ['tibialis'], []],
-    [/abduct|atitraukim|clamshell/, ['gluteMed'], []],
-    [/glute|hip thrust|bridge|klubų|sėdmen/, ['gluteMax'], ['hamstrings', 'gluteMed']],
-    [/tricep|push-?down|skull|kickback|french press|close.?grip (bench|press)/, ['triceps'], []],
-    [/reverse curl|reverse wrist|wrist extension|atbulin/, ['extensors', 'brachioradialis'], ['biceps']],
-    [/wrist|forearm|farmer|carry|gripper|grip trainer|dilb|riešo|ūkinink/, ['flexors'], ['traps', 'brachioradialis']],
-    [/hammer|plaktuk/, ['brachialis', 'brachioradialis'], ['biceps']],
-    [/curl|bicep|lenkim/, ['biceps'], ['brachialis', 'brachioradialis', 'flexors']],
+    [/eversion|peroneal|fibular|išvertim/, ['peroneals'], []],
+    [/hip flexion|klubo lenkim|sartorius/, ['sartorius'], ['tfl', 'quads']],
+    [/clamshell|kriaukl/, ['gluteMed'], []],
+    [/abduct|atitraukim/, ['gluteMed', 'tfl'], []],
+    [/glute|hip thrust|bridge|klubų|sėdmen|tiltas/, ['gluteMax'], ['hamstrings', 'gluteMed']],
+    // The triceps by head: overhead and lying extensions stretch the long head most, pushdowns the lateral.
+    [/overhead (tricep|extension)|french press|skull|kaukol|tricep.*virš galvos|virš galvos.*tricep/, ['tricepsLong'], ['tricepsLateral']],
+    [/tricep|push-?down|kickback|close.?grip (bench|press)/, ['tricepsLateral'], ['tricepsLong']],
+    [/reverse curl|reverse wrist|wrist extension|atbulin/, ['extensors', 'brachioradialis'], ['bicepsLong']],
+    [/wrist|forearm|farmer|carry|gripper|grip trainer|dilb|riešo|ūkinink/, ['flexors'], ['upperTraps', 'brachioradialis']],
+    [/hammer|plaktuk/, ['brachialis', 'brachioradialis'], ['bicepsLong']],
+    // The biceps by head: curls behind the body (incline) favour the long head, preacher curls the short.
+    [/incline.*curl|curl.*incline|drag curl|bayesian|lenkim.*pasvir|pasvir.*lenkim/, ['bicepsLong'], ['bicepsShort', 'brachialis']],
+    [/preacher|spider|concentration|scott|skoto|koncentr/, ['bicepsShort'], ['bicepsLong', 'brachialis']],
+    [/curl|bicep|lenkim/, ['bicepsLong', 'bicepsShort'], ['brachialis', 'brachioradialis', 'flexors']],
     [/romanian|rdl|stiff|rumuniš/, ['hamstrings', 'gluteMax'], ['erectors', 'flexors']],
-    [/trap ?bar/, ['quads', 'gluteMax'], ['hamstrings', 'erectors', 'traps', 'flexors']],
-    [/sumo/, ['gluteMax', 'adductors', 'hamstrings'], ['quads', 'erectors', 'traps', 'flexors']],
-    [/deadlift|mirties/, ['gluteMax', 'hamstrings', 'erectors'], ['quads', 'traps', 'flexors', 'lats']],
-    [/shrug|gūžč|trapec/, ['traps'], ['flexors']],
-    [/adduct|pritraukim/, ['adductors'], []],
-    [/lunge|split|bulgar|step.?up|įtūpst|žingsn/, ['quads', 'gluteMax'], ['adductors', 'gluteMed', 'hamstrings']],
+    [/trap ?bar/, ['quads', 'gluteMax'], ['hamstrings', 'erectors', 'upperTraps', 'flexors']],
+    [/sumo/, ['gluteMax', 'adductors', 'hamstrings'], ['quads', 'erectors', 'upperTraps', 'flexors']],
+    [/deadlift|mirties/, ['gluteMax', 'hamstrings', 'erectors'], ['quads', 'upperTraps', 'flexors', 'lats']],
+    [/shrug|gūžč|trapec/, ['upperTraps'], ['flexors']],
+    [/adduct|pritraukim|copenhagen|kopenhag/, ['adductors', 'gracilis'], []],
+    [/lunge|split|bulgar|step.?up|įtūpst|žingsn/, ['quads', 'gluteMax'], ['adductors', 'gluteMed', 'hamstrings', 'sartorius']],
     [/leg press|hack|kojų spaudim/, ['quads'], ['gluteMax', 'adductors']],
-    [/squat|pritūp/, ['quads', 'gluteMax'], ['adductors', 'erectors']],
-    [/chin-?ups?|atvirkštiniu suėmimu/, ['lats', 'biceps', 'teres'], ['brachialis', 'rearDelt']],
-    [/pull-?down|pull-?ups?|\blats?\b|viršutinio bloko|prisitrauk/, ['lats', 'teres'], ['biceps', 'brachialis', 'rearDelt', 'traps']],
-    [/pullover/, ['lats'], ['lowerChest', 'serratus', 'teres', 'triceps']],
-    [/row|trauk|irklav/, ['lats', 'traps'], ['teres', 'rearDelt', 'infraspinatus', 'biceps', 'brachialis']],
-    [/shoulder press|overhead press|military|\bohp\b|arnold|pečių spaud|virš galvos/, ['frontDelt'], ['sideDelt', 'triceps', 'traps', 'serratus']],
+    [/squat|pritūp|pistolet/, ['quads', 'gluteMax'], ['adductors', 'erectors']],
+    [/chin-?ups?|atvirkštiniu suėmimu/, ['lats', 'bicepsShort', 'bicepsLong', 'teres'], ['brachialis', 'rearDelt', 'lowerTraps']],
+    [/pull-?down|pull-?ups?|\blats?\b|viršutinio bloko|prisitrauk/, ['lats', 'teres'], ['bicepsLong', 'brachialis', 'rearDelt', 'lowerTraps']],
+    [/pullover/, ['lats'], ['lowerChest', 'serratus', 'teres', 'tricepsLong']],
+    [/row|trauk|irklav/, ['lats', 'midTraps'], ['teres', 'rearDelt', 'lowerTraps', 'bicepsShort', 'brachialis']],
+    [/pike push|pike atsispaud|handstand|hspu|ant rankų/, ['frontDelt'], ['tricepsLateral', 'upperTraps', 'sideDelt', 'serratus']],
+    [/shoulder press|overhead press|neck press|military|\bohp\b|arnold|pečių spaud|virš galvos/, ['frontDelt'], ['sideDelt', 'tricepsLateral', 'upperTraps', 'serratus']],
+    [/incline push|wall push|knee push|atsispaud\S* nuo (suoliuko|sienos|kelių)/, ['midChest'], ['tricepsLateral', 'frontDelt']],
     // The chest in its three parts: incline and low-to-high work the upper (clavicular) part,
-    // flat pressing and flyes the middle (sternal), dips and decline the lower (abdominal).
-    [/decline push|atsispaud.*pakeltomis kojomis/, ['upperChest'], ['midChest', 'triceps', 'frontDelt', 'serratus']],
+    // flat pressing and flyes the middle (sternocostal), dips and decline the lower.
+    [/decline push|atsispaud.*pakeltomis kojomis/, ['upperChest'], ['midChest', 'tricepsLateral', 'frontDelt', 'serratus']],
     [/low.?to.?high.*(fly|flye|crossover)|(fly|flye|crossover).*low.?to.?high|skryd.*iš apačios|iš apačios.*skryd|incline (cable |db |dumbbell )?(fly|flye)/, ['upperChest'], ['frontDelt', 'midChest']],
-    [/incline|pasvir|kampu/, ['upperChest', 'frontDelt'], ['midChest', 'triceps', 'serratus']],
-    [/decline (bench|press|db|dumbbell|chest|fly|flye)|high.?to.?low.*(fly|flye|crossover)|(fly|flye|crossover).*high.?to.?low|galva žemyn/, ['lowerChest'], ['midChest', 'triceps']],
-    [/\bdips?\b|lygiagret/, ['lowerChest', 'triceps'], ['midChest', 'frontDelt']],
+    [/incline|pasvir|kampu/, ['upperChest', 'frontDelt'], ['midChest', 'tricepsLateral', 'serratus']],
+    [/decline (bench|press|db|dumbbell|chest|fly|flye)|high.?to.?low.*(fly|flye|crossover)|(fly|flye|crossover).*high.?to.?low|galva žemyn/, ['lowerChest'], ['midChest', 'tricepsLateral']],
+    [/\bdips?\b|lygiagret/, ['lowerChest', 'tricepsLateral'], ['midChest', 'frontDelt', 'tricepsLong']],
     [/\bfly|flye|pec deck|crossover|skrydž|peteliš|drugel/, ['midChest'], ['upperChest', 'lowerChest', 'frontDelt']],
     [/scapular push|push-?up plus|serratus|landmine press|mentių atsispaud/, ['serratus'], ['upperChest', 'frontDelt']],
-    [/push-?ups?|press-?ups?|atsispaud/, ['midChest'], ['lowerChest', 'triceps', 'frontDelt', 'serratus', 'abs']],
-    [/bench|chest|dumbbell press|\bdb press|floor press|krūtin|gulint/, ['midChest'], ['upperChest', 'lowerChest', 'triceps', 'frontDelt']],
-    [/oblique|twist|woodchop|\bchops?\b|side plank|įstriž|pasuk|šoninė lenta/, ['obliques'], ['abs']],
+    [/push-?ups?|press-?ups?|atsispaud/, ['midChest'], ['lowerChest', 'tricepsLateral', 'frontDelt', 'serratus', 'abs']],
+    [/bench|chest|dumbbell press|\bdb press|floor press|krūtin|gulint/, ['midChest'], ['upperChest', 'lowerChest', 'tricepsLateral', 'frontDelt']],
+    [/oblique|twist|woodchop|\bchops?\b|windshield|valytuv|side plank|įstriž|pasuk|šoninė lenta/, ['obliques'], ['abs']],
     [/crunch|sit-?ups?|plank|leg raise|knee raise|ab wheel|rollout|hollow|toes to bar|\babs?\b|\bcore\b|pilv|presas|lenta|kojų kėlim|kelių kėlim|iki skersinio/, ['abs'], ['obliques']],
   ];
   const workedCache = new Map();
@@ -2773,20 +2833,26 @@ Penktadienis C
   // Two ways to train each muscle, for one you haven't trained yet. Each one maps to that
   // muscle in the list above.
   const TRAIN_WITH = {
+    scm: [['Neck curl', 'Kaklo lenkimas']],
+    upperTraps: [['Shrugs', 'Pečių gūžčiojimas'], ['Upright row', 'Trauka prie smakro']],
+    midTraps: [['Chest-supported row', 'Trauka atsirėmus krūtine'], ['Row', 'Horizontali trauka']],
+    lowerTraps: [['Prone Y raise', 'Y kėlimas gulint']],
     upperChest: [['Incline press', 'Spaudimas ant pasvirusio suolo'], ['Low-to-high cable fly', 'Lyno skrydis iš apačios']],
     midChest: [['Bench press', 'Štangos spaudimas gulint'], ['Pec deck', 'Peteliškė (pec deck)']],
     lowerChest: [['Dips', 'Lygiagretės'], ['Decline press', 'Spaudimas galva žemyn']],
     frontDelt: [['Shoulder press', 'Pečių spaudimas'], ['Front raise', 'Kėlimas į priekį']],
     sideDelt: [['Lateral raise', 'Šoniniai kėlimai'], ['Upright row', 'Trauka prie smakro']],
     rearDelt: [['Reverse pec deck', 'Galinės deltinių dalies atvedimas'], ['Facepull', 'Lyno trauka prie veido']],
-    biceps: [['Barbell curl', 'Bicepso lenkimas su štanga'], ['Chin-ups', 'Prisitraukimai atvirkštiniu suėmimu']],
+    bicepsLong: [['Incline curl', 'Bicepso lenkimas ant pasvirusio suolo'], ['Barbell curl', 'Bicepso lenkimas su štanga']],
+    bicepsShort: [['Preacher curl', 'Lenkimas ant Skoto suolo'], ['Chin-ups', 'Prisitraukimai atvirkštiniu suėmimu']],
     brachialis: [['Hammer curl', 'Plaktuko lenkimas']],
+    tricepsLong: [['Overhead tricep extension', 'Tricepso tiesimas virš galvos'], ['Skull crusher', 'Kaukolės traiškytojas']],
+    tricepsLateral: [['Tricep pushdown', 'Tricepso tiesimas prie bloko'], ['Dips', 'Lygiagretės']],
     brachioradialis: [['Hammer curl', 'Plaktuko lenkimas'], ['Reverse curl', 'Atbulinis lenkimas']],
     flexors: [['Wrist curl', 'Riešo lenkimas'], ['Farmer walk', 'Ūkininko nešimas']],
     extensors: [['Reverse wrist curl', 'Atbulinis riešo lenkimas'], ['Reverse curl', 'Atbulinis lenkimas']],
-    triceps: [['Tricep pushdown', 'Tricepso tiesimas prie bloko'], ['Dips', 'Lygiagretės']],
-    traps: [['Shrugs', 'Pečių gūžčiojimas'], ['Row', 'Horizontali trauka']],
     infraspinatus: [['Facepull', 'Lyno trauka prie veido'], ['External rotation', 'Išorinė rotacija']],
+    teresMinor: [['External rotation', 'Išorinė rotacija']],
     teres: [['Lat pulldown', 'Viršutinio bloko trauka'], ['Pull-ups', 'Prisitraukimai']],
     lats: [['Pull-ups', 'Prisitraukimai'], ['Lat pulldown', 'Viršutinio bloko trauka']],
     serratus: [['Scapular push-ups', 'Mentių atsispaudimai'], ['Landmine press', 'Landmine press']],
@@ -2795,12 +2861,16 @@ Penktadienis C
     erectors: [['Back extension', 'Nugaros tiesimas'], ['Deadlift', 'Mirties trauka']],
     gluteMax: [['Hip thrust', 'Klubų kėlimas su štanga'], ['Squat', 'Pritūpimai']],
     gluteMed: [['Hip abduction', 'Kojų atitraukimas'], ['Clamshell', 'Kriauklė (clamshell)']],
+    tfl: [['Hip abduction', 'Kojų atitraukimas']],
     quads: [['Squat', 'Pritūpimai'], ['Leg extension', 'Kojų tiesimas']],
-    adductors: [['Adductor machine', 'Kojų pritraukimas'], ['Sumo deadlift', 'Sumo mirties trauka']],
+    sartorius: [['Cable hip flexion', 'Klubo lenkimas su lynu']],
+    adductors: [['Adductor machine', 'Kojų pritraukimas'], ['Copenhagen plank', 'Kopenhagos lenta']],
+    gracilis: [['Adductor machine', 'Kojų pritraukimas'], ['Copenhagen plank', 'Kopenhagos lenta']],
     hamstrings: [['RDL', 'Rumuniška mirties trauka'], ['Leg curl', 'Kojų lenkimas']],
     gastrocnemius: [['Calf raise', 'Blauzdų kėlimas']],
     soleus: [['Seated calf raise', 'Blauzdų kėlimas sėdint']],
     tibialis: [['Tibialis raise', 'Tibialis kėlimas']],
+    peroneals: [['Band ankle eversion', 'Pėdos išvertimas su guma']],
   };
 
   // Sets per muscle over the days from..to: a lift's main muscles get the whole set, the ones
@@ -2901,12 +2971,13 @@ Penktadienis C
     return n;
   }
 
-  // How a lift moves up, from its sessions up to `upTo`: the reps and sets still missing at your
-  // working weight before the next 2.5 kg. A planned lift goes by its plan (sets × the top of the
-  // rep range, the rule Today's prefill follows); one you added yourself is ready once every
-  // working set matches your best one. A bodyweight lift at the top moves to a harder version.
-  // The pace is your own: the reps a session you've been adding at this weight, so the estimate
-  // needs two sessions at it.
+  // How a lift moves up, from its sessions up to `upTo`. A planned lift goes by its plan (sets ×
+  // the top of the rep range, the rule Today's prefill follows); one you added yourself is ready
+  // once every working set matches your best one. Then the weight goes up a step (bumpFor) and
+  // the reps to aim for come from your best set (repsAt). Three sessions in a row at one weight
+  // without a rep gained is a stall: drop about 10% and build back. A bodyweight lift at the top
+  // moves to its harder version. The estimate is your own pace at this weight (two sessions
+  // there at least), given as a range and left out past 12 workouts.
   function nextStep(name, upTo) {
     const id = same(name);
     const runs = [];   // this lift's sessions, newest first
@@ -2934,63 +3005,103 @@ Penktadienis C
       kg: now.kg,
       short: now.reps.reduce((n, r) => n + Math.max(0, top - r), 0),
       missing: target.sets - now.reps.length,
-      sessions: 0,
     };
     step.ready = !step.short && !step.missing;
-    if (now.kg) step.next = round2(now.kg + BUMP);
-    else step.harder = harderOf(name);
-    const streak = [now];
+    step.held = HOLD.test(`${same(name)} ${norm(name)}`);   // a hold's "reps" are seconds
+    if (now.kg) {
+      step.next = round2(now.kg + bumpFor(name, now.kg));
+      if (step.ready) step.nextReps = repsAt(runs[0].sets, now.kg, step.next, top);
+    } else {
+      step.harder = harderOf(name);
+    }
+    const streak = [now];   // sessions in a row at this same weight
     for (const e of runs.slice(1)) {
       const s = score(e);
       if (s.kg !== now.kg) break;
       streak.push(s);
     }
+    if (!step.ready && !step.missing && now.kg && streak.length >= 3 && streak[0].done <= streak[2].done) {
+      const s = bumpFor(name, now.kg);
+      step.stall = round2(Math.min(now.kg - s, Math.round(now.kg * 0.9 / s) * s));
+      if (step.stall <= 0) delete step.stall;
+    }
     const gain = streak.length > 1 ? (now.done - streak[streak.length - 1].done) / (streak.length - 1) : 0;
-    if (!step.ready && gain > 0) step.sessions = Math.ceil((target.sets * top - now.done) / gain);
+    if (!step.ready && !step.stall && gain > 0) {
+      const left = (target.sets * top - now.done) / gain;
+      const soon = Math.max(1, Math.ceil(left));
+      if (soon <= 12) step.eta = [soon, Math.max(soon, Math.ceil(left * 1.5))];
+    }
     return step;
   }
 
-  // The harder version of a bodyweight lift.
+  const HOLD = /plank|\bhold\b|dead hang|wall sit|\bl.?sit\b|lenta|laikym|kabojim/;
+
+  // The next rung of a bodyweight lift, easiest first within each ladder (push-ups to one arm,
+  // pike to handstand, rows, core, squats to pistol, bridges). Anything else gets weight added.
   const HARDER = [
-    [/knee push|nuo kelių/, 'Push-ups', 'Atsispaudimai'],
-    [/push-?ups?|press-?ups?|atsispaud/, 'Decline push-ups', 'Atsispaudimai pakeltomis kojomis'],
-    [/inverted row|australian/, 'Pull-ups', 'Prisitraukimai'],
+    [/wall push|atsispaud\S* nuo sienos/, 'Incline push-ups', 'Atsispaudimai nuo suoliuko'],
+    [/knee push|incline push|atsispaud\S* nuo (kelių|suoliuko)/, 'Push-ups', 'Atsispaudimai'],
+    [/archer push|lankinink\S* atsispaud/, 'One-arm push-ups', 'Atsispaudimai viena ranka'],
+    [/pseudo.?planche|planš/, 'Archer push-ups', 'Lankininko atsispaudimai'],
+    [/diamond|deimant/, 'Pseudo-planche push-ups', 'Pseudo planšės atsispaudimai'],
+    [/weighted|su svoriu|freestanding|be sienos|long.?lever/, null, null],   // the top of a ladder: add weight
+    [/handstand|ant rankų/, 'Freestanding handstand push-ups', 'Atsispaudimai stovint ant rankų be sienos'],
+    [/elevated pike|pike.*pakylos/, 'Wall handstand push-ups', 'Atsispaudimai stovint ant rankų prie sienos'],
+    [/pike/, 'Elevated pike push-ups', 'Pike atsispaudimai ant pakylos'],
+    [/decline push|atsispaud.*pakeltomis kojomis/, 'Pike push-ups', 'Pike atsispaudimai'],
+    [/one.?arm push|viena ranka/, 'Weighted push-ups', 'Atsispaudimai su svoriu'],
+    [/push-?ups?|press-?ups?|atsispaud/, 'Diamond push-ups', 'Deimanto atsispaudimai'],
+    [/bench dip|dip.*suoliuk/, 'Dips', 'Lygiagretės'],
+    [/negative|neigiam/, 'Pull-ups', 'Prisitraukimai'],
+    [/wide.?grip inverted|plati inversin/, 'Archer rows', 'Lankininko trauka'],
+    [/inverted row|australian|inversin/, 'Wide-grip inverted rows', 'Plati inversinė trauka'],
     [/side plank|šoninė lenta/, 'Side plank with a raised leg', 'Šoninė lenta pakėlus koją'],
-    [/plank|lenta/, 'Ab wheel rollout', 'Pilvo ratukas'],
+    [/kneeling.*(ab wheel|rollout)|ratukas nuo kelių/, 'Standing ab wheel rollout', 'Pilvo ratukas stovint'],
+    [/hollow/, 'Kneeling ab wheel rollout', 'Pilvo ratukas nuo kelių'],
+    [/copenhagen|kopenhag/, 'Long-lever Copenhagen plank', 'Kopenhagos lenta ištiesta koja (long-lever)'],
+    [/plank|lenta/, 'Hollow hold', 'Tuščiaviduris laikymas (hollow)'],
+    [/toes to bar|iki skersinio/, 'Windshield wipers', 'Valytuvai (windshield wipers)'],
     [/knee raise|kelių kėlim/, 'Hanging leg raise', 'Kojų kėlimas kybant'],
     [/leg raise|kojų kėlim/, 'Toes to bar', 'Kojos iki skersinio'],
     [/crunch|sit-?ups?|pilvo presas/, 'Cable crunch', 'Pilvo presas su lynu'],
-    [/lunge|split|bulgar|įtūpst/, 'Dumbbell lunges', 'Įtūpstai su hanteliais'],
-    [/squat|pritūp/, 'Goblet squat', 'Pritūpimai su hanteliu'],
-    [/bridge|tiltas/, 'Hip thrust', 'Klubų kėlimas su štanga'],
+    [/pistol|pistolet/, 'Weighted pistol squat', 'Pistoletas su svoriu'],
+    [/shrimp|kreve/, 'Pistol squat', 'Pistoletas (pritūpimas ant vienos kojos)'],
+    [/bulgar/, 'Shrimp squat', 'Krevetės pritūpimas'],
+    [/lunge|split|įtūpst/, 'Bulgarian split squat', 'Bulgariški įtūpstai'],
+    [/squat|pritūp/, 'Split squat', 'Įtūpstai vietoje'],
+    [/single.?leg (glute )?bridge|tiltas ant vienos/, 'Single-leg hip thrust', 'Klubų kėlimas ant vienos kojos'],
+    [/bridge|tiltas/, 'Single-leg glute bridge', 'Sėdmenų tiltas ant vienos kojos'],
+    [/(single|one).?leg.*calf|blauzd.*vienos kojos/, 'Weighted single-leg calf raise', 'Blauzdų kėlimas ant vienos kojos su svoriu'],
     [/calf|blauzd/, 'Single-leg calf raise', 'Blauzdų kėlimas ant vienos kojos'],
   ];
   function harderOf(name) {
     const text = `${same(name)} ${norm(name)}`;
     const h = HARDER.find(([re]) => re.test(text));
-    return h ? h[lang() === 'lt' ? 2 : 1] : T().weighted(name);
+    return h && h[1] ? h[lang() === 'lt' ? 2 : 1] : h ? T().moreWeight : T().weighted(name);
   }
 
-  // "+3 reps → 47.5 kg · ≈ 2 workouts", "Ready for 47.5 kg"
+  // "+3 reps → 47.5 kg · ≈ 2–3 workouts", "Ready for 47.5 kg × 9", "Stuck at 80 kg: drop to 72.5 kg…"
   function stepText(st) {
     const s = T().step;
-    if (st.ready) return st.next ? s.up(fmtKg(st.next)) : s.harder(st.harder);
-    const parts = [st.missing > 0 && s.sets(st.missing), st.short > 0 && s.reps(st.short)].filter(Boolean).join(' ');
-    return `${parts} → ${st.next ? `${fmtKg(st.next)} kg` : st.harder}${st.sessions ? ` · ${s.eta(st.sessions)}` : ''}`;
+    if (st.stall) return s.stall(fmtKg(st.kg), fmtKg(st.stall));
+    if (st.ready) return st.next ? s.up(fmtKg(st.next), st.nextReps) : s.harder(st.harder);
+    const parts = [st.missing > 0 && s.sets(st.missing), st.short > 0 && (st.held ? s.secs : s.reps)(st.short)].filter(Boolean).join(' ');
+    return `${parts} → ${st.next ? `${fmtKg(st.next)} kg` : st.harder}${st.eta ? ` · ${s.eta(...st.eta)}` : ''}`;
   }
 
   const BODY = {
     outline: 'M100 10C102 10 104.1 10.2 106 10.8C107.9 11.4 109.7 12.3 111.2 13.4C112.7 14.5 114 15.9 115 17.4C116 18.9 116.9 20.8 117.4 22.6C117.9 24.4 117.9 26.8 118 28.4C118.1 30 117.5 31.5 117.8 32.4C118.1 33.3 119.1 33 119.6 33.8C120.1 34.6 120.9 36.2 121 37.4C121.1 38.6 120.7 40.2 120.2 41.2C119.7 42.2 118.7 42.3 118.2 43.4C117.7 44.5 117.6 46.1 117.2 47.6C116.8 49.1 116.4 50.8 115.8 52.4C115.2 54 113.9 55.6 113.4 57C112.9 58.4 112.7 59.7 112.6 61C112.5 62.3 112.6 63.7 112.8 65C113 66.3 113.3 67.5 113.8 68.6C114.3 69.7 114.9 70.4 116 71.4C117.1 72.4 118.8 73.5 120.6 74.8C122.4 76.1 124.5 77.6 126.8 79C129.1 80.4 131.8 81.9 134.6 83.2C137.4 84.5 141 85.5 143.6 86.6C146.2 87.7 148.4 88.5 150.2 89.6C152 90.7 153.3 91.7 154.4 93.2C155.5 94.7 156.2 96.6 156.8 98.4C157.4 100.2 157.8 102.1 158 104C158.2 105.9 158.2 108 158.2 110C158.2 112 157.7 114 157.8 116C157.9 118 158.2 120 158.6 122C159 124 159.7 126.1 160.2 128.1C160.7 130.2 161.2 132.4 161.6 134.5C162 136.6 162.3 138.7 162.6 140.9C162.9 143.1 163.1 145.3 163.6 147.5C164.1 149.7 164.8 151.8 165.4 154.1C166 156.4 166.7 158.8 167.4 161.2C168.1 163.5 168.9 165.9 169.6 168.3C170.3 170.6 171 173 171.6 175.3C172.2 177.7 172.8 180.1 173.4 182.4C174 184.8 174.7 187.1 175.4 189.5C176.1 191.9 176.7 194.3 177.4 196.6C178.1 198.8 178.5 201.3 179.4 203C180.3 204.6 181.3 205.2 182.6 206.5C183.9 207.8 185.5 209.2 187 210.5C188.5 211.8 190.1 213.1 191.6 214.5C193.1 215.9 194.8 217.7 196 219C197.2 220.3 198.2 221.5 198.6 222.5C199 223.6 198.7 224.8 198.2 225.4C197.7 225.9 196.6 226.1 195.6 225.9C194.6 225.6 193.1 224.4 192 223.7C190.9 223 189.9 222.3 188.8 221.6C189.1 223.1 189.4 224.4 189.8 226.1C190.2 227.8 190.8 229.8 191.2 231.8C191.6 233.7 192.1 235.9 192.4 237.9C192.7 239.9 193.1 242.1 193.2 243.8C193.3 245.5 193.3 247.1 193 248.3C192.7 249.5 192 250.4 191.4 250.9C190.8 251.3 189.9 251.1 189.4 250.9C188.9 250.6 188.6 249.9 188.2 249.5C187.9 250.2 187.9 251.2 187.4 251.8C186.9 252.4 186.1 253 185.4 253C184.7 253 183.9 252.1 183.4 251.6C182.9 251.1 182.9 250.5 182.6 249.9C182.1 250.3 181.6 251.1 181 251.1C180.4 251.1 179.5 250.9 179 250.2C178.5 249.4 178.2 247.9 177.8 246.6C177.4 245.3 177 243.9 176.6 242.4C176.2 240.8 175.8 239 175.4 237.2C175 235.3 174.6 233.2 174.2 231.3C173.8 229.3 173.3 227.3 172.8 225.4C172.3 223.5 171.9 221.5 171.4 219.7C170.9 217.9 170.3 216 169.8 214.5C169.3 213 168.9 212 168.4 210.7C167.9 209.5 167.5 208.3 166.8 207C166.1 205.7 165.3 204.4 164.4 203C163.5 201.5 162.4 200.1 161.4 198.5C160.4 196.8 159.4 194.8 158.4 193C157.4 191.3 156.5 189.5 155.6 187.9C154.7 186.2 153.8 184.6 153 182.9C152.2 181.2 151.4 179.6 150.8 177.9C150.2 176.3 149.6 174.7 149.2 173C148.8 171.3 148.5 169.3 148.2 167.6C147.9 165.8 147.7 164.1 147.4 162.4C147.1 160.7 146.9 159.1 146.6 157.4C146.3 155.8 145.9 154 145.4 152.5C144.9 150.9 144.1 149.3 143.4 148C142.7 146.7 141.8 145.5 141 144.7C140.2 143.9 139.4 143.7 138.6 143.3C137.9 142.7 136.9 141.1 136.4 141.6C135.9 142.1 135.9 144.3 135.6 146C135.3 147.7 135.1 149.7 134.8 151.6C134.5 153.5 134.1 155.5 133.6 157.4C133.1 159.3 132.2 161.3 132 163.2C131.8 165.1 132.1 166.9 132.4 168.8C132.7 170.7 133.3 172.5 133.6 174.4C133.9 176.3 134.1 178.2 134.2 180C134.3 181.8 134.2 183.6 134.2 185.4C134.2 187.2 133.9 189 134 190.8C134.1 192.6 134.4 194.4 134.8 196.2C135.2 198 136 200 136.6 201.8C137.2 203.6 137.7 205.4 138.2 207.2C138.7 209 139.2 210.8 139.6 212.6C140 214.4 140.3 216.1 140.6 218C140.9 219.9 141.3 221.9 141.6 224.2C141.9 226.4 142.1 229.2 142.4 231.7C142.7 234.2 143 236.6 143.2 239C143.4 241.4 143.5 243.7 143.6 246.3C143.7 248.9 143.7 251.8 143.6 254.4C143.5 257 143.4 259.5 143.2 262C143 264.4 142.8 266.8 142.6 269.2C142.4 271.7 142.1 274.1 141.8 276.5C141.5 279 141 281.6 140.6 284.1C140.2 286.6 139.7 288.9 139.4 291.4C139.1 293.9 138.8 296.5 138.6 298.9C138.4 301.4 138.4 303.9 138.4 306.2C138.4 308.6 138.3 310.8 138.4 312.9C138.5 315.1 138.8 317 139.2 319.1C139.6 321.2 140.4 323.5 141 325.6C141.6 327.7 142.4 329.7 143 331.8C143.6 333.8 144.2 335.9 144.6 338C145 340.1 145.1 342.3 145.2 344.4C145.3 346.6 145.1 348.7 145 350.9C144.9 353 144.6 355.2 144.4 357.3C144.2 359.4 143.9 361.4 143.6 363.5C143.3 365.6 142.9 367.8 142.6 369.9C142.3 372.1 141.9 374.2 141.6 376.4C141.3 378.5 141 380.7 140.8 382.8C140.6 384.9 140.5 387 140.4 389C140.3 391.1 140.2 393.3 140.2 395.2C140.2 397.2 140.1 399.1 140.2 401C140.3 402.9 140.5 404.8 140.8 406.8C141.1 408.7 141.3 410.9 141.8 413C142.3 415 142.9 417.1 143.6 419.2C144.3 421.2 144.9 423.3 145.8 425.4C146.7 427.4 147.9 429.5 149 431.6C150.1 433.7 151.2 435.9 152.2 437.8C153.2 439.7 154.5 441.4 155 442.9C155.5 444.4 155.8 445.7 155.4 446.8C155 447.8 154.2 448.7 152.6 449.3C151 449.9 148.3 450.1 146 450.2C143.7 450.3 141 450.2 138.6 450C136.2 449.8 133.7 449.4 131.6 448.8C129.5 448.3 127.5 447.6 126.2 446.5C124.9 445.5 124.1 444 123.6 442.4C123.1 440.8 123.5 439 123.4 437.1C123.3 435.2 123.2 433 123.2 430.9C123.2 428.8 123.1 426.7 123.2 424.7C123.3 422.7 123.6 420.7 123.8 418.7C124 416.7 124.2 414.7 124.4 412.7C124.6 410.7 124.7 408.7 124.8 406.8C124.9 404.8 124.9 403 124.8 401C124.7 399 124.6 396.9 124.4 394.8C124.2 392.7 123.8 390.5 123.4 388.3C123 386.2 122.3 384.2 121.8 382.1C121.3 380.1 120.7 378 120.2 375.9C119.7 373.8 119.2 371.6 118.8 369.5C118.4 367.4 117.9 365.4 117.6 363.3C117.3 361.2 117.1 358.9 117 356.8C116.9 354.7 116.9 352.7 116.8 350.6C116.7 348.6 116.7 346.5 116.6 344.4C116.5 342.3 116.4 340.1 116.2 338C116 335.9 115.8 333.8 115.6 331.8C115.4 329.7 115.2 327.6 115 325.6C114.8 323.5 114.4 321.5 114.2 319.3C114 317.2 113.8 315.2 113.6 312.9C113.4 310.6 113.3 308.2 113 305.7C112.7 303.2 112.3 300.6 111.8 298.1C111.3 295.7 110.8 293.3 110.2 290.9C109.6 288.4 109 285.8 108.4 283.3C107.8 280.8 107.2 278.4 106.6 276C106 273.6 105.3 271.2 104.8 268.7C104.3 266.2 103.9 263.6 103.6 261.1C103.3 258.7 103.1 256.3 102.8 253.9C102.5 251.4 102.2 248.8 102 246.3C101.8 243.8 101.6 241.3 101.4 238.7C101.2 236.2 101 233.7 100.8 230.9C100.6 228.1 100.3 225 100 222C99.7 225 99.4 228.1 99.2 230.9C99 233.7 98.8 236.2 98.6 238.7C98.4 241.3 98.2 243.8 98 246.3C97.8 248.8 97.5 251.4 97.2 253.9C96.9 256.3 96.7 258.7 96.4 261.1C96.1 263.6 95.7 266.2 95.2 268.7C94.7 271.2 94 273.6 93.4 276C92.8 278.4 92.2 280.8 91.6 283.3C91 285.8 90.4 288.4 89.8 290.9C89.2 293.3 88.7 295.7 88.2 298.1C87.7 300.6 87.3 303.2 87 305.7C86.7 308.2 86.6 310.6 86.4 312.9C86.2 315.2 86 317.2 85.8 319.3C85.6 321.5 85.2 323.5 85 325.6C84.8 327.6 84.6 329.7 84.4 331.8C84.2 333.8 84 335.9 83.8 338C83.6 340.1 83.5 342.3 83.4 344.4C83.3 346.5 83.3 348.6 83.2 350.6C83.1 352.7 83.1 354.7 83 356.8C82.9 358.9 82.7 361.2 82.4 363.3C82.1 365.4 81.6 367.4 81.2 369.5C80.8 371.6 80.3 373.8 79.8 375.9C79.3 378 78.7 380.1 78.2 382.1C77.7 384.2 77 386.2 76.6 388.3C76.2 390.5 75.8 392.7 75.6 394.8C75.4 396.9 75.3 399 75.2 401C75.1 403 75.1 404.8 75.2 406.8C75.3 408.7 75.4 410.7 75.6 412.7C75.8 414.7 76 416.7 76.2 418.7C76.4 420.7 76.7 422.7 76.8 424.7C76.9 426.7 76.8 428.8 76.8 430.9C76.8 433 76.7 435.2 76.6 437.1C76.5 439 76.9 440.8 76.4 442.4C75.9 444 75.1 445.5 73.8 446.5C72.5 447.6 70.5 448.3 68.4 448.8C66.3 449.4 63.8 449.8 61.4 450C59 450.2 56.3 450.3 54 450.2C51.7 450.1 49 449.9 47.4 449.3C45.8 448.7 45 447.8 44.6 446.8C44.2 445.7 44.5 444.4 45 442.9C45.5 441.4 46.8 439.7 47.8 437.8C48.8 435.9 49.9 433.7 51 431.6C52.1 429.5 53.3 427.4 54.2 425.4C55.1 423.3 55.7 421.2 56.4 419.2C57.1 417.1 57.7 415 58.2 413C58.7 410.9 58.9 408.7 59.2 406.8C59.5 404.8 59.7 402.9 59.8 401C59.9 399.1 59.8 397.2 59.8 395.2C59.8 393.3 59.7 391.1 59.6 389C59.5 387 59.4 384.9 59.2 382.8C59 380.7 58.7 378.5 58.4 376.4C58.1 374.2 57.7 372.1 57.4 369.9C57.1 367.8 56.7 365.6 56.4 363.5C56.1 361.4 55.8 359.4 55.6 357.3C55.4 355.2 55.1 353 55 350.9C54.9 348.7 54.7 346.6 54.8 344.4C54.9 342.3 55 340.1 55.4 338C55.8 335.9 56.4 333.8 57 331.8C57.6 329.7 58.4 327.7 59 325.6C59.6 323.5 60.4 321.2 60.8 319.1C61.2 317 61.5 315.1 61.6 312.9C61.7 310.8 61.6 308.6 61.6 306.2C61.6 303.9 61.6 301.4 61.4 298.9C61.2 296.5 60.9 293.9 60.6 291.4C60.3 288.9 59.8 286.6 59.4 284.1C59 281.6 58.5 279 58.2 276.5C57.9 274.1 57.6 271.7 57.4 269.2C57.2 266.8 57 264.4 56.8 262C56.6 259.5 56.5 257 56.4 254.4C56.3 251.8 56.3 248.9 56.4 246.3C56.5 243.7 56.6 241.4 56.8 239C57 236.6 57.3 234.2 57.6 231.7C57.9 229.2 58.1 226.4 58.4 224.2C58.7 221.9 59.1 219.9 59.4 218C59.7 216.1 60 214.4 60.4 212.6C60.8 210.8 61.3 209 61.8 207.2C62.3 205.4 62.8 203.6 63.4 201.8C64 200 64.8 198 65.2 196.2C65.6 194.4 65.9 192.6 66 190.8C66.1 189 65.8 187.2 65.8 185.4C65.8 183.6 65.7 181.8 65.8 180C65.9 178.2 66.1 176.3 66.4 174.4C66.7 172.5 67.3 170.7 67.6 168.8C67.9 166.9 68.2 165.1 68 163.2C67.8 161.3 66.9 159.3 66.4 157.4C65.9 155.5 65.5 153.5 65.2 151.6C64.9 149.7 64.7 147.7 64.4 146C64.1 144.3 64.1 142.1 63.6 141.6C63.1 141.1 62.1 142.7 61.4 143.3C60.6 143.7 59.8 143.9 59 144.7C58.2 145.5 57.3 146.7 56.6 148C55.9 149.3 55.1 150.9 54.6 152.5C54.1 154 53.7 155.8 53.4 157.4C53.1 159.1 52.9 160.7 52.6 162.4C52.3 164.1 52.1 165.8 51.8 167.6C51.5 169.3 51.2 171.3 50.8 173C50.4 174.7 49.8 176.3 49.2 177.9C48.6 179.6 47.8 181.2 47 182.9C46.2 184.6 45.3 186.2 44.4 187.9C43.5 189.5 42.6 191.3 41.6 193C40.6 194.8 39.6 196.8 38.6 198.5C37.6 200.1 36.5 201.5 35.6 203C34.7 204.4 33.9 205.7 33.2 207C32.5 208.3 32.1 209.5 31.6 210.7C31.1 212 30.7 213 30.2 214.5C29.7 216 29.1 217.9 28.6 219.7C28.1 221.5 27.7 223.5 27.2 225.4C26.7 227.3 26.2 229.3 25.8 231.3C25.4 233.2 25 235.3 24.6 237.2C24.2 239 23.8 240.8 23.4 242.4C23 243.9 22.6 245.3 22.2 246.6C21.8 247.9 21.5 249.4 21 250.2C20.5 250.9 19.6 251.1 19 251.1C18.4 251.1 17.9 250.3 17.4 249.9C17.1 250.5 17.1 251.1 16.6 251.6C16.1 252.1 15.3 253 14.6 253C13.9 253 13.1 252.4 12.6 251.8C12.1 251.2 12.1 250.2 11.8 249.5C11.4 249.9 11.1 250.6 10.6 250.9C10.1 251.1 9.2 251.3 8.6 250.9C8 250.4 7.3 249.5 7 248.3C6.7 247.1 6.7 245.5 6.8 243.8C6.9 242.1 7.3 239.9 7.6 237.9C7.9 235.9 8.4 233.7 8.8 231.8C9.2 229.8 9.8 227.8 10.2 226.1C10.6 224.4 10.9 223.1 11.2 221.6C10.1 222.3 9.1 223 8 223.7C6.9 224.4 5.4 225.6 4.4 225.9C3.4 226.1 2.3 225.9 1.8 225.4C1.3 224.8 1 223.6 1.4 222.5C1.8 221.5 2.8 220.3 4 219C5.2 217.7 6.9 215.9 8.4 214.5C9.9 213.1 11.5 211.8 13 210.5C14.5 209.2 16.1 207.8 17.4 206.5C18.7 205.2 19.7 204.6 20.6 203C21.5 201.3 21.9 198.8 22.6 196.6C23.3 194.3 23.9 191.9 24.6 189.5C25.3 187.1 26 184.8 26.6 182.4C27.2 180.1 27.8 177.7 28.4 175.3C29 173 29.7 170.6 30.4 168.3C31.1 165.9 31.9 163.5 32.6 161.2C33.3 158.8 34 156.4 34.6 154.1C35.2 151.8 35.9 149.7 36.4 147.5C36.9 145.3 37.1 143.1 37.4 140.9C37.7 138.7 38 136.6 38.4 134.5C38.8 132.4 39.3 130.2 39.8 128.1C40.3 126.1 41 124 41.4 122C41.8 120 42.1 118 42.2 116C42.3 114 41.8 112 41.8 110C41.8 108 41.8 105.9 42 104C42.2 102.1 42.6 100.2 43.2 98.4C43.8 96.6 44.5 94.7 45.6 93.2C46.7 91.7 48 90.7 49.8 89.6C51.6 88.5 53.8 87.7 56.4 86.6C59 85.5 62.6 84.5 65.4 83.2C68.2 81.9 70.9 80.4 73.2 79C75.5 77.6 77.6 76.1 79.4 74.8C81.2 73.5 82.9 72.4 84 71.4C85.1 70.4 85.7 69.7 86.2 68.6C86.7 67.5 87 66.3 87.2 65C87.4 63.7 87.5 62.3 87.4 61C87.3 59.7 87.1 58.4 86.6 57C86.1 55.6 84.8 54 84.2 52.4C83.6 50.8 83.2 49.1 82.8 47.6C82.4 46.1 82.3 44.5 81.8 43.4C81.3 42.3 80.3 42.2 79.8 41.2C79.3 40.2 78.9 38.6 79 37.4C79.1 36.2 79.9 34.6 80.4 33.8C80.9 33 81.9 33.3 82.2 32.4C82.5 31.5 81.9 30 82 28.4C82.1 26.8 82.1 24.4 82.6 22.6C83.1 20.8 84 18.9 85 17.4C86 15.9 87.3 14.5 88.8 13.4C90.3 12.3 92.1 11.4 94 10.8C95.9 10.2 98 10 100 10Z',
     front: [
-      ['traps', 'M113.8 66.4C114.5 68.1 114.9 70 116 71.4C117.1 72.8 118.8 73.5 120.6 74.8C122.4 76.1 124.5 77.6 126.8 79C129.1 80.4 132.2 82 134.6 83.2C137 84.4 139.1 85.1 141.4 86C138.6 86.1 135.7 86.6 133 86.4C130.3 86.2 127.4 85.8 125 85C122.6 84.2 120.5 83 118.8 81.6C117.1 80.2 115.8 78.9 115 76.4C114.2 73.9 114.2 69.7 113.8 66.4Z'],
-      ['~', 'M114.4 46C113.8 47.7 111.9 52.6 110.6 56C109.3 59.4 107.9 63.2 106.6 66.6C105.3 70 103.3 74.9 102.6 76.6'],
+      ['upperTraps', 'M113.8 66.4C114.5 68.1 114.9 70 116 71.4C117.1 72.8 118.8 73.5 120.6 74.8C122.4 76.1 124.5 77.6 126.8 79C129.1 80.4 132.2 82 134.6 83.2C137 84.4 139.1 85.1 141.4 86C138.6 86.1 135.7 86.6 133 86.4C130.3 86.2 127.2 85.7 125 85C122.8 84.3 121 83.2 119.6 82C118.2 80.8 117.4 80.2 116.4 77.6C115.4 75 114.7 70.1 113.8 66.4Z'],
+      ['scm', 'M113.2 44.6C113.9 45.6 115.4 46 115.4 47.6C115.4 49.2 114.2 51.8 113.4 54C112.6 56.2 111.4 58.7 110.4 61C109.4 63.3 108.4 65.5 107.4 67.6C106.4 69.7 105.4 72 104.6 73.8C103.8 75.6 103.3 76.7 102.6 78.2C102.1 78.1 101.2 78.8 101 78C100.8 77.2 101 75.4 101.4 73.6C101.8 71.8 102.7 69.3 103.6 67C104.5 64.7 105.6 62.2 106.6 59.8C107.6 57.4 108.8 54.7 109.6 52.6C110.4 50.5 111 48.3 111.6 47C112.2 45.7 112.7 45.4 113.2 44.6Z'],
       ['upperChest', 'M101.2 92.4C102.8 91.9 104.2 91.4 106 91C107.8 90.6 109.9 90.1 112 89.8C114.1 89.5 116.5 89.2 118.6 89C120.7 88.8 122.6 88.7 124.4 88.6C126.2 88.5 127.6 88.5 129.2 88.4C130.1 90.1 131.1 91.8 132 93.6C132.9 95.4 133.6 97.5 134.4 99.4C132.3 99.4 130.4 99.3 128 99.4C125.6 99.5 122.7 99.8 120 100C117.3 100.2 114.3 100.6 112 100.8C109.7 101 107.8 101.2 106 101.4C104.2 101.6 102.8 101.7 101.2 101.8C101.2 98.7 101.2 95.5 101.2 92.4Z'],
       ['midChest', 'M101.2 103.8C102.8 103.7 104.2 103.6 106 103.4C107.8 103.2 109.7 103 112 102.8C114.3 102.6 117.3 102.2 120 102C122.7 101.8 125.5 101.5 128 101.4C130.5 101.3 132.8 101.4 135.2 101.4C136.1 103.9 137.1 106.5 137.8 108.8C138.5 111.1 139 112.9 139.6 115C137.1 115.4 134.6 115.9 132 116.2C129.4 116.5 126.7 116.8 124 117C121.3 117.2 118.7 117.4 116 117.4C113.3 117.4 110.5 117.3 108 117.2C105.5 117.1 103.5 116.9 101.2 116.8C101.2 112.5 101.2 108.1 101.2 103.8Z'],
       ['lowerChest', 'M101.2 118.8C103.5 118.9 105.5 119.1 108 119.2C110.5 119.3 113.3 119.4 116 119.4C118.7 119.4 121.3 119.2 124 119C126.7 118.8 129.5 118.6 132 118.2C134.5 117.8 136.5 117.3 138.8 116.8C138.3 118.1 138.3 119.4 137.2 120.6C136.1 121.8 134.3 122.9 132.4 123.8C130.5 124.7 128 125.4 125.6 125.8C123.2 126.2 120.4 126.4 118 126.4C115.6 126.4 113.1 126.2 111 125.8C108.9 125.4 106.8 124.9 105.2 124.2C103.6 123.5 102.5 122.6 101.2 121.8C101.2 120.8 101.2 119.8 101.2 118.8Z'],
       ['frontDelt', 'M129.6 87.6C131.4 87.3 133 86.8 135 86.6C137 86.4 139.4 86.5 141.4 86.6C143.4 86.7 145 87.1 146.8 87.4C147.3 89.5 147.9 91.3 148.4 93.6C148.9 95.9 149.3 98.5 149.8 101C150.3 103.5 150.7 106.1 151.2 108.6C151.7 111.1 152.2 113.8 152.6 116.2C153 118.6 153.4 120.9 153.8 123.2C152.3 122.3 150.7 121.5 149.2 120.6C147.7 119.7 146 118.7 144.6 118C143.2 117.3 142.1 117.1 140.8 116.6C140 114 139.3 111.4 138.4 108.8C137.5 106.2 136.6 103.5 135.6 101C134.6 98.5 133.6 95.8 132.6 93.6C131.6 91.4 130.6 89.6 129.6 87.6Z'],
       ['sideDelt', 'M146.8 87.4C148.3 88.1 150.1 88.6 151.4 89.6C152.7 90.6 153.7 92.1 154.6 93.6C155.5 95.1 156.1 96.9 156.6 98.6C157.1 100.3 157.4 102.1 157.6 104C157.8 105.9 157.8 108.1 157.8 110C157.8 111.9 157.6 113.8 157.4 115.4C157.2 117 157 118.2 156.8 119.7C156.3 120.5 155.9 121.7 155.4 122.2C154.9 122.8 154.3 122.9 153.8 123.2C153.4 120.9 153 118.6 152.6 116.2C152.2 113.8 151.7 111.1 151.2 108.6C150.7 106.1 150.3 103.5 149.8 101C149.3 98.5 148.9 95.9 148.4 93.6C147.9 91.3 147.3 89.5 146.8 87.4Z'],
-      ['biceps', 'M141.2 118.9C142.5 119.4 143.7 119.8 145 120.4C146.3 120.9 147.6 121.5 148.8 122.2C150 123 151.2 123.6 152.2 124.8C153.2 126.1 154 127.8 154.6 129.6C155.2 131.4 155.4 133.5 155.6 135.7C155.8 137.9 155.9 140.5 155.8 142.8C155.7 145.1 155.4 147.4 155 149.4C154.6 151.4 153.9 153.2 153.2 154.6C152.5 156 151.6 156.8 150.8 157.9C150 156.6 149.1 155.6 148.4 154.1C147.7 152.7 147.2 150.9 146.6 149.2C146 147.4 145.5 145.4 145 143.5C144.5 141.6 143.9 139.6 143.4 137.6C142.9 135.6 142.4 133.7 142 131.7C141.6 129.7 141.3 127.7 141.2 125.6C141.1 123.4 141.2 121.1 141.2 118.9Z'],
-      ['triceps', 'M156 124.4C156.7 123.9 157.4 122.5 158 123C158.6 123.4 159.1 125.6 159.6 127.2C160.1 128.9 160.4 130.9 160.8 132.9C161.2 134.9 161.5 137.1 161.8 139.2C162.1 141.4 162.3 143.7 162.6 145.8C162.9 148 163.1 150.3 163.4 152.2C163.7 154.1 163.9 155.7 164.2 157.4C163.3 157.8 162.5 158.2 161.6 158.6C161.5 156.6 161.4 154.7 161.2 152.7C161 150.6 160.8 148.4 160.4 146.3C160 144.3 159.5 142.2 159 140.4C158.5 138.6 157.7 137.2 157.2 135.5C156.7 133.8 156.4 132.1 156.2 130.3C156 128.4 156.1 126.3 156 124.4Z'],
+      ['bicepsShort', 'M141.2 118.9C142.2 119.3 143.3 119.7 144.2 120.1C145.1 120.5 145.9 120.9 146.8 121.3C147.1 124.8 147.5 128 147.8 131.7C148.1 135.4 148.1 139.6 148.4 143.5C148.7 147.4 149.1 151.2 149.4 155.1C148.9 154.3 148.3 154.1 147.8 152.9C147.3 151.8 146.7 149.8 146.2 148.2C145.7 146.6 145.3 145 144.8 143.3C144.3 141.5 143.9 139.5 143.4 137.6C142.9 135.7 142.4 133.7 142 131.7C141.6 129.7 141.3 127.7 141.2 125.6C141.1 123.4 141.2 121.1 141.2 118.9Z'],
+      ['bicepsLong', 'M148.4 122C149.7 123 151.2 123.6 152.2 124.8C153.2 126.1 154 127.8 154.6 129.6C155.2 131.4 155.4 133.5 155.6 135.7C155.8 137.9 155.9 140.5 155.8 142.8C155.7 145.1 155.4 147.4 155 149.4C154.6 151.4 153.9 153.2 153.2 154.6C152.5 156 151.6 156.8 150.8 157.9C150.7 157 150.5 157.6 150.4 155.3C150.3 153 150.2 147.9 150 144C149.8 140 149.7 135.3 149.4 131.7C149.1 128 148.7 125.2 148.4 122Z'],
+      ['tricepsLateral', 'M156 124.4C156.7 123.9 157.4 122.5 158 123C158.6 123.4 159.1 125.6 159.6 127.2C160.1 128.9 160.4 130.9 160.8 132.9C161.2 134.9 161.5 137.1 161.8 139.2C162.1 141.4 162.3 143.7 162.6 145.8C162.9 148 163.1 150.3 163.4 152.2C163.7 154.1 163.9 155.7 164.2 157.4C163.3 157.8 162.5 158.2 161.6 158.6C161.5 156.6 161.4 154.7 161.2 152.7C161 150.6 160.8 148.4 160.4 146.3C160 144.3 159.5 142.2 159 140.4C158.5 138.6 157.7 137.2 157.2 135.5C156.7 133.8 156.4 132.1 156.2 130.3C156 128.4 156.1 126.3 156 124.4Z'],
       ['brachialis', 'M156.8 137.6C157.3 139.2 157.9 140.5 158.4 142.3C158.9 144.1 159.3 146.3 159.6 148.2C159.9 150.1 160.1 152.1 160.2 153.9C160.3 155.6 160.2 157.2 160.2 158.8C158.9 159.4 157.6 160.3 156.4 160.5C155.2 160.6 154 160 152.8 159.8C153.4 158.3 154.1 157 154.6 155.3C155.1 153.6 155.7 151.6 156 149.6C156.3 147.7 156.5 145.5 156.6 143.5C156.7 141.5 156.7 139.6 156.8 137.6Z'],
       ['brachioradialis', 'M163.4 159.8C164.3 158.9 165.1 158 166 157.2C166.6 158.9 167.2 160.3 167.8 162.4C168.4 164.4 169.1 167.1 169.8 169.4C170.5 171.8 171.2 174.2 171.8 176.5C172.4 178.9 173 181.2 173.6 183.6C174.2 186 175 188.4 175.6 190.7C176.2 193 176.9 195.6 177.4 197.5C177.9 199.5 178.2 200.7 178.6 202.3C177.9 202.6 177.1 203 176.4 203.4C175.8 201.5 175.3 199.9 174.6 197.8C173.9 195.7 173 193.3 172.2 190.9C171.4 188.6 170.4 186.1 169.6 183.6C168.8 181.1 168 178.6 167.2 176.1C166.4 173.5 165.6 171 165 168.3C164.4 165.6 163.9 162.6 163.4 159.8Z'],
       ['flexors', 'M148.6 164.7C150.3 163.9 151.9 162.9 153.6 162.4C155.3 161.8 157 161.9 158.6 161.4C160.2 161 161.8 160.3 163.4 159.8C163.9 162.6 164.4 165.6 165 168.3C165.6 171 166.4 173.5 167.2 176.1C168 178.6 168.8 181.1 169.6 183.6C170.4 186.1 171.4 188.6 172.2 190.9C173 193.3 173.9 195.7 174.6 197.8C175.3 199.9 175.8 201.5 176.4 203.4C175.1 204.2 173.9 205.2 172.6 205.8C171.3 206.4 170.1 206.7 168.8 207.2C167.6 205.9 166.4 204.7 165.2 203.2C164 201.7 162.9 200.2 161.8 198.5C160.7 196.7 159.5 194.7 158.4 192.8C157.3 190.9 156.4 188.9 155.4 186.9C154.4 184.9 153.4 182.8 152.6 180.8C151.8 178.7 151.2 176.5 150.6 174.6C150 172.8 149.5 171.1 149.2 169.4C148.9 167.8 148.8 166.3 148.6 164.7Z'],
@@ -3004,24 +3115,29 @@ Penktadienis C
       ['serratus', 'M127.6 135C128.9 134.5 130.3 134.1 131.6 133.6C132.9 133.1 134.2 132.6 135.4 132.2C136.6 131.8 137.7 131.4 138.8 131C138.5 132.5 138.8 134.6 138 135.6C137.2 136.6 135.6 136.7 134 137.2C132.4 137.7 130.3 138.1 128.4 138.6C128.1 137.4 127.9 136.2 127.6 135Z'],
       ['serratus', 'M127.4 141.6C128.7 141.3 129.8 141.1 131.2 140.8C132.6 140.5 134.1 140.3 135.6 140C135.5 141.3 135.9 142.9 135.2 143.8C134.5 144.7 132.9 145.3 131.6 145.6C130.3 145.9 128.9 145.6 127.6 145.6C127.5 144.3 127.5 142.9 127.4 141.6Z'],
       ['obliques', 'M120.8 143.6C122.1 144.7 123.3 146 124.8 146.8C126.3 147.6 128 147.9 129.6 148.2C131.2 148.5 132.8 148.3 134.4 148.4C134.3 150.3 134.3 152.1 134 154C133.7 155.9 133.2 157.9 132.8 159.6C132.4 161.3 131.7 162.7 131.6 164.4C131.5 166.1 131.9 168.1 132.2 170C132.5 171.9 133 173.8 133.2 175.6C133.4 177.4 133.5 179.2 133.6 181C133.7 182.8 133.5 184.8 133.6 186.6C133.7 188.4 133.7 190.2 134 192C134.3 193.8 134.7 195.7 135.2 197.4C135.7 199.1 136.3 200.7 136.8 202.4C135.1 203.8 133.5 205.3 131.6 206.6C129.7 207.9 127.6 209.1 125.6 210.4C123.6 211.7 121.6 213.1 119.8 214.2C118 215.3 116.3 216.2 114.6 217.2C115.4 215 116.2 213.1 117 210.6C117.8 208.1 118.8 205.3 119.4 202.4C120 199.5 120.3 196.3 120.6 193.2C120.9 190.1 121.1 186.8 121.2 183.6C121.3 180.4 121.4 177.3 121.4 174C121.4 170.7 121.4 167.3 121.4 164C121.4 160.7 121.3 157.4 121.2 154C121.1 150.6 120.9 147.1 120.8 143.6Z'],
-      ['quads', 'M137.4 214.6C138.2 216.5 139.1 218 139.8 220.4C140.5 222.8 141 225.7 141.4 228.8C141.8 231.8 142.2 235.4 142.4 238.7C142.6 242.1 142.6 245.6 142.6 249C142.6 252.4 142.6 255.9 142.4 259.3C142.2 262.6 141.9 265.9 141.6 269.2C141.3 272.6 140.8 276 140.4 279.2C140 282.5 139.5 285.6 139 288.7C138.5 291.8 138 294.9 137.6 297.9C137.2 300.8 136.9 303.6 136.6 306.5C135.6 305.5 134.4 305.3 133.6 303.5C132.8 301.7 132.1 298.7 131.6 295.7C131.1 292.7 130.7 289.2 130.4 285.7C130.1 282.2 129.9 278.4 129.8 274.6C129.7 270.9 129.7 267 129.8 263C129.9 259.1 130.1 255.1 130.4 251.2C130.7 247.2 131.1 243.2 131.6 239.3C132.1 235.3 132.8 230.8 133.4 227.4C134 224 134.7 221.1 135.4 219C136.1 216.9 136.7 216.1 137.4 214.6Z'],
+      ['quads', 'M140.4 232.3C140.9 234.4 141.6 236 142 238.7C142.4 241.5 142.5 245.6 142.6 249C142.7 252.4 142.6 255.9 142.4 259.3C142.2 262.6 141.9 265.9 141.6 269.2C141.3 272.6 140.8 276 140.4 279.2C140 282.5 139.5 285.6 139 288.7C138.5 291.8 138 294.9 137.6 297.9C137.2 300.8 136.9 303.6 136.6 306.5C135.6 305.5 134.4 305.3 133.6 303.5C132.8 301.7 132.1 298.7 131.6 295.7C131.1 292.7 130.7 289.2 130.4 285.7C130.1 282.2 129.9 278.4 129.8 274.6C129.7 270.9 129.7 267 129.8 263C129.9 259.1 130.1 255.1 130.4 251.2C130.7 247.2 131.1 243.2 131.6 239.3C132.1 235.4 132.8 231 133.4 227.9C134 224.9 134.7 221.5 135.4 221.2C136.1 220.9 137 224.5 137.8 226.3C138.6 228.2 139.5 230.3 140.4 232.3Z'],
+      ['tfl', 'M137.4 203.6C138.1 204.8 139 205.7 139.6 207.2C140.2 208.7 140.6 210.6 141 212.6C141.4 214.6 141.6 216.8 141.8 219C142 221.2 142.1 223.4 142 225.5C141.9 227.6 141.5 229.5 141.2 231.4C140.3 229.8 139.4 228.4 138.6 226.6C137.8 224.8 136.9 222.7 136.4 220.8C135.9 218.9 135.7 217 135.6 215C135.5 213 135.7 210.9 136 209C136.3 207.1 136.9 205.4 137.4 203.6Z'],
       ['quads', 'M134 214C133.3 216.5 132.7 218.2 132 221.4C131.3 224.6 130.5 229 129.8 233.1C129.1 237.2 128.5 241.7 128 246C127.5 250.4 127.1 254.8 126.8 259.3C126.5 263.7 126.3 268.2 126.2 272.5C126.1 276.8 126.2 281 126.4 284.9C126.6 288.8 127.1 292.3 127.6 295.7C128.1 299.1 128.9 302 129.6 305.2C128.6 305.8 127.6 306.8 126.6 307.1C125.6 307.3 124.6 306.9 123.6 306.8C123.1 303.3 122.4 299.9 122 296.2C121.6 292.6 121.5 288.6 121.4 284.6C121.3 280.6 121.4 276.5 121.6 272.2C121.8 267.9 122 263.4 122.4 259C122.8 254.5 123.3 250 124 245.5C124.7 241 125.5 236.2 126.4 232C127.3 227.8 128.3 223.2 129.6 220.2C130.9 217.2 132.5 216.1 134 214Z'],
       ['quads', 'M121.4 276C121.3 279.9 121.1 283.9 121.2 287.6C121.3 291.3 121.4 294.9 121.8 298.1C122.2 301.4 122.9 304.1 123.4 307.1C122.3 308.1 121.3 309.7 120.2 310.3C119.1 310.9 117.8 311.1 116.8 310.6C115.8 310.1 114.9 309 114.4 307.3C113.9 305.7 113.9 303.1 114 300.6C114.1 298.1 114.5 294.9 115 292.2C115.5 289.5 116.3 286.6 117 284.4C117.7 282.1 118.3 280.1 119 278.7C119.7 277.3 120.6 276.9 121.4 276Z'],
-      ['~', 'M136.6 210.6C135.5 212 132.3 215.2 130.2 218.8C128.1 222.4 125.9 227.3 124.2 232C122.5 236.7 121 242.2 119.8 247.1C118.6 252.1 117.9 257 117.2 261.7C116.5 266.4 116 270.7 115.4 275.2C114.8 279.7 114 284.7 113.6 288.7C113.2 292.6 113.1 297.2 113 298.9'],
-      ['adductors', 'M113.6 221.4C115.2 220.6 116.8 219.7 118.4 219C120 218.3 121.5 217.9 123 217.4C124.5 216.9 125.9 216.6 127.4 216.2C126.4 219.3 125.5 221.9 124.4 225.5C123.3 229.1 122 233.5 121 237.7C120 241.8 119.2 246.1 118.4 250.3C117.6 254.6 117 259.1 116.4 263.3C115.8 267.5 115.4 272.1 114.6 275.7C113.8 279.3 112.7 281.9 111.8 284.9C111.1 283.3 110.5 282.1 109.8 280.1C109.1 278 108.3 275.6 107.6 272.8C106.9 270 106 266.6 105.4 263.3C104.8 260.1 104.4 256.7 104 253.3C103.6 249.9 103.3 246.4 103 243.1C102.7 239.7 102.2 235.7 102.4 233.3C102.6 231 103.2 230.2 104.2 228.8C105.2 227.3 106.6 225.9 108.2 224.7C109.8 223.5 111.8 222.5 113.6 221.4Z'],
+      ['sartorius', 'M135.2 208.6C134 210.5 132.8 212.3 131.6 214.4C130.4 216.5 129.3 218.5 128.2 221.4C127.1 224.3 126 228.2 125.2 232C124.4 235.7 123.8 239.8 123.2 243.9C122.6 248 122 252.4 121.6 256.6C121.2 260.7 121.1 265.2 120.6 268.7C120.1 272.2 119.5 274.9 118.8 277.6C118.1 280.4 117.2 282.9 116.6 285.2C116 287.5 115.5 289.3 115 291.4C114.6 290.1 113.9 289.2 113.8 287.6C113.7 286 113.8 283.9 114.2 281.7C114.6 279.4 115.6 277.2 116.2 274.1C116.8 271 117.2 267 117.8 263C118.4 259.1 118.9 254.6 119.6 250.3C120.3 246.1 121.2 241.5 122.2 237.4C123.2 233.2 124.3 228.9 125.4 225.5C126.5 222.1 127.8 219.3 129 216.8C130.2 214.3 131.8 211.8 132.8 210.4C133.8 209 134.4 209.2 135.2 208.6Z'],
+      ['adductors', 'M113.6 221.4C115.2 220.6 116.8 219.7 118.4 219C120 218.3 121.5 217.9 123 217.4C124.5 216.9 125.9 216.6 127.4 216.2C126.4 219.3 125.5 221.9 124.4 225.5C123.3 229.1 122 233.5 121 237.7C120 241.8 119.2 246.1 118.4 250.3C117.6 254.6 117 259.4 116.4 263.3C115.8 267.2 115.2 270.9 114.6 273.8C114 276.8 113.4 278.5 112.8 280.9C112.3 279.1 111.9 277.5 111.4 275.5C110.9 273.4 110.4 271.1 110 268.7C109.6 266.4 109.2 263.9 108.8 261.4C108.4 258.9 108.1 256.5 107.8 253.9C107.5 251.2 107.2 248.5 107 245.8C106.8 243.1 106.6 240.1 106.6 237.7C106.6 235.2 106.3 232.9 106.8 230.9C107.3 228.9 108.5 227.4 109.6 225.8C110.7 224.2 112.3 222.9 113.6 221.4Z'],
+      ['gracilis', 'M104.8 232.5C105 235 105.2 237.2 105.4 239.8C105.6 242.4 105.8 245.4 106 248.2C106.2 251 106.5 253.9 106.8 256.6C107.1 259.3 107.4 261.8 107.8 264.4C108.2 267 108.7 269.7 109.2 272.2C109.7 274.8 110.4 277.3 111 279.8C111.6 282.3 112.3 285 112.8 287.3C113.3 289.7 113.5 291.8 113.8 294.1C113.2 295.1 112.5 297.6 112 297.1C111.5 296.5 111.1 292.9 110.6 290.6C110.1 288.2 109.4 285.5 108.8 283C108.2 280.5 107.6 278.2 107 275.7C106.4 273.3 105.7 270.9 105.2 268.4C104.7 266 104.3 263.4 104 260.9C103.7 258.3 103.5 255.7 103.2 253.1C102.9 250.4 102.6 247.6 102.4 244.9C102.2 242.3 102 239.7 101.8 237.1C102.8 235.6 103.8 234.1 104.8 232.5Z'],
       [null, 'M117.6 312.4C119.1 311.8 120.4 310.8 122 310.6C123.6 310.3 125.6 310.5 127 311.1C128.4 311.7 129.9 312.8 130.6 314.3C131.3 315.7 131.6 318 131.4 319.8C131.2 321.6 130.6 323.8 129.6 325.1C128.6 326.4 126.9 327.4 125.4 327.9C123.9 328.3 121.8 328.2 120.4 327.6C119 327.1 117.7 325.9 117 324.4C116.3 322.9 116.3 320.7 116.4 318.7C116.5 316.7 117.2 314.5 117.6 312.4Z'],
       ['tibialis', 'M129.6 330.2C131.1 331.3 132.8 331.8 134 333.6C135.2 335.4 136.2 338.4 136.8 341.2C137.4 344 137.7 347.3 137.8 350.4C137.9 353.5 137.7 356.8 137.4 360.1C137.1 363.3 136.4 366.7 135.8 369.9C135.2 373.2 134.5 376.6 133.8 379.8C133.1 383.1 132.3 386.4 131.8 389.5C131.3 392.6 131 395.3 130.6 398.2C130.1 395.5 129.4 393.3 129 390C128.6 386.7 128.5 382.4 128.4 378.5C128.3 374.5 128.4 370.5 128.4 366.5C128.4 362.5 128.5 358.4 128.6 354.3C128.7 350.2 128.6 345.9 128.8 341.9C129 337.9 129.3 334.1 129.6 330.2Z'],
       ['gastrocnemius', 'M117 326.9C117.9 328.4 119 329.1 119.8 331.3C120.6 333.5 121.4 336.9 121.8 340.1C122.2 343.2 122.4 346.9 122.4 350.4C122.4 353.8 122 357.6 121.6 360.8C121.2 363.9 120.4 366.6 119.8 369.5C119.3 366.8 118.6 364.5 118.2 361.4C117.8 358.4 117.8 354.5 117.6 351.1C117.4 347.6 117.3 343.9 117.2 340.7C117.1 337.6 116.8 334.3 116.8 332C116.8 329.7 116.9 328.6 117 326.9Z'],
-      ['gastrocnemius', 'M139.6 325.6C140.5 327.6 141.7 329.3 142.4 331.5C143.1 333.8 143.7 336.1 144 338.9C144.3 341.7 144.3 345 144.2 348.1C144.1 351.2 143.8 354.2 143.4 357.3C143 360.4 142.3 363.7 141.8 366.5C141.3 369.3 140.7 371.6 140.2 374.1C139.9 371.2 139.5 368.6 139.4 365.3C139.3 362.1 139.4 358.2 139.4 354.5C139.4 350.9 139.3 346.9 139.2 343.5C139.1 340.1 138.7 336.8 138.8 333.8C138.9 330.9 139.3 328.3 139.6 325.6Z'],
+      ['peroneals', 'M139.6 325.6C140.5 327.6 141.7 329.3 142.4 331.5C143.1 333.8 143.7 336.1 144 338.9C144.3 341.7 144.3 345 144.2 348.1C144.1 351.2 143.8 354.2 143.4 357.3C143 360.4 142.3 363.7 141.8 366.5C141.3 369.3 140.7 371.6 140.2 374.1C139.9 371.2 139.5 368.6 139.4 365.3C139.3 362.1 139.4 358.2 139.4 354.5C139.4 350.9 139.3 346.9 139.2 343.5C139.1 340.1 138.7 336.8 138.8 333.8C138.9 330.9 139.3 328.3 139.6 325.6Z'],
       ['soleus', 'M121.4 371.8C122.3 369.3 123.3 366.7 124.2 364.4C125.1 362.2 126.1 357.6 126.6 358.4C127.1 359.3 127.1 365.8 127.2 369.5C127.3 373.1 127.1 376.7 127 380.3C126.9 383.9 126.8 387.9 126.6 390.9C126.4 393.9 126.2 395.8 126 398.2C125.7 395 125.7 391.8 125.2 388.6C124.7 385.4 123.8 381.7 123.2 378.9C122.6 376.1 122 374.2 121.4 371.8Z'],
       ['soleus', 'M139.4 378.7C139.7 380.2 140.3 381.4 140.4 383.3C140.5 385.2 140 387.9 139.8 390C139.6 392.1 139.5 393.9 139.4 395.9C139.1 393.8 138.7 391.5 138.6 389.5C138.5 387.5 138.5 385.6 138.6 383.8C138.7 381.9 139.1 380.4 139.4 378.7Z'],
     ],
     back: [
-      ['traps', 'M100.8 52C101.7 53.9 102.3 55.8 103.4 57.6C104.5 59.4 106.1 61 107.4 62.6C108.7 64.2 110 65.7 111.4 67.2C112.8 68.7 114.1 70.1 115.6 71.4C117.1 72.7 118.7 73.7 120.6 75C122.5 76.3 124.5 77.8 126.8 79.2C129.1 80.6 132 82.2 134.6 83.4C137.2 84.6 140.3 85.7 142.6 86.6C144.9 87.5 146.5 88.2 148.4 89C146.7 90.2 145.1 91.5 143.2 92.6C141.3 93.7 139.2 94.6 137.2 95.6C135.2 96.6 133 97.5 131 98.8C129 100.1 126.9 101.4 125 103.2C123.1 105 121.4 107.1 119.8 109.6C118.2 112.1 116.8 115 115.4 118C114 121 112.8 124.3 111.6 127.6C110.4 130.9 109.2 134.4 108 138C106.8 141.6 105.6 145.3 104.4 149C103.2 152.7 102 156.3 100.8 160C100.8 124 100.8 88 100.8 52Z'],
+      ['upperTraps', 'M100.8 52C101.7 53.9 102.3 55.8 103.4 57.6C104.5 59.4 106.1 61 107.4 62.6C108.7 64.2 110 65.7 111.4 67.2C112.8 68.7 114.1 70.1 115.6 71.4C117.1 72.7 118.7 73.7 120.6 75C122.5 76.3 124.5 77.8 126.8 79.2C129.1 80.6 132 82.2 134.6 83.4C137.2 84.6 140.3 85.7 142.6 86.6C144.9 87.5 146.5 88.2 148.4 89C145.9 88.8 143.7 88.9 141 88.4C138.3 87.9 135.2 87.1 132 86.2C128.8 85.3 125.3 84 122 83C118.7 82 115.5 80.9 112 80C108.5 79.1 104.5 78.5 100.8 77.8C100.8 69.2 100.8 60.6 100.8 52Z'],
+      ['midTraps', 'M100.8 80.2C104.4 80.9 108.1 81.5 111.6 82.4C115.1 83.3 118.5 84.4 121.8 85.4C125.1 86.4 128.5 87.5 131.6 88.4C134.7 89.3 138 90.2 140.4 90.6C142.8 91 144 90.7 145.8 90.8C144.9 91.4 144.4 91.8 143 92.6C141.6 93.4 139.2 94.6 137.2 95.6C135.2 96.6 132.8 97.7 131 98.8C129.2 99.9 127.9 101.1 126.4 102.2C123.6 102.7 120.9 103.2 118 103.6C115.1 104 111.9 104.3 109 104.6C106.1 104.9 103.5 105 100.8 105.2C100.8 96.9 100.8 88.5 100.8 80.2Z'],
+      ['lowerTraps', 'M100.8 107.4C103.5 107.2 106.2 107.1 109 106.8C111.8 106.5 115 106.1 117.6 105.8C120.2 105.5 122.1 105.1 124.4 104.8C122.9 106.4 121.3 107.4 119.8 109.6C118.3 111.8 116.8 115 115.4 118C114 121 112.8 124.3 111.6 127.6C110.4 130.9 109.2 134.4 108 138C106.8 141.6 105.6 145.3 104.4 149C103.2 152.7 102 156.3 100.8 160C100.8 142.5 100.8 124.9 100.8 107.4Z'],
       ['rearDelt', 'M138.8 95.8C140.4 94.7 142 93.7 143.6 92.6C145.2 91.5 146.8 90.2 148.4 89C149.4 90.8 150.7 92.3 151.4 94.4C152.1 96.5 152.4 99 152.8 101.4C153.2 103.8 153.4 106.2 153.6 108.6C153.8 111 153.9 113.6 154 116C154.1 118.4 154 120.8 154 123.2C152.7 121.8 151.5 120.5 150.2 118.9C148.9 117.3 147.7 115.5 146.4 113.6C145.1 111.7 143.7 109.6 142.6 107.6C141.5 105.6 140.6 103.4 140 101.4C139.4 99.4 139.2 97.7 138.8 95.8Z'],
       ['sideDelt', 'M148.4 89C149.8 89.5 151.4 89.5 152.6 90.4C153.8 91.3 154.6 92.9 155.4 94.4C156.2 95.9 156.8 97.7 157.2 99.4C157.6 101.1 157.7 102.8 157.8 104.6C157.9 106.4 157.9 108.2 157.8 110C157.7 111.8 157.6 113.8 157.4 115.4C157.2 117 157 118.2 156.8 119.7C156.3 120.5 155.9 121.7 155.4 122.2C154.9 122.8 154.5 122.9 154 123.2C154 120.8 154.1 118.4 154 116C153.9 113.6 153.8 111 153.6 108.6C153.4 106.2 153.2 103.8 152.8 101.4C152.4 99 152.1 96.5 151.4 94.4C150.7 92.3 149.4 90.8 148.4 89Z'],
-      ['infraspinatus', 'M118.8 111.6C120.4 109.7 121.8 107.6 123.6 106C125.4 104.4 127.6 103 129.6 101.8C131.6 100.6 133.9 99.1 135.4 98.6C136.9 98.1 137.5 98.1 138.4 99C139.3 99.9 139.8 102.4 140.6 104.2C141.4 106 142.7 108.3 143.4 110C144.1 111.7 144.5 112.9 145 114.4C143.2 115.3 141.6 116.5 139.6 117.2C137.6 117.9 135.4 118.5 133.2 118.6C131 118.7 128.6 118.5 126.6 118C124.6 117.5 122.5 116.9 121.2 115.8C119.9 114.7 119.6 113 118.8 111.6Z'],
-      ['teres', 'M122.4 120.6C124.4 121.1 126.4 121.7 128.4 122C130.4 122.3 132.8 122.4 134.6 122.2C136.4 122 138.1 121.5 139.4 121C140.7 120.5 141.4 119.8 142.4 119.2C142.6 120.7 143.1 122.4 143 123.8C142.9 125.2 142.3 126.3 142 127.6C140.5 127.9 139.3 128.3 137.6 128.4C135.9 128.5 133.8 128.6 132 128.4C130.2 128.2 128.4 127.7 127 127C125.6 126.3 124.4 125.5 123.6 124.4C122.8 123.3 122.8 121.9 122.4 120.6Z'],
+      ['infraspinatus', 'M118.8 111.6C120.4 109.7 121.8 107.6 123.6 106C125.4 104.4 127.6 103 129.6 101.8C131.6 100.6 133.9 99.1 135.4 98.6C136.9 98.1 137.5 98.1 138.4 99C139.3 99.9 139.8 102.4 140.6 104.2C141.4 106 142.6 108.2 143.2 109.6C143.8 111 143.9 111.5 144.2 112.4C142.5 112.7 141 112.7 139.2 113.2C137.4 113.7 135.3 114.9 133.2 115.6C131.1 116.3 128.6 117.2 126.6 117.2C124.6 117.2 122.5 116.5 121.2 115.6C119.9 114.7 119.6 112.9 118.8 111.6Z'],
+      ['teresMinor', 'M134.8 117.8C136.5 116.9 138.2 115.6 139.8 115C141.4 114.4 143 114.3 144.6 114C144.5 115.1 144.9 116.3 144.4 117.2C143.9 118.1 142.8 118.7 141.6 119.2C140.4 119.7 138.5 119.9 137 120.2C136.3 119.4 135.5 118.6 134.8 117.8Z'],
+      ['teres', 'M122.4 120.6C124.4 121.2 126.4 122 128.4 122.4C130.4 122.8 132.8 122.8 134.6 122.8C136.4 122.8 138.1 122.5 139.4 122.2C140.7 121.9 141.5 121.3 142.6 120.8C142.7 121.9 143.1 122.9 143 124C142.9 125.1 142.3 126.4 142 127.6C140.5 127.9 139.3 128.3 137.6 128.4C135.9 128.5 133.8 128.6 132 128.4C130.2 128.2 128.4 127.7 127 127C125.6 126.3 124.4 125.5 123.6 124.4C122.8 123.3 122.8 121.9 122.4 120.6Z'],
       ['lats', 'M106.4 143.6C107.4 139.9 108.3 135.8 109.4 132.4C110.5 129 111.6 125.9 112.8 123C114 120.1 115.3 117.8 116.6 115.2C117.6 116.5 118.6 117.4 119.6 119C120.6 120.6 121.4 123 122.6 124.6C123.8 126.2 125.4 127.9 127 128.8C128.6 129.7 130.7 130 132.4 130.2C134.1 130.4 135.9 130.2 137.4 130C138.9 129.8 139.9 129.3 141.2 129C141 130.5 141 132.1 140.6 133.6C140.2 135.1 139.7 136.9 139 138.2C138.3 139.5 136.8 140.3 136.2 141.6C135.6 142.9 135.5 144.3 135.2 146C134.9 147.7 134.7 149.7 134.4 151.6C134.1 153.5 133.7 155.5 133.2 157.4C132.7 159.3 131.8 161.3 131.6 163.2C131.4 165.1 131.7 166.9 132 168.8C132.3 170.7 132.9 172.5 133.2 174.4C133.5 176.3 133.5 178.2 133.6 180C133.7 181.8 133.6 183.6 133.6 185.4C131.9 186.9 130.4 188.6 128.6 190C126.8 191.4 124.6 192.5 122.6 193.6C120.6 194.7 118.5 195.6 116.6 196.4C114.7 197.2 113.1 197.6 111.4 198.2C110.9 195.1 110.4 192.4 110 189C109.6 185.6 109.2 181.8 108.8 178C108.4 174.2 108.1 169.8 107.8 166C107.5 162.2 107.2 158.7 107 155C106.8 151.3 106.6 147.4 106.4 143.6Z'],
       ['erectors', 'M101.2 161.6C101.9 159.1 102.7 156.6 103.4 154.2C104.1 151.8 104.7 149.7 105.4 147.4C105.7 150.3 106.1 152.7 106.4 156C106.7 159.3 107.1 163.3 107.4 167C107.7 170.7 108 174.3 108.4 178C108.8 181.7 109.2 185.5 109.6 189C110 192.5 110.6 195.7 110.8 199C111 202.3 110.7 205.4 110.6 208.6C109.3 209.9 107.9 211.4 106.6 212.4C105.3 213.4 103.7 214 102.8 214.4C101.9 214.8 101.7 214.5 101.2 214.6C101.2 196.9 101.2 179.3 101.2 161.6Z'],
       ['obliques', 'M134 187C134.2 188.8 134.3 190.6 134.6 192.4C134.9 194.2 135.4 195.9 135.8 197.6C136.2 199.3 136.7 200.9 137.2 202.6C135.3 202.9 133.5 203.5 131.6 203.6C129.7 203.7 127.6 203.5 125.6 203.2C123.6 202.9 121.7 202.4 119.8 202C121.6 200.6 123.4 199.4 125.2 197.8C127 196.2 129.1 194.4 130.6 192.6C132.1 190.8 132.9 188.9 134 187Z'],
@@ -3029,8 +3145,8 @@ Penktadienis C
       ['gluteMax', 'M101.2 216.2C103.1 215.9 104.9 215.5 107 215.4C109.1 215.3 111.3 215.4 113.6 215.6C115.9 215.8 118.3 215.9 120.6 216.4C122.9 216.9 125.4 217.6 127.6 218.4C129.8 219.2 132.1 220 134 221.4C135.9 222.8 137.7 224.6 139 226.6C140.3 228.6 141.2 231.1 141.8 233.6C142.4 236.1 142.6 239 142.6 241.7C142.6 244.4 142.3 247.3 141.6 249.8C140.9 252.3 140.1 254.8 138.6 256.6C137.1 258.4 134.9 259.7 132.6 260.6C130.3 261.5 127.3 261.9 124.6 262C121.9 262 119.1 261.7 116.6 261.1C114.1 260.6 111.6 259.7 109.6 258.7C107.6 257.8 106.4 256.6 104.8 255.5C104.4 252.7 104 250.1 103.6 247.1C103.2 244.1 103 240.7 102.6 237.4C102.2 234.1 101.7 230.2 101.4 227.4C101.1 224.6 101 222.3 101 220.4C101 218.5 101.1 217.6 101.2 216.2Z'],
       ['hamstrings', 'M123.4 266C125.3 265.9 127.3 266.1 129.2 265.7C131.1 265.4 132.9 265 134.6 264.1C136.3 263.3 137.8 261.8 139.4 260.6C139.9 263.5 140.7 266.1 140.8 269.2C140.9 272.4 140.4 276.1 140 279.5C139.6 282.9 139 286.2 138.4 289.5C137.8 292.8 137.1 296.2 136.4 299.2C135.7 302.3 134.8 305 134 307.9C133.1 306 132.1 304.6 131.2 302.2C130.3 299.8 129.4 296.6 128.6 293.6C127.8 290.5 127.1 287.2 126.4 284.1C125.7 281 125.1 277.7 124.6 274.6C124.1 271.6 123.8 268.9 123.4 266Z'],
       ['hamstrings', 'M106.6 264.4C108.2 264.8 109.8 265.4 111.4 265.7C113 266.1 114.7 266.2 116.4 266.3C118.1 266.3 119.9 266.1 121.6 266C122 269.1 122.3 272 122.8 275.2C123.3 278.3 123.9 281.6 124.6 284.9C125.3 288.2 126.2 291.7 127 294.9C127.8 298.1 128.9 301.6 129.6 304.4C130.3 307.1 130.5 309.2 131 311.6C129.3 312.1 127.7 313.1 126 313.1C124.3 313.1 122.6 312.5 121 311.6C119.4 310.8 118.1 309.1 116.6 307.9C115.7 304.9 114.7 302.1 113.8 298.9C112.9 295.8 112 292.4 111.2 289C110.4 285.5 109.6 282.3 108.8 278.2C108 274.1 107.3 269 106.6 264.4Z'],
-      ['triceps', 'M143.6 119.9C144.7 120.8 145.7 121.5 146.8 122.5C147.9 123.5 149.4 124.5 150.4 126C151.4 127.5 152.2 129.5 152.8 131.5C153.4 133.4 153.8 135.7 154.2 137.8C154.6 140 155 142.3 155.4 144.4C155.8 146.6 156.3 148.6 156.8 150.6C157.3 152.5 157.9 154.2 158.4 156C157.1 156.9 155.9 158.4 154.6 158.8C153.3 159.3 151.8 158.8 150.4 158.8C149.7 157.3 148.9 155.9 148.2 154.3C147.5 152.8 146.8 151 146.2 149.4C145.6 147.7 145 146.3 144.6 144.4C144.2 142.5 144 140.3 143.8 138.1C143.6 135.8 143.5 133.2 143.4 131C143.3 128.7 143.4 126.5 143.4 124.6C143.4 122.8 143.5 121.5 143.6 119.9Z'],
-      ['triceps', 'M154.6 125.1C155.5 124.5 156.4 123.5 157.2 123.4C158 123.4 158.8 123.8 159.4 124.8C160 125.9 160.4 127.9 160.8 129.8C161.2 131.7 161.6 134 162 136.2C162.4 138.3 162.7 140.6 163 142.8C163.3 145 163.7 147.4 164 149.4C164.3 151.4 164.7 153 165 154.8C164.1 155.7 163.3 157 162.4 157.4C161.5 157.8 160.5 157.4 159.6 157.4C159.3 155.4 159 153.6 158.6 151.5C158.2 149.5 157.8 147.3 157.4 145.1C157 143 156.7 140.8 156.4 138.5C156.1 136.3 155.9 133.9 155.6 131.7C155.3 129.4 154.9 127.3 154.6 125.1Z'],
+      ['tricepsLong', 'M143.6 119.9C144.7 120.8 145.7 121.5 146.8 122.5C147.9 123.5 149.4 124.5 150.4 126C151.4 127.5 152.2 129.5 152.8 131.5C153.4 133.4 153.8 135.7 154.2 137.8C154.6 140 155 142.3 155.4 144.4C155.8 146.6 156.3 148.6 156.8 150.6C157.3 152.5 157.9 154.2 158.4 156C157.1 156.9 155.9 158.4 154.6 158.8C153.3 159.3 151.8 158.8 150.4 158.8C149.7 157.3 148.9 155.9 148.2 154.3C147.5 152.8 146.8 151 146.2 149.4C145.6 147.7 145 146.3 144.6 144.4C144.2 142.5 144 140.3 143.8 138.1C143.6 135.8 143.5 133.2 143.4 131C143.3 128.7 143.4 126.5 143.4 124.6C143.4 122.8 143.5 121.5 143.6 119.9Z'],
+      ['tricepsLateral', 'M154.6 125.1C155.5 124.5 156.4 123.5 157.2 123.4C158 123.4 158.8 123.8 159.4 124.8C160 125.9 160.4 127.9 160.8 129.8C161.2 131.7 161.6 134 162 136.2C162.4 138.3 162.7 140.6 163 142.8C163.3 145 163.7 147.4 164 149.4C164.3 151.4 164.7 153 165 154.8C164.1 155.7 163.3 157 162.4 157.4C161.5 157.8 160.5 157.4 159.6 157.4C159.3 155.4 159 153.6 158.6 151.5C158.2 149.5 157.8 147.3 157.4 145.1C157 143 156.7 140.8 156.4 138.5C156.1 136.3 155.9 133.9 155.6 131.7C155.3 129.4 154.9 127.3 154.6 125.1Z'],
       ['brachioradialis', 'M163.4 159.8C164.3 158.9 165.1 158 166 157.2C166.6 158.9 167.2 160.3 167.8 162.4C168.4 164.4 169.1 167.1 169.8 169.4C170.5 171.8 171.2 174.2 171.8 176.5C172.4 178.9 173 181.2 173.6 183.6C174.2 186 175 188.4 175.6 190.7C176.2 193 176.9 195.6 177.4 197.5C177.9 199.5 178.2 200.7 178.6 202.3C177.9 202.6 177.1 203 176.4 203.4C175.8 201.5 175.3 199.9 174.6 197.8C173.9 195.7 173 193.3 172.2 190.9C171.4 188.6 170.4 186.1 169.6 183.6C168.8 181.1 168 178.6 167.2 176.1C166.4 173.5 165.6 171 165 168.3C164.4 165.6 163.9 162.6 163.4 159.8Z'],
       ['extensors', 'M148.6 164.7C150.3 163.9 151.9 162.9 153.6 162.4C155.3 161.8 157 161.9 158.6 161.4C160.2 161 161.8 160.3 163.4 159.8C163.9 162.6 164.4 165.6 165 168.3C165.6 171 166.4 173.5 167.2 176.1C168 178.6 168.8 181.1 169.6 183.6C170.4 186.1 171.4 188.6 172.2 190.9C173 193.3 173.9 195.7 174.6 197.8C175.3 199.9 175.8 201.5 176.4 203.4C175.1 204.2 173.9 205.2 172.6 205.8C171.3 206.4 170.1 206.7 168.8 207.2C167.6 205.9 166.4 204.7 165.2 203.2C164 201.7 162.9 200.2 161.8 198.5C160.7 196.7 159.5 194.7 158.4 192.8C157.3 190.9 156.4 188.9 155.4 186.9C154.4 184.9 153.4 182.8 152.6 180.8C151.8 178.7 151.2 176.5 150.6 174.6C150 172.8 149.5 171.1 149.2 169.4C148.9 167.8 148.8 166.3 148.6 164.7Z'],
       ['~', 'M154.2 166.1C155.2 168.3 157.9 174.9 160 179.4C162.1 183.8 164.5 188.8 166.6 192.8C168.7 196.8 171.4 201.5 172.4 203.2'],
@@ -3072,7 +3188,7 @@ Penktadienis C
 
   // A small crop of the figure with one muscle lit.
   const CROPS = {
-    chest: '60 78 80 72', shoulders: '38 74 124 70', arm: '126 84 48 88', forearm: '140 150 64 106',
+    neck: '78 36 44 52', chest: '60 78 80 72', shoulders: '38 74 124 70', arm: '126 84 48 88', forearm: '140 150 64 106',
     upper: '50 54 100 84', traps: '46 48 108 118', trunk: '62 118 76 104', hips: '56 200 88 66', thighs: '56 210 88 108', shins: '58 306 84 100',
   };
   function mini(m, color) {
@@ -3241,7 +3357,7 @@ Penktadienis C
       const st = nextStep(l.name, today);
       return el('a', { class: 'lift', href: `#/ex/${encodeURIComponent(l.name)}` },
         el('span', { class: 'lift-n' }, l.name, !l.main && el('span', { class: 'lift-h' }, ` · ${t.helps}`)),
-        st && el('span', { class: `lift-s${st.ready ? ' ready' : ''}` }, stepText(st)));
+        st && el('span', { class: `lift-s${st.ready ? ' ready' : st.stall ? ' stall' : ''}` }, stepText(st)));
     });
     const untried = trainWith(m).filter(n => !b.liftList.some(l => same(l.name) === same(n)));
 
@@ -3324,7 +3440,7 @@ Penktadienis C
       const st = nextStep(e.name, key);
       if (st) steps.push(el('a', { class: 'lift', href: `#/ex/${encodeURIComponent(e.name)}` },
         el('span', { class: 'lift-n' }, e.name),
-        el('span', { class: `lift-s${st.ready ? ' ready' : ''}` }, stepText(st))));
+        el('span', { class: `lift-s${st.ready ? ' ready' : st.stall ? ' stall' : ''}` }, stepText(st))));
     }
 
     mount(el('div', { class: 'view pg' },
