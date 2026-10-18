@@ -3133,7 +3133,7 @@ Penktadienis C
     const next = muscleNext(b, today);
     return el('a', { class: 'mcard', href: `#/muscle/${m}`, 'data-m': m, onclick: () => { statsY = window.scrollY; } },
       el('p', { class: 'mcard-l' },
-        el('span', null, el('b', null, `#${rank}`), t.muscles[m][0], el('span', { class: 'mcard-c' }, ` · ${t.muscles[m][1]}`)),
+        el('span', null, rank && el('b', null, `#${rank}`), t.muscles[m][0], el('span', { class: 'mcard-c' }, ` · ${t.muscles[m][1]}`)),
         levelTag(b.level)),
       el('div', { class: 'mcard-row' },
         mini(m, z ? ZONE_COLOR[z] : 'rgba(255, 255, 255, .5)'),
@@ -3163,7 +3163,9 @@ Penktadienis C
     const paint = {};
     for (const m of MUSCLES) if (weekly(m)) paint[m] = ZONE_COLOR[zoneOf(weekly(m))];
 
-    const list = el('div', null, ...ranked.map((m, i) => muscleCard(m, i + 1, weekly(m), book[m], today)));
+    // A rank only means something once the muscle has been trained (by the sort's measure).
+    const counts = m => (statsSort === 'week' ? weekly(m) > 0 : book[m].xp > 0);
+    const list = el('div', null, ...ranked.map((m, i) => muscleCard(m, counts(m) && i + 1, weekly(m), book[m], today)));
     const fig = el('div', { class: 'figure' });
     const sideButtons = ['front', 'back'].map((s, i) => el('button', {
       type: 'button', onclick: () => { statsSide = s; draw(); },
@@ -3246,7 +3248,7 @@ Penktadienis C
     mount(el('div', { class: 'view hist mus' },
       el('a', { href: back, class: 'back', 'aria-label': t.back }, '←'),
       el('h1', { class: 'title' }, t.muscles[m][0]),
-      el('p', { class: 'sub' }, `${t.muscles[m][1]} · ${t.rankOf(rank, MUSCLES.length)}`),
+      el('p', { class: 'sub' }, b.xp ? `${t.muscles[m][1]} · ${t.rankOf(rank, MUSCLES.length)}` : t.muscles[m][1]),
       el('div', { class: 'mus-fig' }, bodySvg(MUSCLE_VIEW[m][0], { [m]: z ? ZONE_COLOR[z] : 'rgba(255, 255, 255, .55)' })),
       el('div', { class: `lv-box tier-${tierOf(lv)}` },
         el('p', { class: 'lv-n' }, `${t.lv} ${lv}`, el('span', { class: 'lv-t' }, t.tiers[tierOf(lv)])),
