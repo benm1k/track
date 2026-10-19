@@ -3,7 +3,7 @@
 // in the background. When the page that comes in is newer than the one served, the app is told,
 // and it switches over at a quiet moment (see "updates" in index.html).
 
-const CACHE = 'track-v15';
+const CACHE = 'track-v16';
 const INDEX = './'; // some hosts redirect /index.html to /, and redirected responses can't serve a page
 const SHELL = [
   INDEX,
@@ -20,6 +20,24 @@ const SHELL_URLS = new Set(SHELL.map(u => new URL(u, self.location).href));
 
 const tellPages = () => self.clients.matchAll({ type: 'window' })
   .then(pages => pages.forEach(p => p.postMessage({ type: 'updated' })));
+
+// Keeps a freshly fetched page for next time, and tells the open app when it differs from the
+// one it runs. A failed write (e.g. a full phone) never affects what the page receives.
+function keepPage(res) {
+  if (!res || !res.ok || res.redirected || !(res.headers.get('content-type') || '').includes('text/html')) return;
+  const copy = res.clone();
+  const fresh = res.clone().text();
+  return caches.open(CACHE).then(async cache => {
+    const before = await cache.match(INDEX);
+    const was = before ? await before.text() : null;
+    await cache.put(INDEX, copy);
+    if (was !== null && was !== await fresh) await tellPages();
+  });
+}
+
+// The page is always re-checked with the server ('no-cache'); otherwise the browser's own
+// HTTP cache can keep handing back an old copy and an update never arrives.
+const fetchPage = () => fetch(self.registration.scope, { cache: 'no-cache' });
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -55,23 +73,14 @@ self.addEventListener('fetch', event => {
   if (!shell && !SHELL_URLS.has(url.origin + url.pathname)) return;
   const key = shell ? INDEX : req;
 
-  // The page is always re-checked with the server ('no-cache'); otherwise the browser's own
-  // HTTP cache can keep handing back an old copy and an update never arrives.
-  const network = (shell ? fetch(self.registration.scope, { cache: 'no-cache' }) : fetch(req)).catch(() => null);
+  const network = (shell ? fetchPage() : fetch(req)).catch(() => null);
 
-  // Refresh the cache in the background. A failed write (e.g. a full phone) never
-  // affects what the page receives.
+  // Refresh the cache in the background.
   event.waitUntil(network.then(res => {
+    if (shell) return keepPage(res);
     if (!res || !res.ok) return;
-    if (shell && (res.redirected || !(res.headers.get('content-type') || '').includes('text/html'))) return;
     const copy = res.clone();
-    const fresh = shell ? res.clone().text() : null;
-    return caches.open(CACHE).then(async cache => {
-      const before = shell ? await cache.match(INDEX) : null;
-      const was = before ? await before.text() : null;
-      await cache.put(key, copy);
-      if (was !== null && was !== await fresh) await tellPages();
-    });
+    return caches.open(CACHE).then(cache => cache.put(key, copy));
   }).catch(() => {}));
 
   event.respondWith(
@@ -79,4 +88,34 @@ self.addEventListener('fetch', event => {
       .then(cached => cached || network)
       .then(res => res || Response.error()),
   );
+});
+
+// A short fingerprint of the app's code: the inline script, as both the page and this file
+// see it. Kept in step with fingerprint() in index.html.
+const fingerprint = text => {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return `${(h >>> 0).toString(36)}:${text.length}`;
+};
+const codeOf = html => {
+  const a = html.indexOf('<script>');
+  const b = html.lastIndexOf('</script>');
+  return a < 0 || b < a ? '' : fingerprint(html.slice(a + 8, b).replace(/\r\n?/g, '\n'));
+};
+
+// The app asks when it comes back from the background, with the fingerprint of the code it
+// runs. A phone can keep it open for days, and without a visit to the page nothing would
+// notice an update (or a fresh start) in that time. The page is fetched fresh, and if what we
+// now hold isn't what the app runs, it's told to switch, even when the copy came in earlier.
+self.addEventListener('message', event => {
+  if (!event.data || event.data.type !== 'check') return;
+  const app = event.source;
+  event.waitUntil(fetchPage().then(keepPage).catch(() => {})
+    .then(() => caches.open(CACHE))
+    .then(cache => cache.match(INDEX))
+    .then(res => res && res.text())
+    .then(html => {
+      if (html && app && event.data.code && codeOf(html) && codeOf(html) !== event.data.code) app.postMessage({ type: 'updated' });
+    })
+    .catch(() => {}));
 });

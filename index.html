@@ -3609,13 +3609,23 @@ Penktadienis C
   /* ---------- updates ---------- */
 
   // The app opens from its offline copy, and sw.js says when a newer one has come in. It's put
-  // in place at a quiet moment: straight away if it lands while the app is still opening, else
-  // the next time the app goes to the background or comes back, but never mid-workout or while
-  // you're typing.
+  // in place at a quiet moment: straight away if it lands while the app is still opening (or
+  // coming back from the background), else the next time the app goes to the background or
+  // comes back, but never mid-workout or while you're typing.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    const openedAt = Date.now();
+    let openedAt = Date.now();
     let touched = false;
     let updateReady = false;
+    // This script's own text, to tell sw.js which version is running (see fingerprint in sw.js).
+    const source = document.currentScript ? document.currentScript.textContent : '';
+    const fingerprint = text => {
+      let h = 2166136261;
+      for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return `${(h >>> 0).toString(36)}:${text.length}`;
+    };
+    const justUpdated = () => {
+      try { return Date.now() - Number(sessionStorage.getItem('track.updated') || 0) < 30000; } catch (_) { return true; }
+    };
     document.addEventListener('pointerdown', () => { touched = true; }, { capture: true, passive: true });
     const busy = () => running(todayKey()) || rest.active() ||
       current.view === 'profile' || current.view === 'onboarding' ||
@@ -3632,10 +3642,24 @@ Penktadienis C
     };
     navigator.serviceWorker.addEventListener('message', e => {
       if (!e.data || e.data.type !== 'updated') return;
+      if (justUpdated()) return;   // already switched to the newest; a second notice (the new sw.js taking over) changes nothing
       updateReady = true;
-      if (!touched && Date.now() - openedAt < 4000) update();
+      if (!touched && Date.now() - openedAt < 6000) update();
     });
     document.addEventListener('visibilitychange', update);
+    // A phone can keep the app open in the background for days, and only opening the page asks
+    // for a newer one. So coming back counts as opening: it asks sw.js to check (at most once a
+    // minute), sending which version is running, and gives a new one the same few seconds to
+    // slip in before you touch anything.
+    let checkedAt = openedAt;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || Date.now() - checkedAt < 60000) return;
+      checkedAt = openedAt = Date.now();
+      touched = false;
+      navigator.serviceWorker.ready
+        .then(r => { if (r.active) r.active.postMessage({ type: 'check', code: fingerprint(source) }); return r.update(); })
+        .catch(() => {});
+    });
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
 })();
