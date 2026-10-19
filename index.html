@@ -592,7 +592,7 @@
   // A fresh start for every phone: the first time this version opens, everything Track. saved
   // (workouts, plan, name, rest timer) is cleared, once. A new RESET value wipes everyone again
   // (a second wipe on the same day gets a suffix).
-  const RESET = '2026-10-18-3';
+  const RESET = '2026-10-19';
   try {
     if (localStorage.getItem('track.reset') !== RESET) {
       for (const k of Object.keys(localStorage)) if (k.startsWith('track.')) localStorage.removeItem(k);
