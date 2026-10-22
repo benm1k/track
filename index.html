@@ -208,6 +208,11 @@
   .set.editing, .set.editing .u { color: var(--faint); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
+  /* Exercises of today's workout that were removed: faint, tap one to bring it back. */
+  .add-back { display: grid; gap: 4px; width: 100%; padding: 14px 0; color: var(--faint); transition: opacity .2s; }
+  .add-back:active { opacity: .5; }
+  .add-back .ex-sub { color: inherit; }
+
   .add-ex input { padding: 16px 0; font-family: var(--display); font-size: 18px; font-weight: 700; }
 
 
@@ -654,7 +659,10 @@
       saveSet: i => `Save set ${i}`,
       removeExercise: name => `Remove ${name}`,
       removeAsk: (name, n) => `Remove ${name} and its ${n} set${n === 1 ? '' : 's'}?`,
+      removeExAsk: name => `Remove ${name}?`,
       removeSet: i => `Remove set ${i}`,
+      removeSetAsk: (i, set) => `Remove set ${i} (${set})?`,
+      addBack: name => `Add ${name} back`,
       lastTime: 'last time ',
       pr: 'Personal record',
       history: 'History',
@@ -813,7 +821,10 @@
       saveSet: i => `Išsaugoti ${i} seriją`,
       removeExercise: name => `Šalinti: ${name}`,
       removeAsk: (name, n) => `Šalinti „${name}“ ir ${n} ${ltPlural(n, 'seriją', 'serijas', 'serijų')}?`,
+      removeExAsk: name => `Šalinti „${name}“?`,
       removeSet: i => `Šalinti ${i} seriją`,
+      removeSetAsk: (i, set) => `Šalinti ${i} seriją (${set})?`,
+      addBack: name => `Grąžinti „${name}“`,
       lastTime: 'praeitą kartą ',
       pr: 'Asmeninis rekordas',
       history: 'Istorija',
@@ -1114,7 +1125,7 @@ Penktadienis C
 
   // Rest between sets, in seconds (tap the countdown to change it). Between exercises is twice that, at most 5 min.
   const REST_STEPS = [60, 90, 120, 180];
-  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, lastBackup: null, lang: null, name: '', rest: 90, onboarded: false, days: {}, timers: {}, titles: {} });
+  const empty = () => ({ version: 1, plan: defaultPlan(), filledFrom: null, workout: null, lastBackup: null, lang: null, name: '', rest: 90, onboarded: false, days: {}, timers: {}, titles: {} });
   let storageOk = true;
 
   // A target is sets x reps, each optionally a range ("3-4 x 6-8" -> setsTo 4, repsTo 8).
@@ -1136,6 +1147,7 @@ Penktadienis C
   // Logged sets decide; the name only decides for an empty exercise.
   const cardioEx = ex => (ex.sets.length ? ex.sets[0].min !== undefined : isCardio(ex.name));
   const fmtCardio = s => `${fmtKg(s.min)} min${s.km ? ` · ${fmtKg(s.km)} km` : ''}`;
+  const fmtAim = a => fmtCardio({ min: a.min || 0, km: a.km || 0 }).replace(/^0 min · /, '');
   const validAim = a => a && typeof a === 'object' && (inRange(a.min, 0.5, 1000) || inRange(a.km, 0.1, 1000));
   const copyAim = a => Object.assign({}, inRange(a.min, 0.5, 1000) && { min: round2(a.min) }, inRange(a.km, 0.1, 1000) && { km: round2(a.km) });
 
@@ -1182,6 +1194,11 @@ Penktadienis C
       filledFrom: input.filledFrom && typeof input.filledFrom === 'object' &&
         isDayKey(input.filledFrom.key) && typeof input.filledFrom.plan === 'string'
         ? { key: input.filledFrom.key, plan: input.filledFrom.plan.slice(0, PLAN_MAX) }
+        : null,
+      // The workout that last filled a day, by the plan or moved there: { key, name }.
+      workout: input.workout && typeof input.workout === 'object' &&
+        isDayKey(input.workout.key) && typeof input.workout.name === 'string'
+        ? { key: input.workout.key, name: clean(input.workout.name).slice(0, 60) }
         : null,
       // The day of the last export or import (for the backup reminder in History).
       lastBackup: typeof input.lastBackup === 'string' && isDayKey(input.lastBackup) ? input.lastBackup : null,
@@ -1674,10 +1691,10 @@ Penktadienis C
       if (!r) continue;
       if (!Object.keys(db.days).some(d => d <= k)) return null;
       const name = titleIn(r.name);
-      const is = d => titleIn(dayTitle(d)) === name;
-      if (is(key)) return null;   // already today's workout
+      const own = todaysRoutine(key);
+      if (own && titleIn(own.name) === name) return null;   // already today's workout
       for (let d = k; d < key; d = shiftDays(d, 1)) {
-        if ((db.days[d] || []).some(e => e.sets.length) && is(d)) return null;
+        if ((db.days[d] || []).some(e => e.sets.length) && titleIn(dayTitle(d)) === name) return null;
       }
       const planned = plannedNames(key);
       return { key: k, routine: r, instead: (db.days[key] || []).some(e => planned.has(same(e.name))) };
@@ -1786,17 +1803,24 @@ Penktadienis C
     return card;
   }
 
+  // The exercise a plan line makes on a day: that day's turn of its alternates, with its target.
+  function planExercise(it, turn) {
+    const name = canonical(it.names[turn % it.names.length]);
+    const ex = it.target ? { name, sets: [], target: copyTarget(it.target) } : { name, sets: [] };
+    if (it.aim) ex.aim = copyAim(it.aim);
+    return ex;
+  }
+
   function loadRoutine(key, routine) {
     const turn = rotation(key, routine);
     const day = db.days[key] || (db.days[key] = []);
     for (const it of routine.items) {
-      const name = canonical(it.names[turn % it.names.length]);
-      if (day.some(e => same(e.name) === same(name))) continue;
-      const ex = it.target ? { name, sets: [], target: copyTarget(it.target) } : { name, sets: [] };
-      if (it.aim) ex.aim = copyAim(it.aim);
+      const ex = planExercise(it, turn);
+      if (day.some(e => same(e.name) === same(ex.name))) continue;
       day.push(ex);
     }
     db.filledFrom = { key, plan: db.plan };
+    db.workout = { key, name: routine.name };
     save();
   }
 
@@ -1828,6 +1852,23 @@ Penktadienis C
     else delete db.days[key];
     db.filledFrom = null;
     save();
+  }
+
+  // Today's workout in the plan: the one that filled today (a workout moved here too); for a day
+  // filled before that was kept, the one it's named after; else this weekday's.
+  function todaysRoutine(key) {
+    const routines = parsePlan(db.plan);
+    const named = name => routines.find(r => titleIn(r.name) === titleIn(name));
+    return (db.workout && db.workout.key === key && named(db.workout.name)) ||
+      named(dayTitle(key)) || routines.find(r => r.day === dateOf(key).getDay()) || null;
+  }
+
+  // The lines of today's workout with nothing of theirs on today's list: removed by hand.
+  function removedToday(key) {
+    const routine = todaysRoutine(key);
+    if (!routine) return [];
+    const have = new Set((db.days[key] || []).map(e => same(e.name)));
+    return routine.items.filter(it => !it.names.some(n => have.has(same(n)))).map(it => ({ routine, it }));
   }
 
   // Finished days keep the name they had, whatever the plan becomes. Days from before titles
@@ -1990,11 +2031,50 @@ Penktadienis C
       const first = exs.find(e => e.sets.length < (e.target ? e.target.sets : 1));
       if (first) blocks.get(first).toggle(true, true);
     }
+    refreshRemoved = () => {};
     mount(el('div', { class: 'view' },
       header(isToday && (() => renderDay(key, isToday))),
       dayCard(key, isToday),
       list,
+      isToday && removedList(key, list),
       addExerciseForm(key, list)));
+  }
+
+  // Under today's list, faint: the exercises of today's workout that were removed. Tap one and
+  // it's back where the plan has it, with its sets × reps.
+  let refreshRemoved = () => {};
+  function removedList(key, list) {
+    const box = el('div', { class: 'removed' });
+    const addBack = (routine, ex) => {
+      const day = db.days[key] || (db.days[key] = []);
+      // Before the first exercise the plan has after it, else at the end.
+      const at = new Map();
+      routine.items.forEach((it, i) => it.names.forEach(n => at.set(same(n), i)));
+      const pos = at.get(same(ex.name));
+      const j = day.findIndex(e => at.has(same(e.name)) && at.get(same(e.name)) > pos);
+      const next = j > -1 ? blocks.get(day[j]) : null;
+      if (j > -1) day.splice(j, 0, ex);
+      else day.push(ex);
+      save();
+      const block = exerciseBlock(key, ex);
+      block.classList.add('fresh');
+      list.insertBefore(block, next ? next.block : null);
+      paint();
+      refreshCard(key);
+      blocks.get(ex).toggle(true);
+    };
+    const paint = () => {
+      box.textContent = '';
+      for (const { routine, it } of removedToday(key)) {
+        const ex = planExercise(it, rotation(key, routine));
+        box.append(el('button', { type: 'button', class: 'add-back', 'aria-label': T().addBack(ex.name), onclick: () => addBack(routine, ex) },
+          el('span', { class: 'ex-name' }, `+ ${ex.name}`),
+          (ex.target || ex.aim) && el('span', { class: 'ex-sub' }, ex.target ? fmtTarget(ex.target) : fmtAim(ex.aim))));
+      }
+    };
+    paint();
+    refreshRemoved = paint;
+    return box;
   }
 
   function exerciseBlock(key, ex) {
@@ -2044,7 +2124,7 @@ Penktadienis C
       el('span', { class: 'ex-info' },
         el('span', { class: 'ex-name' }, label),
         ex.target && el('span', { class: 'ex-sub' }, fmtTarget(ex.target)),
-        ex.aim && el('span', { class: 'ex-sub' }, fmtCardio({ min: ex.aim.min || 0, km: ex.aim.km || 0 }).replace(/^0 min · /, '')),
+        ex.aim && el('span', { class: 'ex-sub' }, fmtAim(ex.aim)),
         meta));
     const hist = el('a', { href: `#/ex/${encodeURIComponent(label)}` }, T().history);
     const removeEx = el('button', {
@@ -2145,7 +2225,8 @@ Penktadienis C
         type: 'button', class: 'act remove', 'aria-label': T().removeSet(i + 1),
         onclick: () => {
           const j = ex.sets.indexOf(s);
-          if (j > -1) ex.sets.splice(j, 1);
+          if (j < 0 || !confirm(T().removeSetAsk(j + 1, setText(s)))) return;
+          ex.sets.splice(j, 1);
           if (editing === s) { editing = null; kg.value = ''; reps.value = ''; }
           save();
           paint(false);
@@ -2247,8 +2328,8 @@ Penktadienis C
     }
 
     function removeExercise() {
-      // Logged sets go with it, so ask first; an untouched exercise just goes.
-      if (ex.sets.length && !confirm(T().removeAsk(label, ex.sets.length))) return;
+      // Always ask: a slip of the thumb shouldn't cost an exercise (or the sets logged in it).
+      if (!confirm(ex.sets.length ? T().removeAsk(label, ex.sets.length) : T().removeExAsk(label))) return;
       const day = db.days[key];
       if (day) {
         const i = day.indexOf(ex);
@@ -2259,6 +2340,7 @@ Penktadienis C
       block.remove();
       refreshNames();
       refreshCard(key);
+      refreshRemoved();
     }
   }
 
@@ -2306,6 +2388,7 @@ Penktadienis C
         list.append(block);
         refreshNames();
         refreshCard(key);
+        refreshRemoved();
         blocks.get(ex).focus();
       },
     }, input);
