@@ -148,7 +148,8 @@
   .go.stop { color: var(--dim); }
   .stat-v.live { font-variant-numeric: tabular-nums; }
   .next { margin-top: auto; padding-top: 22px; font-family: var(--mono); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .9); }
-  .next + .next { margin-top: 0; padding-top: 8px; }
+  .next:not([hidden]) + .next { margin-top: 0; padding-top: 8px; }
+  .next.missed { color: var(--dim); }
 
   /* the workout: one card per exercise (tap to log) */
   .list { margin-top: 24px; }
@@ -786,6 +787,9 @@
       skipRest: 'Skip',
       goNow: 'Go',
       next: (name, day) => `Next: ${name}, ${day}`,
+      missed: (name, day) => `Missed: ${name}, ${day}`,
+      doToday: 'Do it today',
+      doInstead: 'Do it instead',
       removeExerciseText: 'Remove exercise',
       yourName: 'Your name',
       levels: ['Gym beginner', 'Regular', 'Dedicated', 'Veteran'],
@@ -943,6 +947,9 @@
       skipRest: 'Praleisti',
       goNow: 'Pirmyn',
       next: (name, day) => `Kita: ${name}, ${day}`,
+      missed: (name, day) => `Praleista: ${name}, ${day}`,
+      doToday: 'Daryti šiandien',
+      doInstead: 'Daryti vietoj',
       removeExerciseText: 'Šalinti pratimą',
       yourName: 'Tavo vardas',
       levels: ['Pradedantysis', 'Reguliarus', 'Atsidavęs', 'Veteranas'],
@@ -1647,6 +1654,50 @@ Penktadienis C
     return null;
   }
 
+  // The exercises of the workout planned for this weekday, by same().
+  function plannedNames(key) {
+    const own = parsePlan(db.plan).find(r => r.day === dateOf(key).getDay());
+    return new Set(own ? own.items.flatMap(it => it.names.map(same)) : []);
+  }
+
+  // Skipped a workout? The last planned one before today can be done today, until today has a
+  // set logged. It counts as done once any day since it has that workout's sets (moved or not);
+  // a day with nothing logged, or spent on another workout, doesn't. Only the most recent planned
+  // day is offered, so the offer ends when the next one comes round. A day from before the app
+  // was in use (a new phone, a fresh start) wasn't missed.
+  function missedWorkout(key) {
+    if ((db.days[key] || []).some(e => e.sets.length)) return null;
+    const routines = parsePlan(db.plan);
+    for (let i = 1; i <= 6; i++) {
+      const k = shiftDays(key, -i);
+      const r = routines.find(x => x.day === dateOf(k).getDay());
+      if (!r) continue;
+      if (!Object.keys(db.days).some(d => d <= k)) return null;
+      const name = titleIn(r.name);
+      const is = d => titleIn(dayTitle(d)) === name;
+      if (is(key)) return null;   // already today's workout
+      for (let d = k; d < key; d = shiftDays(d, 1)) {
+        if ((db.days[d] || []).some(e => e.sets.length) && is(d)) return null;
+      }
+      const planned = plannedNames(key);
+      return { key: k, routine: r, instead: (db.days[key] || []).some(e => planned.has(same(e.name))) };
+    }
+    return null;
+  }
+
+  // Do the missed workout today: it takes the place of today's own planned exercises (none of
+  // them done yet); anything you added yourself stays.
+  function doMissed(key) {
+    const miss = missedWorkout(key);
+    if (!miss) return;
+    const planned = plannedNames(key);
+    db.days[key] = (db.days[key] || []).filter(e => e.sets.length || !planned.has(same(e.name)));
+    loadRoutine(key, miss.routine);
+    db.filledFrom = null;   // picked by hand: a later change to the plan leaves today as it is
+    save();
+    renderDay(key, true);
+  }
+
   let refreshCard = () => {};
   let clock = null;
 
@@ -1670,13 +1721,15 @@ Penktadienis C
     });
     // A finished workout (today once it's over, any earlier day) opens its summary again.
     const summary = el('a', { class: 'go', href: `#/done/${key}` }, `${T().summary} ▸`);
+    const missed = el('p', { class: 'next missed' });
+    const move = el('button', { type: 'button', class: 'go', onclick: () => doMissed(key) });
     const week = el('p', { class: 'next' });
     const next = el('p', { class: 'next' });
     const card = el('section', { class: 'card' },
       el('p', { class: 'label' }, el('b', null, '#'), isToday ? T().tabs.today : T().tabs.history),
       title,
       el('p', { class: 'sub' }, fullDate(key)),
-      statsRow, go, summary, week, next);
+      statsRow, go, summary, missed, move, week, next);
 
     // The clock ticks once a second while the workout runs, and stops with the view.
     const tickClock = () => {
@@ -1713,6 +1766,13 @@ Penktadienis C
       summary.hidden = !st.sets || (isToday && !(t && t.end));
       clearInterval(clock);
       clock = running(key) ? setInterval(tickClock, 1000) : null;
+      // A skipped workout can still be done today.
+      const miss = isToday ? missedWorkout(key) : null;
+      missed.hidden = move.hidden = !miss;
+      if (miss) {
+        missed.textContent = T().missed(titleIn(miss.routine.name), fmt(miss.key, { weekday: 'long' }));
+        move.textContent = `${miss.instead ? T().doInstead : T().doToday} ▸`;
+      }
       // A rest day: how the week went, and what's next.
       const sofar = !active && isToday ? weekSummary(key) : null;
       week.hidden = !sofar;
